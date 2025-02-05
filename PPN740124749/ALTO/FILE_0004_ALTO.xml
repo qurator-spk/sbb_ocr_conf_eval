@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<alto xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.loc.gov/standards/alto/ns-v4#" xsi:schemaLocation="http://www.loc.gov/standards/alto/ns-v4# http://www.loc.gov/standards/alto/v4/alto-4-2.xsd" SCHEMAVERSION="4.2">
+  <Description>
+    <MeasurementUnit>pixel</MeasurementUnit>
+    <sourceImageInformation>
+      <fileName>DEFAULT/00000004.tif</fileName>
+    </sourceImageInformation>
+    <Processing ID="ocrd-tesserocr-recognize-0">
+      <processingStepDescription>layout/segmentation/region</processingStepDescription>
+      <processingStepSettings>{"find_tables": "True", "model": "deu_latf", "segmentation_level": "region", "textequiv_level": "word", "dpi": "0", "padding": "0", "overwrite_segments": "False", "overwrite_text": "True", "shrink_polygons": "False", "block_polygons": "False", "find_staves": "False", "sparse_text": "False", "raw_lines": "False", "char_whitelist": "", "char_blacklist": "", "char_unblacklist": "", "tesseract_parameters": "{}", "xpath_parameters": "{}", "xpath_model": "{}", "auto_model": "False", "oem": "DEFAULT"}</processingStepSettings>
+      <processingDateTime>2025-01-23T12:58:37.993869</processingDateTime>
+      <processingSoftware>
+        <softwareName>ocrd-tesserocr-recognize</softwareName>
+      </processingSoftware>
+    </Processing>
+  </Description>
+  <Styles/>
+  <Tags/>
+  <Layout>
+    <Page ID="FILE_0004_TESS" PHYSICAL_IMG_NR="0" WIDTH="1564" HEIGHT="2357">
+      <PrintSpace VPOS="0" HPOS="0" HEIGHT="2357" WIDTH="1564">
+        <Illustration ID="region0000" HEIGHT="2357" WIDTH="1564" HPOS="0" VPOS="0">
+          <Shape>
+            <Polygon POINTS="0,0 1564,0 1564,2357 0,2357"/>
+          </Shape>
+        </Illustration>
+      </PrintSpace>
+    </Page>
+  </Layout>
+</alto>
