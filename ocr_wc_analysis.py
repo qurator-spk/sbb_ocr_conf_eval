@@ -28,6 +28,7 @@ def download_file(url, destination):
 def statistics(xml_file):
     xml = ET.parse(xml_file)
     root = xml.getroot()
+    print("root.namespace ", root.namespace)
     
     try:
         xmlns = str(root.tag).split("}")[0].strip("{")
@@ -71,7 +72,7 @@ def plot_histogram_with_density(ax, data, bins, title, xlabel, ylabel, color, de
     
     kde = gaussian_kde(data)
     x_range = np.linspace(0, 1, 100)
-    ax.plot(x_range, kde(x_range), color=density_color, lw=2, label="Density Distribution")
+    ax.plot(x_range, kde(x_range), color=density_color, lw=2, label="Density Plot")
     ax.legend()
 
 def plot_boxplot(ax, data, title, ylabel):
