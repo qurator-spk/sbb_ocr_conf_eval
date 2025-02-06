@@ -60,6 +60,26 @@ def statistics(xml_file):
     else:
         return 0, 0, 0, 0
 
+def plot_histogram_with_density(ax, data, bins, title, xlabel, ylabel, color, density_color):
+    ax.hist(data, bins=bins, color=color, edgecolor="black", alpha=0.6, density=True)
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_xlim(0, 1.0)
+    ax.set_xticks(np.arange(0, 1.1, 0.1))
+    ax.grid(axis="y", alpha=0.75)
+    
+    kde = gaussian_kde(data)
+    x_range = np.linspace(0, 1, 100)
+    ax.plot(x_range, kde(x_range), color=density_color, lw=2, label="Density Distribution")
+    ax.legend()
+
+def plot_boxplot(ax, data, title, ylabel):
+    ax.boxplot(data, patch_artist=True, boxprops=dict(facecolor="lightgreen"))
+    ax.set_title(title)
+    ax.set_ylabel(ylabel)
+    ax.set_xticks([1], ["Mean Confidence"])
+    ax.grid(axis="y", alpha=0.75)
 
 XML_DATA_TYPE = "alto" # Choose between "alto" or "page" 
 
@@ -85,46 +105,25 @@ results_df = pd.DataFrame(all_results, columns=["ppn_page", "mean", "median", "v
 
 print(results_df)
 
+# Main plotting function  
 fig, axs = plt.subplots(1, 3, figsize=(18, 6))
 
-# Histogram of the means  
-bins_mean = np.arange(0, 1.1, 0.05)
-axs[0].hist(results_df["mean"], bins=bins_mean, color="lightblue", edgecolor="black", alpha=0.6, density=True)
-axs[0].set_title("Histogram of Mean Word Confidence Scores")
-axs[0].set_xlabel("Mean Word Confidence")
-axs[0].set_ylabel("Frequency")
-axs[0].set_xlim(0, 1.0)
-axs[0].set_xticks(np.arange(0, 1.1, 0.1)) 
-axs[0].grid(axis="y", alpha=0.75)
+# Histogram and density for means  
+plot_histogram_with_density(axs[0], results_df["mean"], np.arange(0, 1.1, 0.05), 
+                            "Histogram of Mean Word Confidence Scores", 
+                            "Mean Word Confidence", "Frequency", 
+                            "lightblue", "blue")
 
-# Density distribution of the means  
-kde_mean = gaussian_kde(results_df["mean"])
-x_range_mean = np.linspace(0, 1, 100)
-axs[0].plot(x_range_mean, kde_mean(x_range_mean), color="blue", lw=2, label="Density Distribution")
-axs[0].legend()
+# Boxplot for means  
+plot_boxplot(axs[1], results_df["mean"], 
+             "Box Plot of Mean Word Confidence Scores", 
+             "Mean Word Confidence Scores")
 
-# Box plot of the mean values  
-axs[1].boxplot(results_df["mean"], patch_artist=True, boxprops=dict(facecolor="lightgreen"))
-axs[1].set_title("Box Plot of Mean Word Confidence Scores")
-axs[1].set_ylabel("Mean Word Confidence Scores")
-axs[1].set_xticks([1], ["Mean Confidence"])  
-axs[1].grid(axis="y", alpha=0.75)
-
-# Histogram of the standard deviation values
-bins_sd = np.arange(0, 1.1, 0.05)
-axs[2].hist(results_df["standard_deviation"], bins=bins_sd, color="salmon", edgecolor="black", alpha=0.6, density=True)
-axs[2].set_title("Histogram of Standard Deviation of Word Confidence Scores")
-axs[2].set_xlabel("Standard Deviation")
-axs[2].set_ylabel("Frequency")
-axs[2].set_xlim(0, 1.0)
-axs[2].set_xticks(np.arange(0, 1.1, 0.1)) 
-axs[2].grid(axis="y", alpha=0.75)
-
-# Density distribution of the standard deviation values  
-kde_sd = gaussian_kde(results_df["standard_deviation"])
-x_range_sd = np.linspace(0, 1, 100)
-axs[2].plot(x_range_sd, kde_sd(x_range_sd), color="red", lw=2, label="Density Distribution")
-axs[2].legend()
+# Histogram and density for standard deviations  
+plot_histogram_with_density(axs[2], results_df["standard_deviation"], np.arange(0, 1.1, 0.05), 
+                            "Histogram of Standard Deviation of Word Confidence Scores", 
+                            "Standard Deviation", "Frequency", 
+                            "salmon", "red")
 
 plt.tight_layout()
 plt.savefig("statistics_results.jpg")
