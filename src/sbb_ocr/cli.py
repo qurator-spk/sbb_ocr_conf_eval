@@ -4,16 +4,11 @@ import csv
 
 import click
 
-from .lib import PpnHandler, PpnHandlerConfig
+from .ppn_handler import PpnHandler, PpnHandlerConfig
 
 @click.group('sbb_ocr')
 def cli():
     pass
-
-@cli.command('extract-confs')
-@click.argument('PPN', nargs=-1)
-def extract_confs(ppn):
-    print(json.dumps(ppn2kitodo(ppn)))
 
 @cli.command('ppn2kitodo')
 @click.argument('PPN', nargs=-1)
