@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=44", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sbb_ocr"
+version = '0.0.1'
+authors = [{name = "Michal Bubula"}, {name = "Konstantin Baierer"}]
+license = {text = "Apache License 2.0"}
+description = "Scripts and tools for evaluating OCR @StabiBerlin"
+requires-python = ">=3.9"
+dynamic = ['dependencies']
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[tool.setuptools.dynamic.dependencies]
+file = ["requirements.txt"]
+
+[project.urls]
+Homepage = "https://code.dev.sbb.berlin/idm4/ocr_wc_analysis"
+Documentation = "https://code.dev.sbb.berlin/idm4/ocr_wc_analysis"
+Repository = "https://code.dev.sbb.berlin/idm4/ocr_wc_analysis"
+Issues = "https://code.dev.sbb.berlin/idm4/ocr_wc_analysis"
+
+[project.scripts]
+sbb_ocr = "sbb_ocr.cli:cli"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"*" = ["*.json", '*.yml', '*.xml', '*.conf', '*.bash', '*.xsd', '*.csv']
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false

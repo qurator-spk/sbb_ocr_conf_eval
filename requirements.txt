@@ -1,0 +1,4 @@
+ocrd
+click
+requests
+rich
