@@ -28,7 +28,6 @@ def download_file(url, destination):
 def statistics(xml_file):
     xml = ET.parse(xml_file)
     root = xml.getroot()
-    print("root.namespace ", root.namespace)
     
     try:
         xmlns = str(root.tag).split("}")[0].strip("{")
