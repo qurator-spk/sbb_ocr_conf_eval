@@ -1,24 +1,3 @@
-import sys
-import click
-from ocrd_models.ocrd_page import parse
-
-def extract_confs(page_fname):
-    """
-    Load PAGE-XML file, return lists of textline and word confidences
-    """
-    pcgts = parse(page_fname)
-
-    confs_textline, confs_word = [], []
-
-    for textline in pcgts.get_Page().get_AllTextLines():
-        textline_conf = textline.get_TextEquiv()[0].conf
-        if textline_conf is not None:
-            confs_textline.append(textline_conf)
-        for word in textline.get_Word():
-            word_conf = word.get_TextEquiv()[0].conf
-            if word_conf is not None:
-                confs_word.append(word_conf)
-    print(confs_textline, confs_word)
     # 
     # try:
     #     xmlns = str(root.tag).split("}")[0].strip("{")

@@ -2,3 +2,4 @@ ocrd
 click
 requests
 rich
+beautifulsoup4
