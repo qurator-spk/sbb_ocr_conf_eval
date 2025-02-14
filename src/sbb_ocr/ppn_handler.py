@@ -73,12 +73,16 @@ class PpnHandler():
         - line confidences
         """
         ppn_list = self.normalize_ppn(ppn_list)
+        mapped = self.ppn2pagexml(ppn_list)
         ret = []
-        for ppn, pagexml_list in self.ppn2pagexml(ppn_list).items():
+        i = 0
+        for ppn, pagexml_list in mapped.items():
+            self.console.log(f'[{i:3d}/{len(mapped.keys()):3d}] Extracting confidences for {len(pagexml_list)} PAGE-XML files of PPN {ppn}')
             for pagexml in pagexml_list:
                 file_id = pagexml.name
                 version = pagexml.parent.name
                 ret.append([ppn, file_id, version, *self.extract_confs(pagexml)])
+            i += 1
         return ret
 
     def ppn2pagexml(self, ppn_list: list[str]) -> dict[str, list[str]]:
@@ -88,9 +92,12 @@ class PpnHandler():
         ppn_list = self.normalize_ppn(ppn_list)
         mapped = self.ppn2kitodo(ppn_list)
         ret = {}
+        i = 0
         for ppn, kitodo_id in mapped.items():
+            self.console.log(f'[{i:3d}/{len(mapped.keys()):3d}] Listing PAGE-XML for PPN {ppn} / Kitodo ID {kitodo_id}')
             ocrdir = Path(self.config.nfs_goobi, 'archiv', kitodo_id, 'ocr')
             ret[ppn] = sorted(ocrdir.glob('*/page/*/*.xml'))
+            i += 1
         return ret
 
     def normalize_ppn(self, ppn_list):
@@ -104,6 +111,7 @@ class PpnHandler():
         unresolved = [x for x in ppn_list if x not in self.ppn2kitodo_cache]
       
         if unresolved:
+            self.console.log(f"Retrieving {len(unresolved)} PPNs from {self.config.ppn2id_url}")
             resp =  requests.post(self.config.ppn2id_url, data={
                 'ppn': ' '.join(unresolved),
                 'PPNs wandeln': 'PPNs wandeln',
@@ -117,6 +125,6 @@ class PpnHandler():
             kitodo_ids = soup.find('input', dict(name='ids')).get('value')
             kitodo_ids = kitodo_ids.replace('id:', '').replace('"', '').split(' ')
             retrieved = dict(zip(ppn_list, kitodo_ids))
-            self.console.log("Retrieved", retrieved)
+            self.console.log(f"Retrieved f{len(retrieved)} Kitodo IDs")
             self.save_cache(retrieved)
         return {x: self.ppn2kitodo_cache[x] for x in ppn_list}

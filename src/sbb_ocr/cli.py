@@ -42,18 +42,19 @@ def ppn2pagexml_cli(ppn):
     print(ppn_handler.ppn2pagexml(ppn))
 
 @cli.command('ppn2confs')
-@click.option('--format', default='json', type=click.Choice(['csv', 'json']), help="Whether to output csv or json")
+@click.option('--format', default='csv', type=click.Choice(['csv', 'json']), help="Whether to output csv or json")
+@click.option('--output', type=click.File('w'), default=sys.stdout, help='Print to this file')
 @click.argument('PPN', nargs=-1)
-def ppn2confs_cli(format, ppn):
+def ppn2confs_cli(format, output, ppn):
     """
     Get the table of line and word confidences for PPN
     """
     ppn_handler = PpnHandler(PpnHandlerConfig())
     table = ppn_handler.ppn2confs(ppn)
     if format == 'json':
-        print(json.dumps(table))
+        json.dump(table, output)
     else:
-        writer = csv.writer(sys.stdout)
+        writer = csv.writer(output)
         writer.writerow(['ppn', 'file_id', 'version', 'textline_confs', 'word_confs'])
         for row in table:
             for i in [-1, -2]:
