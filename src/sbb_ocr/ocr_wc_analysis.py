@@ -79,5 +79,3 @@ def plot_everything(csv_file):
     plt.tight_layout()
     plt.savefig("statistics_results.jpg")
     plt.show()
-
-plot_everything('sample_confs.csv')
