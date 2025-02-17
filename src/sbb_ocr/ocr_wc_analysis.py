@@ -42,7 +42,7 @@ def load_csv(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))
 
-def plot_everything(csv_file):
+def plot_everything(csv_file, plot_file="statistics_results.jpg"):
     all_results = []
     for row in load_csv(csv_file)[1:]:
         try:
@@ -77,5 +77,5 @@ def plot_everything(csv_file):
                                 "salmon", "red")
 
     plt.tight_layout()
-    plt.savefig("statistics_results.jpg")
+    plt.savefig(plot_file)
     plt.show()

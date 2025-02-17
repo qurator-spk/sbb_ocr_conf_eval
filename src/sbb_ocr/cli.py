@@ -17,11 +17,12 @@ def cli():
 
 @cli.command('plot')
 @click.argument('CSV_FILE')
-def plot_cli(csv_file):
+@click.argument('PLOT_FILE')
+def plot_cli(csv_file, plot_file):
     """
-    Plot confidence metrics
+    Plot confidence metrics from CSV_FILE, output to PLOT_FILE.
     """
-    plot_everything(csv_file)
+    plot_everything(csv_file, plot_file)
 
 @cli.command('ppn2kitodo')
 @click.argument('PPN', nargs=-1)
