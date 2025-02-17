@@ -31,11 +31,14 @@ def plot_histogram_with_density(ax, data, bins, title, xlabel, ylabel, color, de
     ax.plot(x_range, kde(x_range), color=density_color, lw=2, label="Density Plot")
     ax.legend()
 
-def plot_boxplot(ax, data, title, ylabel):
-    ax.boxplot(data, patch_artist=True, boxprops=dict(facecolor="lightgreen"))
+def plot_boxplot(ax, data, title, ylabel, box_colors):
+    bp = ax.boxplot(data, patch_artist=True, medianprops=dict(color="black"))
+    for patch, color in zip(bp["boxes"], box_colors):
+        patch.set_facecolor(color)   
     ax.set_title(title)
     ax.set_ylabel(ylabel)
-    ax.set_xticks([1], ["Mean Confidence"])
+    ax.set_xticks([1, 2], ["Mean", "Standard Deviation"])
+    ax.set_yticks(np.arange(0, 1.1, 0.1))
     ax.grid(axis="y", alpha=0.75)
 
 def load_csv(csv_file):
@@ -46,36 +49,53 @@ def plot_everything(csv_file):
     all_results = []
     for row in load_csv(csv_file)[1:]:
         try:
-            mean, median, variance, standard_deviation = statistics(list(map(float, row[-1].split(' '))))
+            mean_textline, median_textline, variance_textline, standard_deviation_textline = statistics(list(map(float, row[3].split(' '))))
+            mean_word, median_word, variance_word, standard_deviation_word = statistics(list(map(float, row[4].split(' '))))
         except ValueError:
             continue
         ppn_page = f'{row[0]}_{row[1]}_{row[2]}'
-        all_results.append([ppn_page, mean, median, variance, standard_deviation]) 
+        all_results.append([ppn_page, mean_word, median_word, variance_word, standard_deviation_word, mean_textline, median_textline, variance_textline, standard_deviation_textline]) 
             
-    results_df = pd.DataFrame(all_results, columns=["ppn_page", "mean", "median", "variance", "standard_deviation"])
+    results_df = pd.DataFrame(all_results, columns=["ppn_page", "mean_word", "median_word", "variance_word", "standard_deviation_word", "mean_textline", "median_textline", "variance_textline", "standard_deviation_textline"])
 
     print(results_df)
 
     # Main plotting function  
-    fig, axs = plt.subplots(1, 3, figsize=(18, 6))
+    fig, axs = plt.subplots(2, 3, figsize=(16.5, 11.0))
+    color_word_mean = "lightblue"
+    color_word_std = "salmon"
+    color_texline_mean = "lightgreen"
+    color_texline_std = "wheat"
+    
 
-    # Histogram and density for means  
-    plot_histogram_with_density(axs[0], results_df["mean"], np.arange(0, 1.1, 0.05), 
-                                "Histogram of Mean Word Confidence Scores", 
+    plot_histogram_with_density(axs[0, 0], results_df["mean_word"], np.arange(0, 1.1, 0.05), 
+                                "Mean Word Confidence Scores", 
                                 "Mean Word Confidence", "Frequency", 
-                                "lightblue", "blue")
+                                color_word_mean, "blue")
 
-    # Boxplot for means  
-    plot_boxplot(axs[1], results_df["mean"], 
-                 "Box Plot of Mean Word Confidence Scores", 
-                 "Mean Word Confidence Scores")
+    plot_boxplot(axs[0, 1], [results_df["mean_word"], results_df["standard_deviation_word"]], 
+                 "Mean and Standard Deviation of Word Confidence Scores", 
+                 "Confidence Scores", [color_word_mean, color_word_std])
 
-    # Histogram and density for standard deviations  
-    plot_histogram_with_density(axs[2], results_df["standard_deviation"], np.arange(0, 1.1, 0.05), 
-                                "Histogram of Standard Deviation of Word Confidence Scores", 
+    plot_histogram_with_density(axs[0, 2], results_df["standard_deviation_word"], np.arange(0, 1.1, 0.05), 
+                                "Standard Deviation of Word Confidence Scores", 
                                 "Standard Deviation", "Frequency", 
-                                "salmon", "red")
+                                color_word_std, "red")
 
-    plt.tight_layout()
+    plot_histogram_with_density(axs[1, 0], results_df["mean_textline"], np.arange(0, 1.1, 0.05), 
+                                "Mean Textline Confidence Scores", 
+                                "Mean Textline Confidence", "Frequency", 
+                                color_texline_mean, "darkgreen")
+
+    plot_boxplot(axs[1, 1], [results_df["mean_textline"], results_df["standard_deviation_textline"]], 
+                 "Mean and Standard Deviation of Textline Confidence Scores", 
+                 "Confidence Scores", [color_texline_mean, color_texline_std])
+
+    plot_histogram_with_density(axs[1, 2], results_df["standard_deviation_textline"], np.arange(0, 1.1, 0.05), 
+                                "Standard Deviation of Textline Confidence Scores", 
+                                "Standard Deviation", "Frequency", 
+                                color_texline_std, "sienna")
+    
+    plt.tight_layout(pad=1.5)
     plt.savefig("statistics_results.jpg")
     plt.show()
