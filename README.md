@@ -31,6 +31,3 @@ Commands:
   ppn2pagexml  Get a list of PAGE-XML files for PPN
 ```
 
-## Notes
-
-```XML_DATA_TYPE = "alto" # Choose between "alto" or "page" ```
