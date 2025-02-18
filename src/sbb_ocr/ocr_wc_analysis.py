@@ -34,7 +34,7 @@ def plot_histogram_with_density(ax, data, bins, title, xlabel, ylabel, color, de
     ax.legend()
 
 def plot_boxplot(ax, data, title, ylabel, box_colors):
-    bp = ax.boxplot(data, patch_artist=True, medianprops=dict(color="black"))
+    bp = ax.boxplot(data, patch_artist=True, medianprops=dict(color="black", linestyle="--",))
     for patch, color in zip(bp["boxes"], box_colors):
         patch.set_facecolor(color)   
     ax.set_title(title)
