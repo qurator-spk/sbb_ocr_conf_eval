@@ -62,39 +62,49 @@ def plot_everything(csv_file, plot_file="statistics_results.jpg"):
 
     # Main plotting function  
     fig, axs = plt.subplots(2, 3, figsize=(16.5, 11.0))
-    color_word_mean = "lightblue"
-    color_word_std = "salmon"
-    color_texline_mean = "lightgreen"
-    color_texline_std = "wheat"
     
-
+    plot_colors = {
+        "word": {
+            "mean": "lightblue",
+            "mean_density": "blue",
+            "std": "salmon",
+            "std_density": "red"
+        },
+        "textline": {
+            "mean": "lightgreen",
+            "mean_density": "darkgreen",
+            "std": "wheat",
+            "std_density": "sienna"
+        }
+    }
+    
     plot_histogram_with_density(axs[0, 0], results_df["mean_word"], np.arange(0, 1.1, 0.05), 
                                 "Mean Word Confidence Scores", 
                                 "Mean Word Confidence", "Frequency", 
-                                color_word_mean, "blue")
+                                plot_colors["word"]["mean"], plot_colors["word"]["mean_density"])
 
     plot_boxplot(axs[0, 1], [results_df["mean_word"], results_df["standard_deviation_word"]], 
                  "Mean and Standard Deviation of Word Confidence Scores", 
-                 "Confidence Scores", [color_word_mean, color_word_std])
+                 "Confidence Scores", [plot_colors["word"]["mean"], plot_colors["word"]["std"]])
 
     plot_histogram_with_density(axs[0, 2], results_df["standard_deviation_word"], np.arange(0, 1.1, 0.05), 
                                 "Standard Deviation of Word Confidence Scores", 
                                 "Standard Deviation", "Frequency", 
-                                color_word_std, "red")
+                                plot_colors["word"]["std"], plot_colors["word"]["std_density"])
 
     plot_histogram_with_density(axs[1, 0], results_df["mean_textline"], np.arange(0, 1.1, 0.05), 
                                 "Mean Textline Confidence Scores", 
                                 "Mean Textline Confidence", "Frequency", 
-                                color_texline_mean, "darkgreen")
+                                plot_colors["textline"]["mean"], plot_colors["textline"]["mean_density"])
 
     plot_boxplot(axs[1, 1], [results_df["mean_textline"], results_df["standard_deviation_textline"]], 
                  "Mean and Standard Deviation of Textline Confidence Scores", 
-                 "Confidence Scores", [color_texline_mean, color_texline_std])
+                 "Confidence Scores", [plot_colors["textline"]["mean"], plot_colors["textline"]["std"]])
 
     plot_histogram_with_density(axs[1, 2], results_df["standard_deviation_textline"], np.arange(0, 1.1, 0.05), 
                                 "Standard Deviation of Textline Confidence Scores", 
                                 "Standard Deviation", "Frequency", 
-                                color_texline_std, "sienna")
+                                plot_colors["textline"]["std"], plot_colors["textline"]["std_density"])
     
     plt.tight_layout(pad=1.5)
     plt.savefig(plot_file)
