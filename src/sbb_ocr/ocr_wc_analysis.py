@@ -25,7 +25,9 @@ def plot_histogram_with_density(ax, data, bins, title, xlabel, ylabel, color, de
     ax.set_xlim(0, 1.0)
     ax.set_xticks(np.arange(0, 1.1, 0.1))
     ax.grid(axis="y", alpha=0.75)
-    
+    max_density = ax.get_ylim()[1]
+    ax.set_ylim(0, max_density)
+    ax.set_yticks(np.arange(0, max_density + 0.5, 0.5))
     kde = gaussian_kde(data)
     x_range = np.linspace(0, 1, 100)
     ax.plot(x_range, kde(x_range), color=density_color, lw=2, label="Density Plot")
