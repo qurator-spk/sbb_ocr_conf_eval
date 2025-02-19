@@ -1,4 +1,6 @@
+from contextlib import contextmanager
 import csv
+from typing import Iterator
 import pandas as pd  
 import numpy as np 
 import matplotlib.pyplot as plt  
@@ -43,21 +45,29 @@ def plot_boxplot(ax, data, title, ylabel, box_colors):
     ax.set_yticks(np.arange(0, 1.1, 0.1))
     ax.grid(axis="y", alpha=0.75)
 
+@contextmanager
 def load_csv(csv_file):
     with open(csv_file, 'r') as f:
-        return list(csv.reader(f))
+        yield csv.reader(f)
 
-def plot_everything(csv_file, plot_file="statistics_results.jpg"):
+def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
     all_results = []
-    for row in load_csv(csv_file)[1:]:
-        try:
-            mean_textline, median_textline, variance_textline, standard_deviation_textline = statistics(list(map(float, row[3].split(' '))))
-            mean_word, median_word, variance_word, standard_deviation_word = statistics(list(map(float, row[4].split(' '))))
-        except ValueError:
-            continue
-        ppn_page = f'{row[0]}_{row[1]}_{row[2]}'
-        all_results.append([ppn_page, mean_word, median_word, variance_word, standard_deviation_word, mean_textline, median_textline, variance_textline, standard_deviation_textline]) 
-            
+    for csv_file in csv_files:
+        with load_csv(csv_file) as rows:
+            for i, row in enumerate(rows):
+                if i == 0:
+                    continue
+                try:
+                    textline_confs = list(map(float, row[3].split(' ')))
+                    word_confs = list(map(float, row[4].split(' ')))
+                except ValueError:
+                    # TODO properly catch errors in the data
+                    continue
+                mean_textline, median_textline, variance_textline, standard_deviation_textline = statistics(textline_confs)
+                mean_word, median_word, variance_word, standard_deviation_word = statistics(word_confs)
+                ppn_page = f'{row[0]}_{row[1]}_{row[2]}'
+                all_results.append([ppn_page, mean_word, median_word, variance_word, standard_deviation_word, mean_textline, median_textline, variance_textline, standard_deviation_textline]) 
+                
     results_df = pd.DataFrame(all_results, columns=["ppn_page", "mean_word", "median_word", "variance_word", "standard_deviation_word", "mean_textline", "median_textline", "variance_textline", "standard_deviation_textline"])
 
     print(results_df)

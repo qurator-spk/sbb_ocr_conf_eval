@@ -25,9 +25,8 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  plot         Plot confidence metrics from CSV_FILE, output to PLOT_FILE
+  plot         Plot confidence metrics from all CSV_FILES, output to...
   ppn2confs    Get the table of line and word confidences for PPN
   ppn2kitodo   Translate PPN into Kitodo ID
   ppn2pagexml  Get a list of PAGE-XML files for PPN
 ```
-
