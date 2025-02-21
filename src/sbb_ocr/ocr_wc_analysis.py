@@ -53,22 +53,25 @@ def load_csv(csv_file):
 
 def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
     all_results = []
-    for csv_file in tqdm(csv_files, desc="Processing CSV files"):
-        with load_csv(csv_file) as rows:
-            for i, row in enumerate(rows):
-                if i == 0:
-                    continue
-                try:
-                    textline_confs = list(map(float, row[3].split(' ')))
-                    word_confs = list(map(float, row[4].split(' ')))
-                except ValueError:
-                    # TODO properly catch errors in the data
-                    continue
-                mean_textline, median_textline, variance_textline, standard_deviation_textline = statistics(textline_confs)
-                mean_word, median_word, variance_word, standard_deviation_word = statistics(word_confs)
-                ppn_page = f'{row[0]}_{row[1]}_{row[2]}'
-                all_results.append([ppn_page, mean_word, median_word, variance_word, standard_deviation_word, mean_textline, median_textline, variance_textline, standard_deviation_textline]) 
-                
+    with tqdm(total=len(csv_files), desc="Processing CSV files") as progbar:
+        for csv_file in csv_files:
+            progbar.set_description(f"Processing: {csv_file}")
+            with load_csv(csv_file) as rows:
+                for i, row in enumerate(rows):
+                    if i == 0:
+                        continue
+                    try:
+                        textline_confs = list(map(float, row[3].split(' ')))
+                        word_confs = list(map(float, row[4].split(' ')))
+                    except ValueError:
+                        # TODO properly catch errors in the data
+                        continue
+                    mean_textline, median_textline, variance_textline, standard_deviation_textline = statistics(textline_confs)
+                    mean_word, median_word, variance_word, standard_deviation_word = statistics(word_confs)
+                    ppn_page = f'{row[0]}_{row[1]}_{row[2]}'
+                    all_results.append([ppn_page, mean_word, median_word, variance_word, standard_deviation_word, mean_textline, median_textline, variance_textline, standard_deviation_textline])
+            progbar.update(1)                    
+                    
     results_df = pd.DataFrame(all_results, columns=["ppn_page", "mean_word", "median_word", "variance_word", "standard_deviation_word", "mean_textline", "median_textline", "variance_textline", "standard_deviation_textline"])
 
     print("Statistics results:")
