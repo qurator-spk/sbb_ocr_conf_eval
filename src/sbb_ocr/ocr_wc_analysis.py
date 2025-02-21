@@ -10,6 +10,7 @@ import os
 import xml.etree.ElementTree as ET  
 from tqdm import tqdm  
 
+csv.field_size_limit(10**6)  # Set the CSV field size limit to 1 million characters
 
 def statistics(confidences):
     confidences_array = np.array(confidences)
@@ -53,9 +54,9 @@ def load_csv(csv_file):
 
 def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
     all_results = []
-    with tqdm(total=len(csv_files), desc="Processing CSV files") as progbar:
+    with tqdm(total=len(csv_files)) as progbar:
         for csv_file in csv_files:
-            progbar.set_description(f"Processing: {csv_file}")
+            progbar.set_description(f"Processing file: {csv_file}")
             with load_csv(csv_file) as rows:
                 for i, row in enumerate(rows):
                     if i == 0:
