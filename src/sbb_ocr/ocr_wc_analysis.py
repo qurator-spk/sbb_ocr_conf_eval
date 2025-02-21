@@ -8,6 +8,7 @@ from scipy.stats import gaussian_kde
 import requests  
 import os  
 import xml.etree.ElementTree as ET  
+from tqdm import tqdm  
 
 
 def statistics(confidences):
@@ -52,7 +53,7 @@ def load_csv(csv_file):
 
 def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
     all_results = []
-    for csv_file in csv_files:
+    for csv_file in tqdm(csv_files, desc="Processing CSV files"):
         with load_csv(csv_file) as rows:
             for i, row in enumerate(rows):
                 if i == 0:
@@ -70,6 +71,7 @@ def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
                 
     results_df = pd.DataFrame(all_results, columns=["ppn_page", "mean_word", "median_word", "variance_word", "standard_deviation_word", "mean_textline", "median_textline", "variance_textline", "standard_deviation_textline"])
 
+    print("Statistics results:")
     print(results_df)
 
     # Main plotting function  
