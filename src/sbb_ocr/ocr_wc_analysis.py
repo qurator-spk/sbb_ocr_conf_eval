@@ -30,19 +30,9 @@ def plot_histogram_with_density(ax, data, bins, title, xlabel, ylabel, color, de
     ax.set_xticks(np.arange(0, 1.1, 0.1))
     ax.grid(axis="y", alpha=0.75)
     max_density = ax.get_ylim()[1]
-    """print(max_density)
-    print(round(max_density))
-    print(np.ceil(max_density))
-    if max_density < (np.ceil(max_density) - 0.5):
-        ax.set_ylim(0, max_density)
-        ax.set_yticks(np.arange(0, np.floor(max_density) + 0.5, 0.5))
-    elif max_density > (np.ceil(max_density) - 0.5):
-        ax.set_ylim(0, max_density)
-        ax.set_yticks(np.arange(0, np.ceil(max_density), 0.5))"""
     kde = gaussian_kde(data)
-    #print("kde ", np.max(kde))
     x_range = np.linspace(0, 1, 100)
-    density_values = kde(x_range)  # Compute the density values on the specified range
+    density_values = kde(x_range)
     max_kde_density = np.max(density_values) 
     ax.plot(x_range, kde(x_range), color=density_color, lw=2, label="Density Plot")
     ax.set_ylim(0, ((int(max_kde_density * 2) + (max_kde_density * 2 % 1 > 0)) / 2))
