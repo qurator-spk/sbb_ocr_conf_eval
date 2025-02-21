@@ -16,9 +16,9 @@ def cli():
 
 
 @cli.command('plot')
-@click.argument('PLOT_FILE')
 @click.argument('CSV_FILES', nargs=-1)
-def plot_cli(plot_file, csv_files):
+@click.argument('PLOT_FILE')
+def plot_cli(csv_files, plot_file):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
