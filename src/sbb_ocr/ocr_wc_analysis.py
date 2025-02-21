@@ -21,7 +21,7 @@ def statistics(confidences):
     
     return mean, median, variance, standard_deviation  
 
-def plot_histogram_with_density(ax, data, bins, title, xlabel, ylabel, color, density_color):
+def plot_histogram_with_density(ax, data, bins, title, xlabel, ylabel, color, density_color, legend_loc):
     ax.hist(data, bins=bins, color=color, edgecolor="black", alpha=0.6, density=True)
     ax.set_title(title)
     ax.set_xlabel(xlabel)
@@ -30,12 +30,24 @@ def plot_histogram_with_density(ax, data, bins, title, xlabel, ylabel, color, de
     ax.set_xticks(np.arange(0, 1.1, 0.1))
     ax.grid(axis="y", alpha=0.75)
     max_density = ax.get_ylim()[1]
-    ax.set_ylim(0, max_density)
-    ax.set_yticks(np.arange(0, max_density + 0.5, 0.5))
+    """print(max_density)
+    print(round(max_density))
+    print(np.ceil(max_density))
+    if max_density < (np.ceil(max_density) - 0.5):
+        ax.set_ylim(0, max_density)
+        ax.set_yticks(np.arange(0, np.floor(max_density) + 0.5, 0.5))
+    elif max_density > (np.ceil(max_density) - 0.5):
+        ax.set_ylim(0, max_density)
+        ax.set_yticks(np.arange(0, np.ceil(max_density), 0.5))"""
     kde = gaussian_kde(data)
+    #print("kde ", np.max(kde))
     x_range = np.linspace(0, 1, 100)
+    density_values = kde(x_range)  # Compute the density values on the specified range
+    max_kde_density = np.max(density_values) 
     ax.plot(x_range, kde(x_range), color=density_color, lw=2, label="Density Plot")
-    ax.legend()
+    ax.set_ylim(0, ((int(max_kde_density * 2) + (max_kde_density * 2 % 1 > 0)) / 2))
+    ax.set_yticks(np.arange(0, ((int(max_kde_density * 2) + (max_kde_density * 2 % 1 > 0)) / 2)+0.01, 0.5))
+    ax.legend(loc=legend_loc)
 
 def plot_boxplot(ax, data, title, ylabel, box_colors):
     bp = ax.boxplot(data, patch_artist=True, medianprops=dict(color="black", linestyle="--",))
@@ -103,7 +115,7 @@ def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
     plot_histogram_with_density(axs[0, 0], results_df["mean_word"], np.arange(0, 1.1, 0.05), 
                                 "Mean Word Confidence Scores", 
                                 "Mean Word Confidence", "Frequency", 
-                                plot_colors["word"]["mean"], plot_colors["word"]["mean_density"])
+                                plot_colors["word"]["mean"], plot_colors["word"]["mean_density"], legend_loc="upper left")
 
     plot_boxplot(axs[0, 1], [results_df["mean_word"], results_df["standard_deviation_word"]], 
                  "Mean and Standard Deviation of Word Confidence Scores", 
@@ -112,12 +124,12 @@ def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
     plot_histogram_with_density(axs[0, 2], results_df["standard_deviation_word"], np.arange(0, 1.1, 0.05), 
                                 "Standard Deviation of Word Confidence Scores", 
                                 "Standard Deviation", "Frequency", 
-                                plot_colors["word"]["std"], plot_colors["word"]["std_density"])
+                                plot_colors["word"]["std"], plot_colors["word"]["std_density"], legend_loc="upper right")
 
     plot_histogram_with_density(axs[1, 0], results_df["mean_textline"], np.arange(0, 1.1, 0.05), 
                                 "Mean Textline Confidence Scores", 
                                 "Mean Textline Confidence", "Frequency", 
-                                plot_colors["textline"]["mean"], plot_colors["textline"]["mean_density"])
+                                plot_colors["textline"]["mean"], plot_colors["textline"]["mean_density"], legend_loc="upper left")
 
     plot_boxplot(axs[1, 1], [results_df["mean_textline"], results_df["standard_deviation_textline"]], 
                  "Mean and Standard Deviation of Textline Confidence Scores", 
@@ -126,7 +138,7 @@ def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
     plot_histogram_with_density(axs[1, 2], results_df["standard_deviation_textline"], np.arange(0, 1.1, 0.05), 
                                 "Standard Deviation of Textline Confidence Scores", 
                                 "Standard Deviation", "Frequency", 
-                                plot_colors["textline"]["std"], plot_colors["textline"]["std_density"])
+                                plot_colors["textline"]["std"], plot_colors["textline"]["std_density"], legend_loc="upper right")
     
     plt.tight_layout(pad=1.5)
     plt.savefig(plot_file)
