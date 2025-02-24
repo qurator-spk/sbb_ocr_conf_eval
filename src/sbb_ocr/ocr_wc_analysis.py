@@ -35,8 +35,9 @@ def plot_histogram_with_density(ax, data, bins, title, xlabel, ylabel, color, de
     density_values = kde(x_range)
     max_kde_density = np.max(density_values) 
     ax.plot(x_range, kde(x_range), color=density_color, lw=2, label="Density Plot")
-    ax.set_ylim(0, ((int(max_kde_density * 2) + (max_kde_density * 2 % 1 > 0)) / 2))
-    ax.set_yticks(np.arange(0, ((int(max_kde_density * 2) + (max_kde_density * 2 % 1 > 0)) / 2)+0.01, 0.5))
+    round_up_half_integer = (int(max_kde_density * 2) + (max_kde_density * 2 % 1 > 0)) / 2
+    ax.set_ylim(0, round_up_half_integer)
+    ax.set_yticks(np.arange(0, round_up_half_integer+0.01, 0.5))
     ax.legend(loc=legend_loc)
 
 def plot_boxplot(ax, data, title, ylabel, box_colors):
