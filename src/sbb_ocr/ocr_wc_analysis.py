@@ -21,6 +21,42 @@ def statistics(confidences):
     
     return mean, median, variance, standard_deviation  
 
+def plot_histogram(ax, data, bins, title, xlabel, ylabel, color):
+    ax.hist(data, bins=bins, color=color, edgecolor="black", alpha=0.6, density=False)
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_xlim(0, 1.0)
+    ax.set_xticks(np.arange(0, 1.1, 0.1))
+    ax.grid(axis="y", alpha=0.75)
+    
+def plot_density(ax, data, title, xlabel, ylabel, density_color, legend_loc):
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_xlim(0, 1.0)
+    ax.set_xticks(np.arange(0, 1.1, 0.1))
+    
+    kde = gaussian_kde(data)
+    x_range = np.linspace(0, 1, 100)
+    density_values = kde(x_range)
+    max_kde_density = np.max(density_values) 
+    round_up_half_integer = (int(max_kde_density * 2) + (max_kde_density * 2 % 1 > 0)) / 2  
+    ax.set_ylim(0, round_up_half_integer)
+    ax.set_yticks(np.arange(0, round_up_half_integer + 0.01, 0.5))
+
+    mean_value = np.mean(data)
+    median_value = np.median(data)
+    quantiles = np.quantile(data, [0.25, 0.75, 0.5])
+
+    ax.axvline(mean_value, color="black", linestyle="solid", linewidth=1, label="Mean")
+    ax.axvline(quantiles[0], color="black", linestyle="dashed", linewidth=1, label="Q1: 25%")
+    ax.axvline(median_value, color="black", linestyle="dotted", linewidth=1, label="Q2: 50% (Median)")
+    ax.axvline(quantiles[1], color="black", linestyle="dashdot", linewidth=1, label="Q3: 75%")
+
+    ax.plot(x_range, density_values, color=density_color, lw=2)
+    ax.legend(loc=legend_loc)
+
 def plot_histogram_with_density(ax, data, bins, title, xlabel, ylabel, color, density_color, legend_loc):
     ax.hist(data, bins=bins, color=color, edgecolor="black", alpha=0.6, density=True)
     ax.set_title(title)
@@ -29,7 +65,7 @@ def plot_histogram_with_density(ax, data, bins, title, xlabel, ylabel, color, de
     ax.set_xlim(0, 1.0)
     ax.set_xticks(np.arange(0, 1.1, 0.1))
     ax.grid(axis="y", alpha=0.75)
-    max_density = ax.get_ylim()[1]
+    
     kde = gaussian_kde(data)
     x_range = np.linspace(0, 1, 100)
     density_values = kde(x_range)
@@ -86,7 +122,7 @@ def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
     print(results_df)
 
     # Main plotting function  
-    fig, axs = plt.subplots(2, 3, figsize=(16.5, 11.0))
+    fig, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
     
     plot_colors = {
         "word": {
@@ -103,7 +139,51 @@ def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
         }
     }
     
-    plot_histogram_with_density(axs[0, 0], results_df["mean_word"], np.arange(0, 1.1, 0.05), 
+    plot_histogram(axs[0, 0], results_df["mean_word"], np.arange(0, 1.1, 0.05), 
+                                "Mean Word Confidence Scores", 
+                                "Mean Word Confidence", "Frequency", 
+                                plot_colors["word"]["mean"])
+                                
+    plot_density(axs[0, 1], results_df["mean_word"], 
+                                "Mean Word Confidence Scores", 
+                                "Mean Word Confidence", "Density", 
+                                plot_colors["word"]["mean_density"], legend_loc="upper left")      
+    
+    plot_histogram(axs[0, 2], results_df["standard_deviation_word"], np.arange(0, 1.1, 0.05), 
+                                "Standard Deviation Word Confidence Scores", 
+                                "Standard Deviation Word Confidence", "Frequency", 
+                                plot_colors["word"]["std"])
+                                
+    plot_density(axs[0, 3], results_df["standard_deviation_word"], 
+                                "Standard Deviation Word Confidence Scores", 
+                                "Standard Deviation Word Confidence", "Density", 
+                                plot_colors["word"]["std_density"], legend_loc="upper right")
+                                
+    plot_histogram(axs[1, 0], results_df["mean_textline"], np.arange(0, 1.1, 0.05), 
+                                "Mean Textline Confidence Scores", 
+                                "Mean Textline Confidence", "Frequency", 
+                                plot_colors["textline"]["mean"])
+                                
+    plot_density(axs[1, 1], results_df["mean_textline"], 
+                                "Mean Textline Confidence Scores", 
+                                "Mean Textline Confidence", "Density", 
+                                plot_colors["textline"]["mean_density"], legend_loc="upper left")      
+    
+    plot_histogram(axs[1, 2], results_df["standard_deviation_textline"], np.arange(0, 1.1, 0.05), 
+                                "Standard Deviation Textline Confidence Scores", 
+                                "Standard Deviation Textline Confidence", "Frequency", 
+                                plot_colors["textline"]["std"])
+                                
+    plot_density(axs[1, 3], results_df["standard_deviation_textline"], 
+                                "Standard Deviation Textline Confidence Scores", 
+                                "Standard Deviation Textline Confidence", "Density", 
+                                plot_colors["textline"]["std_density"], legend_loc="upper right")
+    
+    plt.tight_layout(pad=1.0)
+    plt.savefig(plot_file)
+    plt.show()
+    
+    """plot_histogram_with_density(axs[0, 0], results_df["mean_word"], np.arange(0, 1.1, 0.05), 
                                 "Mean Word Confidence Scores", 
                                 "Mean Word Confidence", "Frequency", 
                                 plot_colors["word"]["mean"], plot_colors["word"]["mean_density"], legend_loc="upper left")
@@ -133,4 +213,4 @@ def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
     
     plt.tight_layout(pad=1.5)
     plt.savefig(plot_file)
-    plt.show()
+    plt.show()"""
