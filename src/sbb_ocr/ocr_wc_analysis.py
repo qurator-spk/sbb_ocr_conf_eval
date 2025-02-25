@@ -16,10 +16,9 @@ def statistics(confidences):
     confidences_array = np.array(confidences)
     mean = round(np.mean(confidences_array), 3) 
     median = round(np.median(confidences_array), 3)
-    variance = round(np.var(confidences_array), 3)
     standard_deviation = round(np.std(confidences_array), 3)
     
-    return mean, median, variance, standard_deviation  
+    return mean, median, standard_deviation  
 
 def plot_histogram(ax, data, bins, title, xlabel, ylabel, color):
     ax.hist(data, bins=bins, color=color, edgecolor="black", alpha=0.6, density=False)
@@ -90,6 +89,10 @@ def plot_boxplot(ax, data, title, ylabel, box_colors):
 def load_csv(csv_file):
     with open(csv_file, 'r') as f:
         yield csv.reader(f)
+        
+def load_csv_list(csv_file):
+    with open(csv_file, 'r') as f:
+        return list(csv.reader(f))        
 
 def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
     all_results = []
@@ -104,22 +107,25 @@ def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
                         try:
                             textline_confs = list(map(float, row[3].split(' ')))
                             word_confs = list(map(float, row[4].split(' ')))
+                                                        
                         except ValueError:
                             # TODO properly catch errors in the data
                             continue
-                        mean_textline, median_textline, variance_textline, standard_deviation_textline = statistics(textline_confs)
-                        mean_word, median_word, variance_word, standard_deviation_word = statistics(word_confs)
+                        mean_textline, median_textline, standard_deviation_textline = statistics(textline_confs)
+                        mean_word, median_word, standard_deviation_word = statistics(word_confs)
                         ppn_page = f'{row[0]}_{row[1]}_{row[2]}'
-                        all_results.append([ppn_page, mean_word, median_word, variance_word, standard_deviation_word, mean_textline, median_textline, variance_textline, standard_deviation_textline])
+                        ppn = f'{row[0]}'
+                        all_results.append([ppn, ppn_page, mean_word, median_word, standard_deviation_word, mean_textline, median_textline, standard_deviation_textline])
+                        
+                    
+                        
             except csv.Error as e:
                 print(f"CSV error: {e} in file: {csv_file}. \nIncrease the CSV field size limit!")
                 break
-            progbar.update(1) 
-                    
-    results_df = pd.DataFrame(all_results, columns=["ppn_page", "mean_word", "median_word", "variance_word", "standard_deviation_word", "mean_textline", "median_textline", "variance_textline", "standard_deviation_textline"])
-
-    print("Statistics results:")
-    print(results_df)
+            progbar.update(1)
+            
+    
+    print("Statistics results:\n", results_df)
 
     # Main plotting function  
     fig, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
@@ -182,6 +188,7 @@ def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
     plt.tight_layout(pad=1.0)
     plt.savefig(plot_file)
     plt.show()
+    
     
     """plot_histogram_with_density(axs[0, 0], results_df["mean_word"], np.arange(0, 1.1, 0.05), 
                                 "Mean Word Confidence Scores", 
