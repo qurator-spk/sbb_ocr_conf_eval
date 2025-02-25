@@ -124,7 +124,7 @@ def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
                 break
             progbar.update(1)
     
-    results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "variance_word", "standard_deviation_word", "mean_textline", "median_textline", "variance_textline", "standard_deviation_textline"])
+    results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])
         
     
     print("Statistics results:\n", results_df)
