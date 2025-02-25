@@ -90,7 +90,7 @@ def load_csv(csv_file):
     with open(csv_file, 'r') as f:
         yield csv.reader(f)
         
-def load_csv_list(csv_file):
+def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))        
 
@@ -123,7 +123,9 @@ def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
                 print(f"CSV error: {e} in file: {csv_file}. \nIncrease the CSV field size limit!")
                 break
             progbar.update(1)
-            
+    
+    results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "variance_word", "standard_deviation_word", "mean_textline", "median_textline", "variance_textline", "standard_deviation_textline"])
+        
     
     print("Statistics results:\n", results_df)
 
