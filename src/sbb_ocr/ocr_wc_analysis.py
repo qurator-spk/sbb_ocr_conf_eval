@@ -23,6 +23,7 @@ def statistics(confidences):
 def plot_histogram(ax, data, bins, title, xlabel, ylabel, color):
     ax.hist(data, bins=bins, color=color, edgecolor="black", alpha=0.6, density=False)
     ax.set_title(title)
+    ax.ticklabel_format(style="plain")
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.set_xlim(0, 1.0)
