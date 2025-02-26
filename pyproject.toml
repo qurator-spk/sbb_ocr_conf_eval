@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sbb_ocr"
 version = '0.0.1'
-authors = [{name = "Michal Bubula"}, {name = "Konstantin Baierer"}]
+authors = [{name = "Michał Bubula"}, {name = "Konstantin Baierer"}]
 license = {text = "Apache License 2.0"}
 description = "Scripts and tools for evaluating OCR @StabiBerlin"
 requires-python = ">=3.9"
