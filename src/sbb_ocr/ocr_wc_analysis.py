@@ -100,6 +100,13 @@ def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
     
     mods_info_df["ppn_mods"] = mods_info_df["mets_file"].apply(lambda x: x.split("/")[-1].split(".")[0])
     
+    results_df = results_df[results_df["ppn"].isin(mods_info_df["ppn_mods"])]
+    
+    all_genres = mods_info_df["genre-aad"].unique().tolist()
+    print("Number of all genres: ", len(all_genres))
+    
+    results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "ppn_mods"])] # Use "Roman" as an example
+    
     print("\nStatistics results:\n", results_df)
 
     # Main plotting function  
