@@ -1,13 +1,11 @@
 from contextlib import contextmanager
 import csv
-from typing import Iterator
+import json
+
 import pandas as pd  
 import numpy as np 
 import matplotlib.pyplot as plt  
 from scipy.stats import gaussian_kde  
-import requests  
-import os  
-import xml.etree.ElementTree as ET  
 from tqdm import tqdm  
 
 csv.field_size_limit(10**6)  # Set the CSV field size limit
@@ -66,7 +64,7 @@ def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))        
 
-def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
+def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg", replace_subgenres : bool = True):
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
         for csv_file in csv_files:
@@ -102,8 +100,18 @@ def plot_everything(csv_files : list[str], plot_file="statistics_results.jpg"):
     
     results_df = results_df[results_df["ppn"].isin(mods_info_df["ppn_mods"])]
     
-    all_genres = mods_info_df["genre-aad"].unique().tolist()
+    all_genres = []
+    for genre_raw in set(mods_info_df["genre-aad"].tolist()):
+        genres_json = genre_raw.replace('{', '[').replace('}', ']').replace("'", '"')
+        if not genres_json:
+            continue
+        genres = json.loads(genres_json)
+        if replace_subgenres:
+            genres = [x.split(':')[0] for x in genres]
+        all_genres += genres
+    all_genres = set(all_genres)
     print("Number of all genres: ", len(all_genres))
+    print(all_genres)
     
     results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "ppn_mods"])] # Use "Roman" as an example
     
