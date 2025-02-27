@@ -1,0 +1,7 @@
+*.egg-info
+__pycache__
+/venv
+statistics_results.jpg
+/scratch
+/confs.*.csv
+/confs.*.png

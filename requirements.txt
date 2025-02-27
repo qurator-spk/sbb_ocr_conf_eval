@@ -1,0 +1,9 @@
+ocrd
+click
+requests
+rich
+beautifulsoup4
+pandas
+numpy
+scipy
+matplotlib
