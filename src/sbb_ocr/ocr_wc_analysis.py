@@ -10,7 +10,7 @@ import os
 import xml.etree.ElementTree as ET  
 from tqdm import tqdm  
 
-csv.field_size_limit(10**6)  # Set the CSV field size limit
+csv.field_size_limit(10**9)  # Set the CSV field size limit
 
 def statistics(confidences):
     confidences_array = np.array(confidences)
@@ -47,7 +47,7 @@ def plot_density(ax, data, title, xlabel, ylabel, density_color, legend_loc):
 
     mean_value = np.mean(data)
     median_value = np.median(data)
-    quantiles = np.quantile(data, [0.25, 0.75, 0.5])
+    quantiles = np.quantile(data, [0.25, 0.75])
 
     ax.axvline(mean_value, color="black", linestyle="solid", linewidth=1, label="Mean")
     ax.axvline(quantiles[0], color="black", linestyle="dashed", linewidth=1, label="Q1: 25%")
@@ -69,7 +69,7 @@ def load_csv_to_list(csv_file):
 def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_results.jpg"):
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
-        for csv_file in csv_files:
+        for ind, csv_file in enumerate(csv_files):
             progbar.set_description(f"Processing file: {csv_file}")
             try:
                 with load_csv(csv_file) as rows:
@@ -93,6 +93,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
                 print(f"CSV error: {e} in file: {csv_file}. \nIncrease the CSV field size limit!")
                 break
             progbar.update(1)
+    progbar.close()
     
     results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])
 
