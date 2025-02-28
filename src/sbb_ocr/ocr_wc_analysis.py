@@ -112,12 +112,16 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
         
         results_df = results_df[results_df["ppn"].isin(mods_info_df["recordInfo_recordIdentifier"])]
         
-        all_genres = mods_info_df["genre-aad"].unique().tolist()
-        print("Number of all genres: ", len(all_genres))
+        #all_genres = mods_info_df["genre-aad"].unique().tolist()
+        #print("Number of all genres: ", len(all_genres))
+        #results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "recordInfo_recordIdentifier"])] # Use "Roman" as an example
         
-        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "recordInfo_recordIdentifier"])] # Use "Roman" as an example
+        mods_info_df["originInfo-publication0_dateIssued"] = pd.to_numeric(mods_info_df["originInfo-publication0_dateIssued"], errors="coerce")
+
+        mods_info_df = mods_info_df.dropna(subset=["originInfo-publication0_dateIssued"])
         
-    
+        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[((mods_info_df["originInfo-publication0_dateIssued"] >= 1601) & (mods_info_df["originInfo-publication0_dateIssued"] <= 1700)), "recordInfo_recordIdentifier"])] # Example (Years): 1601 - 1700
+        
     
     print("\nStatistics results:\n", results_df)
 
