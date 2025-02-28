@@ -6,6 +6,8 @@ import click
 
 from .ppn_handler import PpnHandler, PpnHandlerConfig
 from .ocr_wc_analysis import plot_everything
+import pandas as pd
+import sqlite3
 
 @click.group('sbb_ocr')
 def cli():
@@ -16,13 +18,30 @@ def cli():
 
 
 @cli.command('plot')
+@click.option('-M', '--mods-info', 'mods_info_csv', default="mods_info_df_2024-11-27.csv", help='mods_info CSV for PPN metadata')
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
-def plot_cli(csv_files, plot_file):
+def plot_cli(mods_info_csv, csv_files, plot_file):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
-    plot_everything(csv_files, plot_file)
+    plot_everything(csv_files=csv_files, mods_info_csv=mods_info_csv, plot_file=plot_file)
+
+@cli.command('convert-mods-info')
+@click.argument('MODS_INFO_SQLITE')
+@click.argument('MODS_INFO_CSV')
+def convert_mods_info(mods_info_sqlite, mods_info_csv):
+    """
+    Convert mods_info.parquet.sqlite3 to CSV and remove all non-zero indexed names.
+    """
+    con = sqlite3.connect(mods_info_sqlite)
+    mods_info_df = pd.read_sql("SELECT * FROM mods_info", con, index_col="recordInfo_recordIdentifier")
+    columns_to_drop = []
+    for c in mods_info_df.columns:
+        if c.startswith("name") and not c.startswith("name0"):
+            columns_to_drop.append(c)
+    mods_info_df.drop(columns=columns_to_drop, inplace=True)
+    mods_info_df.to_csv(mods_info_csv, index = False)
 
 @cli.command('ppn2kitodo')
 @click.argument('PPN', nargs=-1)
