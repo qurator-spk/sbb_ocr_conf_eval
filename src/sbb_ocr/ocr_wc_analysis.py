@@ -1,14 +1,11 @@
 from contextlib import contextmanager
 import csv
-from typing import Iterator
 import pandas as pd  
 import numpy as np 
 import matplotlib.pyplot as plt  
 from scipy.stats import gaussian_kde  
-import requests  
-import os  
-import xml.etree.ElementTree as ET  
 from tqdm import tqdm  
+import json
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
 
@@ -98,7 +95,6 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
     results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])
     
     if "mods_info_df_2024-11-27.csv" in mods_info_csv:
-        print("AAAAAAAAA")
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["accessCondition-use and reproduction", "accessCondition-restriction on access", "classification-ZVDD", "genre-aad", "identifier-purl", "identifier-vd17", "language_languageTerm", "location_physicalLocation", "location_shelfLocator", "name0_displayForm", "name0_namePart-family", "name0_namePart-given", "name0_role_roleTerm", "originInfo-digitization0_dateCaptured", "originInfo-digitization0_edition", "originInfo-digitization0_place_placeTerm", "originInfo-digitization0_publisher", "originInfo-publication0_dateIssued", "originInfo-publication0_place_placeTerm", "originInfo-publication0_publisher", "relatedItem-original_recordInfo_recordIdentifier", "titleInfo_subTitle", "titleInfo_title", "typeOfResource", "mets_fileSec_fileGrp-FULLTEXT-count", "mets_fileSec_fileGrp-DEFAULT-count", "mets_fileSec_fileGrp-PRESENTATION-count", "mets_fileSec_fileGrp-THUMBS-count", "mets_file", "identifier-RISMA2", "originInfo-production0_dateCreated", "originInfo-production0_edition", "identifier-KOPE", "originInfo-production0_place_placeTerm", "genre-sbb", "mets_fileSec_fileGrp-MAX-count", "mets_fileSec_fileGrp-MIN-count", "mets_fileSec_fileGrp-LOCAL-count", "language_scriptTerm", "name0_namePart", "relatedItem-host_recordInfo_recordIdentifier", "classification-sbb", "identifier-vd18", "identifier-ORIE", "originInfo-publication0_edition", "identifier-PPNanalog", "genre-wikidata", "identifier-vd16", "subject-EC1418_genre", "subject_name0_displayForm", "subject_name0_namePart-family", "subject_name0_namePart-given", "classification-ddc", "identifier-MMED", "relatedItem-original_recordInfo_recordIdentifier-dnb-ppn", "name0_namePart-termsOfAddress", "genre-marcgt", "identifier-zdb", "identifier-RISMA1", "identifier-GW", "identifier-doi", "classification-ark", "abstract", "accessCondition-embargo enddate", "titleInfo_partName", "identifier-KSTO", "identifier-ISSN", "genre", "identifier-EC1418"])
         
         mods_info_df["ppn_mods"] = mods_info_df["mets_file"].apply(lambda x: x.split("/")[-1].split(".")[0])
@@ -120,7 +116,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
         print("Number of all genres: ", len(all_genres))
         
         results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "recordInfo_recordIdentifier"])] # Use "Roman" as an example
-        print(results_df)
+        
     
     
     print("\nStatistics results:\n", results_df)
