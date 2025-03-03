@@ -13,7 +13,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/`
 - Genres in `genre-aad` column ***(too many)***
 - Projects: ***missing***
 - Titlepages: ***missing***
-- Source: `T:\QURATOR\2024-08-select-documents-for-mass-digitization\2024-09-06`
+- Source: `T:\QURATOR\2024-08-select-documents-for-mass-digitization\2024-09-06\documents.csv`
 	
 `mods_info_df_2024-11-27.csv`: 
 - total number of rows: ***224183***
