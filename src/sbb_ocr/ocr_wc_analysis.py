@@ -63,7 +63,7 @@ def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))        
 
-def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_results.jpg"):
+def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_results.jpg", replace_subgenres : bool = True):
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):
@@ -101,8 +101,20 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
         
         results_df = results_df[results_df["ppn"].isin(mods_info_df["ppn_mods"])]
     
-        all_genres = mods_info_df["genre-aad"].unique().tolist()
+        all_genres = set(mods_info_df["genre-aad"].tolist())
         print("Number of all genres: ", len(all_genres))
+        all_genres = []
+        for genre_raw in set(mods_info_df["genre-aad"].tolist()):
+            genres_json = genre_raw.replace('{', '[').replace('}', ']').replace("'", '"')
+            if not genres_json:
+                continue
+            genres = json.loads(genres_json)
+            if replace_subgenres:
+                genres = [x.split(':')[0] for x in genres]
+            all_genres += genres
+        all_genres = set(all_genres)
+        print("Number of all genres: ", len(all_genres))
+        print("All genres new: ", all_genres)
     
         results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "ppn_mods"])] # Use "Roman" as an example
     
