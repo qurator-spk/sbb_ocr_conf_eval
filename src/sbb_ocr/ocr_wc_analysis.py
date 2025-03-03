@@ -110,11 +110,15 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
                 continue
             genres = json.loads(genres_json)
             if replace_subgenres:
-                genres = [x.split(':')[0] for x in genres]
+                genres = [x.split(':')[0] if ':' in x else x.split('.')[0] for x in genres]
+                
+                if any(x in ["lit", "hist", "jur", "theol", "Ars", "moriendi"] for x in genres):
+                    continue
+                          
             all_genres += genres
-        all_genres = set(all_genres)
-        print("Number of all genres: ", len(all_genres))
-        print("All genres new: ", all_genres)
+        all_genres = sorted(set(all_genres))
+        print("Number of all genres (after reduction): ", len(all_genres))
+        print("All genres: ", all_genres)
     
         results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "ppn_mods"])] # Use "Roman" as an example
     
