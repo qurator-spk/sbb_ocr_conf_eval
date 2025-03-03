@@ -9,18 +9,20 @@ Location: `/nfs/git-annex/michal.bubula/csv/`
 `mods_info_df_2024-09-06.csv`: 
 - total number of rows: ***64260***
 - PPNs in `recordInfo_recordIdentifier` column
-- Years in `originInfo-publication0_dateIssued` column
+- Publication dates in `originInfo-publication0_dateIssued` column
 - Genres in `genre-aad` column ***(too many)***
 - Projects: ***missing***
 - Titlepages: ***missing***
+- Source: `T:\QURATOR\2024-08-select-documents-for-mass-digitization\2024-09-06`
 	
 `mods_info_df_2024-11-27.csv`: 
 - total number of rows: ***224183***
 - PPNs in `ppn_mods` column ***(via workaround)***
-- Years in `originInfo-production0_dateCreated` column ***(needs verification and filtering)***
+- Publication dates in `originInfo-production0_dateCreated` column ***(needs verification and filtering)***
 - Genres in `genre-aad` column ***(too many)***
 - Projects: ***missing***
 - Titlepages: ***missing***
+- Source: `@lx0246:/data/mike.gerber/2024-11-mods_info-etc/2024-11-27/mods_info_df.parquet.sqlite3`
 
 ## Installation
 
