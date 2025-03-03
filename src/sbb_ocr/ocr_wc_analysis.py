@@ -101,10 +101,10 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
         
         results_df = results_df[results_df["ppn"].isin(mods_info_df["ppn_mods"])]
     
-        all_genres = set(mods_info_df["genre-aad"].tolist())
-        print("Number of all genres: ", len(all_genres))
+        all_genres_raw = set(mods_info_df["genre-aad"].tolist())
+        print("\nNumber of all genres: ", len(all_genres_raw))
         all_genres = []
-        for genre_raw in set(mods_info_df["genre-aad"].tolist()):
+        for genre_raw in all_genres_raw:
             genres_json = genre_raw.replace('{', '[').replace('}', ']').replace("'", '"')
             if not genres_json:
                 continue
@@ -116,10 +116,25 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
                     continue
                           
             all_genres += genres
-        all_genres = sorted(set(all_genres))
-        print("Number of all genres (after reduction): ", len(all_genres))
-        print("All genres: ", all_genres)
-    
+        
+        all_genres_reduced = set(all_genres)
+        
+        print("\nNumber of all genres (after reduction): ", len(all_genres_reduced))
+        
+        genre_counts = {}
+        for genre in all_genres:
+            if genre in genre_counts:
+                genre_counts[genre] += 1
+            else:
+                genre_counts[genre] = 1
+            
+        sorted_genre_counts = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)
+        
+
+        print("\nUnique genres and their counts:")
+        for genre, count in sorted_genre_counts:
+            print(f"{genre}: {count}")
+                
         results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "ppn_mods"])] # Use "Roman" as an example
     
     elif "mods_info_df_2024-09-06.csv" in mods_info_csv:
