@@ -139,8 +139,14 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
         for genre, count in sorted_genre_counts:
             print(f"{genre}: {count}")
             
-        plot_threshold = len(all_genres_reduced) * 0.08
-        
+        if sorted_genre_counts:
+            highest_genre, highest_count = sorted_genre_counts[0]  # Get the genre with the highest count 
+            plot_threshold = highest_count * 0.04 
+        else:
+            print("No genres available to calculate the threshold.")
+            plot_threshold = 0
+
+        # Filter genres by the threshold  
         filtered_genre_counts = [(genre, count) for genre, count in sorted_genre_counts_descending if count > plot_threshold]
         
         if not filtered_genre_counts:
@@ -151,11 +157,11 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
 
             plt.figure(figsize=(100, 150)) 
             bars = plt.barh(genres, counts, color=plt.cm.tab10.colors)
-            plt.ylabel('Genres', fontsize=52)
-            plt.xlabel('Counts', fontsize=52)
-            plt.title('Counts of Unique Genres', fontsize=50)
-            plt.xticks(fontsize=48)
-            plt.yticks(fontsize=48) 
+            plt.ylabel('Genres', fontsize=100)
+            plt.xlabel('Counts', fontsize=100)
+            plt.title('Counts of Unique Genres', fontsize=120)
+            plt.xticks(fontsize=65)
+            plt.yticks(fontsize=65) 
             plt.grid(axis='x', linestyle='--', alpha=0.7)
             plt.ylim(-0.5, len(genres) - 0.5) 
             plt.xlim(0, 600)
@@ -163,10 +169,10 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
             # Adding data labels next to bars  
             for bar in bars:
                 xval = bar.get_width()
-                plt.text(xval, bar.get_y() + bar.get_height()/2, int(xval), ha='left', va='center', fontsize=48)  # Display counts next to bars
+                plt.text(xval, bar.get_y() + bar.get_height()/2, int(xval), ha='left', va='center', fontsize=65)  # Display counts next to bars
 
             plt.tight_layout(pad=2.0)
-            plt.savefig("Bar_plot_of_all_genres_horizontal.png")
+            plt.savefig("bar_plot_of_all_genres.png")
             
         results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "ppn_mods"])] # Use "Roman" as an example
     
