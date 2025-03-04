@@ -100,8 +100,12 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
         mods_info_df["ppn_mods"] = mods_info_df["mets_file"].apply(lambda x: x.split("/")[-1].split(".")[0])
         
         results_df = results_df[results_df["ppn"].isin(mods_info_df["ppn_mods"])]
+        
+        matching_ppn_mods = results_df["ppn"].unique()
+        
+        filtered_genres = mods_info_df[mods_info_df['ppn_mods'].isin(matching_ppn_mods)]
     
-        all_genres_raw = set(mods_info_df["genre-aad"].tolist())
+        all_genres_raw = set(filtered_genres["genre-aad"].tolist())
         print("\nNumber of all genres: ", len(all_genres_raw))
         all_genres = []
         for genre_raw in all_genres_raw:
@@ -129,12 +133,41 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
                 genre_counts[genre] = 1
             
         sorted_genre_counts = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)
-        
+        sorted_genre_counts_descending = sorted(genre_counts.items(), key=lambda x: x[1], reverse=False)
 
         print("\nUnique genres and their counts:")
         for genre, count in sorted_genre_counts:
             print(f"{genre}: {count}")
+            
+        plot_threshold = len(all_genres_reduced) * 0.08
+        
+        filtered_genre_counts = [(genre, count) for genre, count in sorted_genre_counts_descending if count > plot_threshold]
+        
+        if not filtered_genre_counts:
+            print("No genres exceed 8% of the total count.")
+        else:
                 
+            genres, counts = zip(*filtered_genre_counts)
+
+            plt.figure(figsize=(100, 150)) 
+            bars = plt.barh(genres, counts, color=plt.cm.tab10.colors)
+            plt.ylabel('Genres', fontsize=52)
+            plt.xlabel('Counts', fontsize=52)
+            plt.title('Counts of Unique Genres', fontsize=50)
+            plt.xticks(fontsize=48)
+            plt.yticks(fontsize=48) 
+            plt.grid(axis='x', linestyle='--', alpha=0.7)
+            plt.ylim(-0.5, len(genres) - 0.5) 
+            plt.xlim(0, 600)
+
+            # Adding data labels next to bars  
+            for bar in bars:
+                xval = bar.get_width()
+                plt.text(xval, bar.get_y() + bar.get_height()/2, int(xval), ha='left', va='center', fontsize=48)  # Display counts next to bars
+
+            plt.tight_layout(pad=2.0)
+            plt.savefig("Bar_plot_of_all_genres_horizontal.png")
+            
         results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "ppn_mods"])] # Use "Roman" as an example
     
     elif "mods_info_df_2024-09-06.csv" in mods_info_csv:
