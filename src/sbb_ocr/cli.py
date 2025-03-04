@@ -61,6 +61,15 @@ def ppn2pagexml_cli(ppn):
     ppn_handler = PpnHandler(PpnHandlerConfig())
     print(ppn_handler.ppn2pagexml(ppn))
 
+@cli.command('ppn2mets')
+@click.argument('PPN', nargs=-1)
+def ppn2mets_cli(ppn):
+    """
+    Get METS file for PPN
+    """
+    ppn_handler = PpnHandler(PpnHandlerConfig())
+    print(ppn_handler.ppn2mets(ppn))
+
 @cli.command('ppn2confs')
 @click.option('--format', default='csv', type=click.Choice(['csv', 'json']), help="Whether to output csv or json")
 @click.option('--output', type=click.File('w'), default=sys.stdout, help='Print to this file')
