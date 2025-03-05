@@ -18,14 +18,15 @@ def cli():
 
 
 @cli.command('plot')
+@click.option('-g', '--genre', 'search_genre', help='genre to be evaluated')
 @click.option('-M', '--mods-info', 'mods_info_csv', default="mods_info_df_2024-11-27.csv", help='mods_info CSV for PPN metadata')
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
-def plot_cli(mods_info_csv, csv_files, plot_file):
+def plot_cli(search_genre, mods_info_csv, csv_files, plot_file):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
-    plot_everything(csv_files=csv_files, mods_info_csv=mods_info_csv, plot_file=plot_file)
+    plot_everything(csv_files=csv_files, mods_info_csv=mods_info_csv, search_genre=search_genre, plot_file=plot_file)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')
