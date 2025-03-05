@@ -182,11 +182,6 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
             plt.close()
             
         genre_chosen = search_genre
-        #genre_chosen = "Lyrik"
-        
-        #results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(genre_chosen, na=False), "ppn_mods"])]
-        
-        #results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "ppn_mods"])] # Use "Roman" as an example
             
         results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(genre_chosen, na=False), "ppn_mods"])]
     
