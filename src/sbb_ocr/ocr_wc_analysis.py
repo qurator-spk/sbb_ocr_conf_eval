@@ -97,7 +97,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
     top_ppns = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0)) & (results_df["mean_textline"] >= 0.95) & (results_df["mean_textline"] <= 1.0)]
     top_ppn_unique = top_ppns["ppn"].unique()
     top_ppn_list = top_ppn_unique[:50]  
-    print(f"List of {len(top_ppn_list)} PPNs with mean_word score & mean_textline scores between 0.95 and 1.0:")
+    print(f"\nList of {len(top_ppn_list)} PPNs with mean_word score & mean_textline scores between 0.95 and 1.0:")
     
     for ppn in top_ppn_list:
         print(ppn)

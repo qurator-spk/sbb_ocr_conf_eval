@@ -51,4 +51,5 @@ Commands:
   ppn2kitodo          Translate PPN into Kitodo ID
   ppn2pagexml         Get a list of PAGE-XML files for PPN
   convert-mods-info   Convert mods_info.parquet.sqlite3 to CONF_CSV_FILE and remove all non-zero indexed names
+  ppn2mets            Get METS file for PPN
 ```
