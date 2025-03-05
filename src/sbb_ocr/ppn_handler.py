@@ -15,6 +15,7 @@ class PpnHandlerConfig():
     ppn2kitodo_cache_file : str = 'ppn2kitodo_cache.json'
     ppn2id_url = 'http://b-lx0129/cgi-bin/kitodo_stat/ppn2id.pl'
     nfs_goobi: str = '/home/konstantin.baierer/nfs_goobi'
+    nfs_source: str = '/home/konstantin.baierer/nfs_source'
 
 class PpnHandler():
     config : PpnHandlerConfig
@@ -24,7 +25,7 @@ class PpnHandler():
         self.ppn2kitodo_cache = {}
         self.config = config
         self.load_cache()
-        self.console = Console()
+        self.console = Console(file=sys.stderr)
 
     def load_cache(self):
         """
@@ -63,6 +64,9 @@ class PpnHandler():
                     confs_word.append(word_conf)
         return [confs_textline, confs_word]
 
+    def normalize_ppn(self, ppn_list):
+        return ['PPN' + x.replace('PPN', '') for x in ppn_list]
+
     def ppn2confs(self, ppn_list: list[str]):
         """
         Return a list of 5-tuples
@@ -75,7 +79,7 @@ class PpnHandler():
         ppn_list = self.normalize_ppn(ppn_list)
         mapped = self.ppn2pagexml(ppn_list)
         ret = []
-        i = 0
+        i = 1
         for ppn, pagexml_list in mapped.items():
             self.console.log(f'[{i:3d}/{len(mapped.keys()):3d}] Extracting confidences for {len(pagexml_list)} PAGE-XML files of PPN {ppn}')
             for pagexml in pagexml_list:
@@ -92,16 +96,13 @@ class PpnHandler():
         ppn_list = self.normalize_ppn(ppn_list)
         mapped = self.ppn2kitodo(ppn_list)
         ret = {}
-        i = 0
+        i = 1
         for ppn, kitodo_id in mapped.items():
             self.console.log(f'[{i:3d}/{len(mapped.keys()):3d}] Listing PAGE-XML for PPN {ppn} / Kitodo ID {kitodo_id}')
             ocrdir = Path(self.config.nfs_goobi, 'archiv', kitodo_id, 'ocr')
             ret[ppn] = sorted(ocrdir.glob('*/page/*/*.xml'))
             i += 1
         return ret
-
-    def normalize_ppn(self, ppn_list):
-        return ['PPN' + x.replace('PPN', '') for x in ppn_list]
 
     def ppn2kitodo(self, ppn_list: list[str]) -> dict[str, str]:
         """
@@ -128,3 +129,17 @@ class PpnHandler():
             self.console.log(f"Retrieved f{len(retrieved)} Kitodo IDs")
             self.save_cache(retrieved)
         return {x: self.ppn2kitodo_cache[x] for x in ppn_list}
+
+    def ppn2mets(self, ppn_list: list[str]) -> dict[str, str]:
+        """
+        Retrieve METS-XML for PPN from Kitodo index NFS location.
+        """
+        ppn_list = self.normalize_ppn(ppn_list)
+        ret = {}
+        i = 1
+        for ppn in ppn_list:
+            self.console.log(f'[{i:3d}/{len(ppn_list):3d}] Retrieving METS for PPN {ppn}')
+            # $NFS_SOURCE/new_presentation/dc-indexing/indexed_mets/$ppn.xml
+            ret[ppn] = Path(self.config.nfs_source, 'new_presentation/dc-indexing/indexed_mets/', f'{ppn}.xml')
+            i += 1
+        return ret
