@@ -58,15 +58,15 @@ Options:
     --help                   Show this message and exit
   
     plot:
-	     -m, --mods-info     Add MODS_INFO_FILE with the PPN metadata
-	     -g, --genre         Add genre to be evaluated
-	     -d, --date-range    Add date range for filtering data, specify Year_Start Year_End
+	    -m, --mods-info     Add MODS_INFO_FILE with the PPN metadata
+        -g, --genre         Add genre to be evaluated
+        -d, --date-range    Add date range for filtering data, specify Year_Start Year_End
 	  
     ppn2pagexml:
-         --format            Whether to output csv or json
-	     --output            Print to this file
+        --format            Whether to output csv or json
+        --output            Print to this file
 	   
     ppn2confs:
-         --format            Whether to output csv or json
-	     --output            Print to this file
+        --format            Whether to output csv or json
+        --output            Print to this file
 ```
