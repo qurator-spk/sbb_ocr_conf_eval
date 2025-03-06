@@ -63,7 +63,7 @@ def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))        
 
-def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True):
+def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True, year_start=None, year_end=None):
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):
@@ -199,7 +199,12 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
 
         mods_info_df = mods_info_df.dropna(subset=["originInfo-publication0_dateIssued"])
         
-        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[((mods_info_df["originInfo-publication0_dateIssued"] >= 1601) & (mods_info_df["originInfo-publication0_dateIssued"] <= 1700)), "recordInfo_recordIdentifier"])] # Example (Years): 1601 - 1700
+        if year_start is not None and year_end is not None:
+            results_df = results_df[results_df["ppn"].isin(
+            mods_info_df.loc[
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+                "recordInfo_recordIdentifier"])]
         
     
     print("\nStatistics results:\n", results_df)

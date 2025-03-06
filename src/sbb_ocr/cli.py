@@ -20,13 +20,20 @@ def cli():
 @cli.command('plot')
 @click.option('-g', '--genre', 'search_genre', help='genre to be evaluated')
 @click.option('-M', '--mods-info', 'mods_info_csv', default="mods_info_df_2024-11-27.csv", help='mods_info CSV for PPN metadata')
+@click.option('-d', '--date-range', 'date_range', nargs=2, type=(int, int), help='Year range for filtering data, specify Year_Start Year_End')
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
-def plot_cli(search_genre, mods_info_csv, csv_files, plot_file):
+def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
-    plot_everything(csv_files=csv_files, mods_info_csv=mods_info_csv, search_genre=search_genre, plot_file=plot_file)
+    
+    if date_range is None:
+        year_start, year_end = (None, None)
+    else:
+        year_start, year_end = date_range
+    
+    plot_everything(csv_files=csv_files, mods_info_csv=mods_info_csv, search_genre=search_genre, plot_file=plot_file, year_start=year_start, year_end=year_end)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')
