@@ -63,7 +63,7 @@ def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))        
 
-def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_results.jpg", replace_subgenres : bool = True):
+def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True):
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):
@@ -94,7 +94,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
     
     results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])
     
-    top_ppns = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0)) & (results_df["mean_textline"] >= 0.95) & (results_df["mean_textline"] <= 1.0)]
+    top_ppns = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0)) & ((results_df["mean_textline"] >= 0.95) & (results_df["mean_textline"] <= 1.0))]
     top_ppn_unique = top_ppns["ppn"].unique()
     top_ppn_list = top_ppn_unique[:50]  
     print(f"\nList of {len(top_ppn_list)} PPNs with mean_word score & mean_textline scores between 0.95 and 1.0:")
@@ -181,7 +181,9 @@ def plot_everything(csv_files : list[str], mods_info_csv, plot_file="statistics_
             plt.savefig("bar_plot_of_all_genres.png")
             plt.close()
             
-        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "ppn_mods"])] # Use "Roman" as an example
+        genre_chosen = search_genre
+            
+        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(genre_chosen, na=False), "ppn_mods"])]
     
     elif "2024-09-06" in mods_info_csv:
         
