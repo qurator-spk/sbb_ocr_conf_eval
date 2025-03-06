@@ -36,20 +36,37 @@ pip install -e .
 
 ## Usage
 ```
-Usage: sbb_ocr COMMAND [OPTIONS] [ARGS]...
+Usage:     sbb_ocr COMMAND [ARGS] [OPTIONS]...
 
-Example: sbb_ocr plot -M /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
+Examples:  sbb_ocr plot -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
+     
+	       sbb_ocr plot -g Roman -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
+		 
+		   sbb_ocr plot -d 1601 1700 -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
 
-Options:
-  --help              Show this message and exit
-  -M, --mods-info     Add MODS_INFO_FILE with the PPN metadata
 
 Commands:
-  plot                Plot confidence metrics from all CONF_CSV_FILES, output to a single PLOT_FILE 
-                      (add -M or --mods-info for the MODS_INFO_FILE with the PPN metadata)
-  ppn2confs           Get the table of line and word confidences for PPN
-  ppn2kitodo          Translate PPN into Kitodo ID
-  ppn2pagexml         Get a list of PAGE-XML files for PPN
-  convert-mods-info   Convert mods_info.parquet.sqlite3 to CONF_CSV_FILE and remove all non-zero indexed names
-  ppn2mets            Get METS file for PPN
+    plot                     Plot confidence metrics from all CONF_CSV_FILES, output to a single PLOT_FILE 
+    ppn2confs                Get the table of line and word confidences for PPN
+    ppn2kitodo               Translate PPN into Kitodo ID
+    ppn2pagexml              Get a list of PAGE-XML files for PPN
+    convert-mods-info        Convert mods_info.parquet.sqlite3 to CONF_CSV_FILE and remove all non-zero indexed names
+    ppn2mets                 Get METS file for PPN
+
+
+Options:
+    --help                   Show this message and exit
+  
+    plot:
+	     -m, --mods-info     Add MODS_INFO_FILE with the PPN metadata
+	     -g, --genre         Add genre to be evaluated
+	     -d, --date-range    Add date range for filtering data, specify Year_Start Year_End
+	  
+    ppn2pagexml:
+         --format            Whether to output csv or json
+	     --output            Print to this file
+	   
+    ppn2confs:
+         --format            Whether to output csv or json
+	     --output            Print to this file
 ```
