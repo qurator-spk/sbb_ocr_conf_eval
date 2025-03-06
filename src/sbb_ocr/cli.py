@@ -1,9 +1,7 @@
 import json
 import sys
 import csv
-
 import click
-
 from .ppn_handler import PpnHandler, PpnHandlerConfig
 from .ocr_wc_analysis import plot_everything
 import pandas as pd

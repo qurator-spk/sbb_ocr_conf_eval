@@ -40,9 +40,9 @@ Usage:     sbb_ocr COMMAND [ARGS] [OPTIONS]...
 
 Examples:  sbb_ocr plot -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
  
-           sbb_ocr plot -g Roman -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
+           sbb_ocr plot -g GENRE -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
  
-           sbb_ocr plot -d 1601 1700 -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
+           sbb_ocr plot -d Year_Start Year_End -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
 
 
 Commands:
