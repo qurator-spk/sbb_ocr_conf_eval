@@ -61,13 +61,23 @@ def ppn2kitodo_cli(ppn):
     print(json.dumps(ppn_handler.ppn2kitodo(ppn)))
 
 @cli.command('ppn2pagexml')
+@click.option('--format', default='csv', type=click.Choice(['csv', 'json']), help="Whether to output csv or json")
+@click.option('--output', type=click.File('w'), default=sys.stdout, help='Print to this file')
 @click.argument('PPN', nargs=-1)
-def ppn2pagexml_cli(ppn):
+def ppn2pagexml_cli(format, output, ppn):
     """
     Get a list of PAGE-XML files for PPN
     """
     ppn_handler = PpnHandler(PpnHandlerConfig())
-    print(ppn_handler.ppn2pagexml(ppn))
+    table = ppn_handler.ppn2pagexml(ppn)
+    if format == 'csv':
+        writer = csv.writer(output)
+        writer.writerow(['ppn', 'pagexml'])
+        for ppn, pagexml_list in table.items():
+            for pagexml in pagexml_list:
+                writer.writerow([ppn, pagexml])
+    else:
+        json.dump({k: [str(x) for x in v] for k, v in table.items()}, output)
 
 @cli.command('ppn2mets')
 @click.argument('PPN', nargs=-1)
