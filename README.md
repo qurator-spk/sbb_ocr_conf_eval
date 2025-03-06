@@ -42,7 +42,7 @@ Examples:  sbb_ocr plot -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /pa
  
            sbb_ocr plot -g GENRE -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
  
-           sbb_ocr plot -d Year_Start Year_End -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
+           sbb_ocr plot -d YEAR_START YEAR_END -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
 
 
 Commands:
@@ -59,8 +59,8 @@ Options:
   
     plot:
         -m, --mods-info     Add MODS_INFO_FILE with the PPN metadata
-        -g, --genre         Add genre to be evaluated
-        -d, --date-range    Add date range for filtering data, specify Year_Start Year_End
+        -g, --genre         Add GENRE to be evaluated
+        -d, --date-range    Add date range for filtering data, specify <YEAR_START YEAR_END>
  
     ppn2pagexml:
         --format            Whether to output csv or json

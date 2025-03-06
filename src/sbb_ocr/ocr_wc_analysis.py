@@ -65,9 +65,9 @@ def load_csv_to_list(csv_file):
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True, year_start=None, year_end=None):
     """
-    Plot confidence metrics from all CSV_FILES into a single PLOT_FILE.
+    Plot confidence scores from all CSV_FILES into a single PLOT_FILE.
 
-    CSV_FILES: One or more CSV files containing confidence metrics data.
+    CSV_FILES: One or more CSV files containing confidence scores data.
     
     PLOT_FILE: Output file name for the generated plot (e.g., PNG or JPG).
     
@@ -193,9 +193,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
             plt.savefig("bar_plot_of_all_genres.png")
             plt.close()
             
-        genre_chosen = search_genre
-            
-        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(genre_chosen, na=False), "ppn_mods"])]
+        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "ppn_mods"])]
     
     elif "2024-09-06" in mods_info_csv:
         
