@@ -60,19 +60,17 @@ Examples:
  
     sbb_ocr plot -g GENRE -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
  
-    sbb_ocr plot -d <YEAR_START YEAR_END> -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path//PLOT_FILE
+    sbb_ocr plot -d <YEAR_START YEAR_END> -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
  
     sbb_ocr plot -g GENRE -d <YEAR_START YEAR_END> -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
 
 
 Commands:
-    plot                    Plot confidence metrics from all CONF_CSV_FILES,
-                                output to a single PLOT_FILE 
+    plot                    Plot confidence metrics from all CONF_CSV_FILES, output to a single PLOT_FILE 
     ppn2confs               Get the table of line and word confidences for PPN
     ppn2kitodo              Translate PPN into Kitodo ID
     ppn2pagexml             Get a list of PAGE-XML files for PPN
-    convert-mods-info       Convert mods_info.parquet.sqlite3 to CONF_CSV_FILE
-                                and remove all non-zero indexed names
+    convert-mods-info       Convert mods_info.parquet.sqlite3 to CONF_CSV_FILE and remove all non-zero indexed names
     ppn2mets                Get METS file for PPN
 
 
