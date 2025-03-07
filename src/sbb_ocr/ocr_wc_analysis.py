@@ -223,21 +223,34 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
 
         filtered_mods_info_df = mods_info_df[mods_info_df['recordInfo_recordIdentifier'].isin(ppn_list_df['PPN'])]
         
-        merged_mods_info_df = pd.DataFrame()
-        merged_mods_info_df['PPN'] = ppn_list_df['PPN']
-        merged_mods_info_df = merged_mods_info_df.merge(filtered_mods_info_df[['recordInfo_recordIdentifier', 'genre-aad', 'originInfo-publication0_dateIssued']],
-                                left_on='PPN', right_on='recordInfo_recordIdentifier', how='left')
+        #merged_mods_info_df = pd.DataFrame()
+        #merged_mods_info_df['PPN'] = ppn_list_df['PPN']
+        #merged_mods_info_df = merged_mods_info_df.merge(filtered_mods_info_df[['recordInfo_recordIdentifier', 'genre-aad', 'originInfo-publication0_dateIssued']],
+        #                        left_on='PPN', right_on='recordInfo_recordIdentifier', how='left')
 
-        merged_mods_info_df.drop(columns='recordInfo_recordIdentifier', inplace=True)
-        merged_mods_info_df["originInfo-publication0_dateIssued"] = pd.to_numeric(merged_mods_info_df["originInfo-publication0_dateIssued"], errors="coerce")
-        merged_mods_info_df.dropna(subset=["originInfo-publication0_dateIssued"], inplace=True)
-        merged_mods_info_df["originInfo-publication0_dateIssued"] = merged_mods_info_df["originInfo-publication0_dateIssued"].astype(int)
-        merged_mods_info_df = merged_mods_info_df.reset_index(drop=True)
-        #merged_mods_info_df.set_index('PPN', inplace=True)
+        #merged_mods_info_df.drop(columns='recordInfo_recordIdentifier', inplace=True)
+        #merged_mods_info_df["originInfo-publication0_dateIssued"] = pd.to_numeric(merged_mods_info_df["originInfo-publication0_dateIssued"], errors="coerce")
+        #merged_mods_info_df.dropna(subset=["originInfo-publication0_dateIssued"], inplace=True)
+        #merged_mods_info_df["originInfo-publication0_dateIssued"] = merged_mods_info_df["originInfo-publication0_dateIssued"].astype(int)
+        #merged_mods_info_df = merged_mods_info_df.reset_index(drop=True)
 
-        print("\nMerged mods_info_df: \n", merged_mods_info_df.head())
+        #print("\nMerged mods_info_df: \n", merged_mods_info_df.head())
         
-        merged_mods_info_df.to_csv("merged_mods_info_df_2025-03-07.csv", index=False)
+        #merged_mods_info_df.to_csv("merged_mods_info_df_2025-03-07.csv", index=False)
+        
+    elif "2025-03-07" in mods_info_csv:
+        
+        mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
+        
+        if search_genre is not None:
+            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+        
+        if year_start is not None and year_end is not None:
+            results_df = results_df[results_df["ppn"].isin(
+            mods_info_df.loc[
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+                "PPN"])] 
     
     print("\nStatistics results:\n", results_df)
 
