@@ -18,7 +18,7 @@ def cli():
 @cli.command('plot')
 @click.option('-g', '--genre', 'search_genre', help='genre to be evaluated')
 @click.option('-m', '--mods-info', 'mods_info_csv', default="mods_info_df_2024-11-27.csv", help='mods_info CSV for PPN metadata')
-@click.option('-d', '--date-range', 'date_range', nargs=2, type=(int, int), help='Year range for filtering data, specify Year_Start Year_End')
+@click.option('-d', '--date-range', 'date_range', nargs=2, type=(int, int), help='Year range for filtering data, specify <YEAR_START YEAR_END>')
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range):
