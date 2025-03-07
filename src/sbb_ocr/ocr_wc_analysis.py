@@ -251,67 +251,78 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
                 "PPN"])] 
+                
+        if search_genre is not None and year_start is not None and year_end is not None:
+            results_df = results_df[results_df["ppn"].isin(
+            mods_info_df.loc[
+                (mods_info_df["genre-aad"].str.contains(search_genre, na=False)) &
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+                "PPN"])]
     
-    print("\nStatistics results:\n", results_df)
+    if results_df.empty:
+        print("\nThere are no results matching the applied filters.")
+    else:
+        print("\nStatistics results:\n", results_df)
 
-    # Main plotting function  
-    fig, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
-    
-    plot_colors = {
-        "word": {
-            "mean": "lightblue",
-            "mean_density": "blue",
-            "std": "salmon",
-            "std_density": "red"
-        },
-        "textline": {
-            "mean": "lightgreen",
-            "mean_density": "darkgreen",
-            "std": "wheat",
-            "std_density": "sienna"
+        # Main plotting function  
+        fig, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
+        
+        plot_colors = {
+            "word": {
+                "mean": "lightblue",
+                "mean_density": "blue",
+                "std": "salmon",
+                "std_density": "red"
+            },
+            "textline": {
+                "mean": "lightgreen",
+                "mean_density": "darkgreen",
+                "std": "wheat",
+                "std_density": "sienna"
+            }
         }
-    }
-    
-    plot_histogram(axs[0, 0], results_df["mean_word"], np.arange(0, 1.1, 0.05), 
-                                "Mean Word Confidence Scores", 
-                                "Mean Word Confidence", "Frequency", 
-                                plot_colors["word"]["mean"])
-                                
-    plot_density(axs[0, 1], results_df["mean_word"], 
-                                "Mean Word Confidence Scores", 
-                                "Mean Word Confidence", "Density", 
-                                plot_colors["word"]["mean_density"], legend_loc="upper left")      
-    
-    plot_histogram(axs[0, 2], results_df["standard_deviation_word"], np.arange(0, 1.1, 0.05), 
-                                "Standard Deviation Word Confidence Scores", 
-                                "Standard Deviation Word Confidence", "Frequency", 
-                                plot_colors["word"]["std"])
-                                
-    plot_density(axs[0, 3], results_df["standard_deviation_word"], 
-                                "Standard Deviation Word Confidence Scores", 
-                                "Standard Deviation Word Confidence", "Density", 
-                                plot_colors["word"]["std_density"], legend_loc="upper right")
-                                
-    plot_histogram(axs[1, 0], results_df["mean_textline"], np.arange(0, 1.1, 0.05), 
-                                "Mean Textline Confidence Scores", 
-                                "Mean Textline Confidence", "Frequency", 
-                                plot_colors["textline"]["mean"])
-                                
-    plot_density(axs[1, 1], results_df["mean_textline"], 
-                                "Mean Textline Confidence Scores", 
-                                "Mean Textline Confidence", "Density", 
-                                plot_colors["textline"]["mean_density"], legend_loc="upper left")      
-    
-    plot_histogram(axs[1, 2], results_df["standard_deviation_textline"], np.arange(0, 1.1, 0.05), 
-                                "Standard Deviation Textline Confidence Scores", 
-                                "Standard Deviation Textline Confidence", "Frequency", 
-                                plot_colors["textline"]["std"])
-                                
-    plot_density(axs[1, 3], results_df["standard_deviation_textline"], 
-                                "Standard Deviation Textline Confidence Scores", 
-                                "Standard Deviation Textline Confidence", "Density", 
-                                plot_colors["textline"]["std_density"], legend_loc="upper right")
-    
-    plt.tight_layout(pad=1.0)
-    plt.savefig(plot_file)
-    plt.show()
+        
+        plot_histogram(axs[0, 0], results_df["mean_word"], np.arange(0, 1.1, 0.05), 
+                                    "Mean Word Confidence Scores", 
+                                    "Mean Word Confidence", "Frequency", 
+                                    plot_colors["word"]["mean"])
+                                    
+        plot_density(axs[0, 1], results_df["mean_word"], 
+                                    "Mean Word Confidence Scores", 
+                                    "Mean Word Confidence", "Density", 
+                                    plot_colors["word"]["mean_density"], legend_loc="upper left")      
+        
+        plot_histogram(axs[0, 2], results_df["standard_deviation_word"], np.arange(0, 1.1, 0.05), 
+                                    "Standard Deviation Word Confidence Scores", 
+                                    "Standard Deviation Word Confidence", "Frequency", 
+                                    plot_colors["word"]["std"])
+                                    
+        plot_density(axs[0, 3], results_df["standard_deviation_word"], 
+                                    "Standard Deviation Word Confidence Scores", 
+                                    "Standard Deviation Word Confidence", "Density", 
+                                    plot_colors["word"]["std_density"], legend_loc="upper right")
+                                    
+        plot_histogram(axs[1, 0], results_df["mean_textline"], np.arange(0, 1.1, 0.05), 
+                                    "Mean Textline Confidence Scores", 
+                                    "Mean Textline Confidence", "Frequency", 
+                                    plot_colors["textline"]["mean"])
+                                    
+        plot_density(axs[1, 1], results_df["mean_textline"], 
+                                    "Mean Textline Confidence Scores", 
+                                    "Mean Textline Confidence", "Density", 
+                                    plot_colors["textline"]["mean_density"], legend_loc="upper left")      
+        
+        plot_histogram(axs[1, 2], results_df["standard_deviation_textline"], np.arange(0, 1.1, 0.05), 
+                                    "Standard Deviation Textline Confidence Scores", 
+                                    "Standard Deviation Textline Confidence", "Frequency", 
+                                    plot_colors["textline"]["std"])
+                                    
+        plot_density(axs[1, 3], results_df["standard_deviation_textline"], 
+                                    "Standard Deviation Textline Confidence Scores", 
+                                    "Standard Deviation Textline Confidence", "Density", 
+                                    plot_colors["textline"]["std_density"], legend_loc="upper right")
+        
+        plt.tight_layout(pad=1.0)
+        plt.savefig(plot_file)
+        plt.show()
