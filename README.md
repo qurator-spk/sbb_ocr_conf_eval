@@ -6,8 +6,17 @@
 
 Location: `/nfs/git-annex/michal.bubula/csv/`
 
+`merged_mods_info_df_2025-03-07.csv`:
+- Total number of rows: ***47694*** 
+- PPNs in `PPN` column
+- Genres in `genre-aad` column
+- Publication dates in `originInfo-publication0_dateIssued` column ***(dropped NaNs)***
+- Projects: ***missing***
+- Titlepages: ***missing***
+- Source: Merge of `mods_info_df_2024-09-06.csv` and `PPN.list.2024-09-06`
+
 `mods_info_df_2024-09-06.csv`: 
-- total number of rows: ***64260***
+- Total number of rows: ***64260***
 - PPNs in `recordInfo_recordIdentifier` column
 - Publication dates in `originInfo-publication0_dateIssued` column
 - Genres in `genre-aad` column ***(too many)***
@@ -16,7 +25,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/`
 - Source: `T:\QURATOR\2024-08-select-documents-for-mass-digitization\2024-09-06\documents.csv`
 	
 `mods_info_df_2024-11-27.csv`: 
-- total number of rows: ***224183***
+- Total number of rows: ***224183***
 - PPNs in `ppn_mods` column ***(via workaround)***
 - Publication dates in `originInfo-production0_dateCreated` column ***(needs verification and filtering)***
 - Genres in `genre-aad` column ***(too many)***
@@ -42,7 +51,9 @@ Examples:  sbb_ocr plot -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /pa
  
            sbb_ocr plot -g GENRE -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
  
-           sbb_ocr plot -d YEAR_START YEAR_END -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
+           sbb_ocr plot -d <YEAR_START YEAR_END> -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
+		   
+		   sbb_ocr plot -g GENRE -d <YEAR_START YEAR_END> -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
 
 
 Commands:
