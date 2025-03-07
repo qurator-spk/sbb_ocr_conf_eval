@@ -64,18 +64,6 @@ def load_csv_to_list(csv_file):
         return list(csv.reader(f))        
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True, year_start=None, year_end=None):
-    """
-    Plot confidence scores from all CSV_FILES into a single PLOT_FILE.
-
-    CSV_FILES: One or more CSV files containing confidence scores data.
-    
-    PLOT_FILE: Output file name for the generated plot (e.g., PNG or JPG).
-    
-    Options:
-    -g, --genre        Specify the genre to filter the metadata.
-    -m, --mods-info    Provide the MODS_INFO_FILE containing metadata.
-    -d, --date-range   Specify a date range as Year_Start Year_End to filter.
-    """
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):

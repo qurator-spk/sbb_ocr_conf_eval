@@ -45,23 +45,34 @@ pip install -e .
 
 ## Usage
 ```
-Usage:     sbb_ocr COMMAND [ARGS] [OPTIONS]...
+Usage:    
+    
+    sbb_ocr COMMAND [ARGS] [OPTIONS]...
+  
+    CSV_FILES: One or more CSV files containing confidence scores data.
+    
+    PLOT_FILE: Output file name for the generated plot (e.g., PNG or JPG).
 
-Examples:  sbb_ocr plot -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
+
+Examples: 
+
+    sbb_ocr plot -m /path/MODS_INFO_FILE /path/to/file/CONF_CSV_FILES /path/PLOT_FILE
  
-           sbb_ocr plot -g GENRE -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
+    sbb_ocr plot -g GENRE -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
  
-           sbb_ocr plot -d <YEAR_START YEAR_END> -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
-		   
-		   sbb_ocr plot -g GENRE -d <YEAR_START YEAR_END> -m /path/MODS_INFO_FILE.csv /path/CONF_CSV_FILES.csv /path/PLOT_FILE.png
+    sbb_ocr plot -d <YEAR_START YEAR_END> -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path//PLOT_FILE
+ 
+    sbb_ocr plot -g GENRE -d <YEAR_START YEAR_END> -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
 
 
 Commands:
-    plot                    Plot confidence metrics from all CONF_CSV_FILES, output to a single PLOT_FILE 
+    plot                    Plot confidence metrics from all CONF_CSV_FILES,
+                                output to a single PLOT_FILE 
     ppn2confs               Get the table of line and word confidences for PPN
     ppn2kitodo              Translate PPN into Kitodo ID
     ppn2pagexml             Get a list of PAGE-XML files for PPN
-    convert-mods-info       Convert mods_info.parquet.sqlite3 to CONF_CSV_FILE and remove all non-zero indexed names
+    convert-mods-info       Convert mods_info.parquet.sqlite3 to CONF_CSV_FILE
+                                and remove all non-zero indexed names
     ppn2mets                Get METS file for PPN
 
 
