@@ -61,7 +61,80 @@ def load_csv(csv_file):
         
 def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
-        return list(csv.reader(f))        
+        return list(csv.reader(f))
+
+def genre_statistics(ppn_col, mods_info_df, results_df, replace_subgenres=True):
+    matching_ppn_mods = results_df["ppn"].unique()
+
+    filtered_genres = mods_info_df[mods_info_df[ppn_col].isin(matching_ppn_mods)]
+
+    all_genres_raw = set(filtered_genres["genre-aad"].tolist())
+    print("\nNumber of all genres: ", len(all_genres_raw))
+    all_genres = []
+    for genre_raw in all_genres_raw:
+        genres_json = genre_raw.replace('{', '[').replace('}', ']').replace("'", '"')
+        if not genres_json:
+            continue
+        genres = json.loads(genres_json)
+        if replace_subgenres:
+            genres = [x.split(':')[0] if ':' in x else x.split('.')[0] for x in genres]
+
+            if any(x in ["lit", "hist", "jur", "theol", "Ars", "moriendi"] for x in genres):
+                continue
+
+        all_genres += genres
+
+    all_genres_reduced = set(all_genres)
+    print("\nNumber of all genres (after reduction): ", len(all_genres_reduced))
+
+    genre_counts = {}
+    for genre in all_genres:
+        if genre in genre_counts:
+            genre_counts[genre] += 1
+        else:
+            genre_counts[genre] = 1
+
+    sorted_genre_counts = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)
+    sorted_genre_counts_descending = sorted(genre_counts.items(), key=lambda x: x[1], reverse=False)
+
+    print("\nUnique genres and their counts:")
+    for genre, count in sorted_genre_counts:
+        print(f"{genre}: {count}")
+
+    if sorted_genre_counts:
+        highest_genre, highest_count = sorted_genre_counts[0]  # Get the genre with the highest count
+        plot_threshold = highest_count * 0.04
+    else:
+        print("No genre available to calculate the threshold.")
+        plot_threshold = 0
+
+    # Filter genres by the threshold
+    filtered_genre_counts = [(genre, count) for genre, count in sorted_genre_counts_descending if count > plot_threshold]
+
+    if not filtered_genre_counts:
+        print("No genre exceeds the threshold.")
+    else:
+        genres, counts = zip(*filtered_genre_counts)
+
+        plt.figure(figsize=(100, 150))
+        bars = plt.barh(genres, counts, color=plt.cm.tab10.colors)
+        plt.ylabel('Genres', fontsize=100)
+        plt.xlabel('Counts', fontsize=100)
+        plt.title('Counts of Unique Genres', fontsize=120)
+        plt.xticks(fontsize=65)
+        plt.yticks(fontsize=65)
+        plt.grid(axis='x', linestyle='--', alpha=0.7)
+        plt.ylim(-0.5, len(genres) - 0.5)
+        plt.xlim(0, 600)
+
+        # Adding data labels next to bars
+        for bar in bars:
+            xval = bar.get_width()
+            plt.text(xval, bar.get_y() + bar.get_height()/2, int(xval), ha='left', va='center', fontsize=65)  # Display counts next to bars
+
+        plt.tight_layout(pad=2.0)
+        plt.savefig("bar_plot_of_all_genres.png")
+        plt.close()
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True, year_start=None, year_end=None):
     all_results = []
@@ -109,86 +182,19 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
         results_df = results_df[results_df["ppn"].isin(mods_info_df["ppn_mods"])]
         
-        matching_ppn_mods = results_df["ppn"].unique()
-        
-        filtered_genres = mods_info_df[mods_info_df['ppn_mods'].isin(matching_ppn_mods)]
-    
-        all_genres_raw = set(filtered_genres["genre-aad"].tolist())
-        print("\nNumber of all genres: ", len(all_genres_raw))
-        all_genres = []
-        for genre_raw in all_genres_raw:
-            genres_json = genre_raw.replace('{', '[').replace('}', ']').replace("'", '"')
-            if not genres_json:
-                continue
-            genres = json.loads(genres_json)
-            if replace_subgenres:
-                genres = [x.split(':')[0] if ':' in x else x.split('.')[0] for x in genres]
-                
-                if any(x in ["lit", "hist", "jur", "theol", "Ars", "moriendi"] for x in genres):
-                    continue
-                          
-            all_genres += genres
-        
-        all_genres_reduced = set(all_genres)
-        print("\nNumber of all genres (after reduction): ", len(all_genres_reduced))
-        
-        genre_counts = {}
-        for genre in all_genres:
-            if genre in genre_counts:
-                genre_counts[genre] += 1
-            else:
-                genre_counts[genre] = 1
-            
-        sorted_genre_counts = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)
-        sorted_genre_counts_descending = sorted(genre_counts.items(), key=lambda x: x[1], reverse=False)
+        genre_statistics("ppn_mods", mods_info_df, results_df)
 
-        print("\nUnique genres and their counts:")
-        for genre, count in sorted_genre_counts:
-            print(f"{genre}: {count}")
-            
-        if sorted_genre_counts:
-            highest_genre, highest_count = sorted_genre_counts[0]  # Get the genre with the highest count 
-            plot_threshold = highest_count * 0.04 
-        else:
-            print("No genre available to calculate the threshold.")
-            plot_threshold = 0
-
-        # Filter genres by the threshold  
-        filtered_genre_counts = [(genre, count) for genre, count in sorted_genre_counts_descending if count > plot_threshold]
-        
-        if not filtered_genre_counts:
-            print("No genre exceeds the threshold.")
-        else:
-            genres, counts = zip(*filtered_genre_counts)
-
-            plt.figure(figsize=(100, 150)) 
-            bars = plt.barh(genres, counts, color=plt.cm.tab10.colors)
-            plt.ylabel('Genres', fontsize=100)
-            plt.xlabel('Counts', fontsize=100)
-            plt.title('Counts of Unique Genres', fontsize=120)
-            plt.xticks(fontsize=65)
-            plt.yticks(fontsize=65) 
-            plt.grid(axis='x', linestyle='--', alpha=0.7)
-            plt.ylim(-0.5, len(genres) - 0.5) 
-            plt.xlim(0, 600)
-
-            # Adding data labels next to bars  
-            for bar in bars:
-                xval = bar.get_width()
-                plt.text(xval, bar.get_y() + bar.get_height()/2, int(xval), ha='left', va='center', fontsize=65)  # Display counts next to bars
-
-            plt.tight_layout(pad=2.0)
-            plt.savefig("bar_plot_of_all_genres.png")
-            plt.close()
-            
-        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "ppn_mods"])]
+        if search_genre is not None:
+            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "ppn_mods"])]
     
     elif "2024-09-06" in mods_info_csv:
         
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "PPN", "accessCondition-embargo enddate", "accessCondition-restriction on access", "accessCondition-use and reproduction", "classification-ZVDD", "classification-ark", "classification-ddc", "classification-sbb", "genre", "genre-aad", "genre-sbb", "genre-wikidata", "identifier-vd16", "identifier-vd17", "identifier-vd18", "language_languageTerm", "language_scriptTerm", "mets_fileSec_fileGrp-FULLTEXT-count", "mets_fileSec_fileGrp-PRESENTATION-count", "originInfo-digitization0_dateCaptured", "originInfo-digitization0_publisher", "originInfo-production0_dateCreated", "originInfo-publication0_dateIssued", "originInfo-publication0_publisher", "recordInfo_recordIdentifier", "subject-EC1418_genre", "titleInfo_title", "typeOfResource", "vd", "vd16", "vd17", "vd18", "columns", "german", "druck"])
         
         results_df = results_df[results_df["ppn"].isin(mods_info_df["recordInfo_recordIdentifier"])]
-        
+
+        genre_statistics("recordInfo_recordIdentifier", mods_info_df, results_df)
+
         #all_genres = mods_info_df["genre-aad"].unique().tolist()
         #print("Number of all genres: ", len(all_genres))
         #results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "recordInfo_recordIdentifier"])] # Use "Roman" as an example
@@ -204,12 +210,12 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
                 "recordInfo_recordIdentifier"])]
         
-        with open('PPN.list.2024-09-06', 'r') as file:
-            lines = [line.strip() for line in file.readlines()]
+        #with open('PPN.list.2024-09-06', 'r') as file:
+        #    lines = [line.strip() for line in file.readlines()]
 
-        ppn_list_df = pd.DataFrame(lines, columns=['PPN'])
+        #ppn_list_df = pd.DataFrame(lines, columns=['PPN'])
 
-        filtered_mods_info_df = mods_info_df[mods_info_df['recordInfo_recordIdentifier'].isin(ppn_list_df['PPN'])]
+        #filtered_mods_info_df = mods_info_df[mods_info_df['recordInfo_recordIdentifier'].isin(ppn_list_df['PPN'])]
         
         #merged_mods_info_df = pd.DataFrame()
         #merged_mods_info_df['PPN'] = ppn_list_df['PPN']
@@ -230,6 +236,8 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
         
+        genre_statistics("PPN", mods_info_df, results_df)
+
         if search_genre is not None:
             results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
         

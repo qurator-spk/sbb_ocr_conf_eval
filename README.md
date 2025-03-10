@@ -56,7 +56,7 @@ Usage:
 
 Examples: 
 
-    sbb_ocr plot -m /path/MODS_INFO_FILE /path/to/file/CONF_CSV_FILES /path/PLOT_FILE
+    sbb_ocr plot -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
  
     sbb_ocr plot -g GENRE -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
  
