@@ -66,6 +66,8 @@ Examples:
     sbb_ocr plot -d <YEAR_START YEAR_END> -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
  
     sbb_ocr plot -g GENRE -d <YEAR_START YEAR_END> -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
+	
+	sbb_ocr plot -t <TOP_NUMBER> /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
 
 
 Commands:
@@ -82,8 +84,9 @@ Options:
   
     plot:
         -m, --mods-info     Add MODS_INFO_FILE with the PPN metadata
-        -g, --genre         Add GENRE to be evaluated
-        -d, --date-range    Add date range for filtering data, specify <YEAR_START YEAR_END>
+        -g, --genre         Add GENRE to be evaluated (optional)
+        -d, --date-range    Add date range for filtering data, specify <YEAR_START YEAR_END> (optional)
+		-t, --top-ppns      Add number of top PPNs with mean word score & mean textline scores between 0.95 and 1.0, specify <TOP_NUMBER> (optional)
  
     ppn2pagexml:
         --format            Whether to output csv or json
