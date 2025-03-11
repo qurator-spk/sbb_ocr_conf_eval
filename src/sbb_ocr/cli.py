@@ -19,9 +19,10 @@ def cli():
 @click.option('-g', '--genre', 'search_genre', help='genre to be evaluated')
 @click.option('-m', '--mods-info', 'mods_info_csv', default="mods_info_df_2024-11-27.csv", help='mods_info CSV for PPN metadata')
 @click.option('-d', '--date-range', 'date_range', nargs=2, type=(int, int), help='Year range for filtering data, specify <YEAR_START YEAR_END>')
+@click.option('-t', '--top-ppns', type=int, help='Number of top PPNs with mean word score & mean textline scores between 0.95 and 1.0, specify <TOP_NUMBER> (optional)') 
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
-def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range):
+def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, top_ppns):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
@@ -30,8 +31,12 @@ def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range):
         year_start, year_end = (None, None)
     else:
         year_start, year_end = date_range
-    
-    plot_everything(csv_files=csv_files, mods_info_csv=mods_info_csv, search_genre=search_genre, plot_file=plot_file, year_start=year_start, year_end=year_end)
+        
+    num_ppns = top_ppns if top_ppns is not None else 50
+        
+    plot_everything(csv_files=csv_files, mods_info_csv=mods_info_csv, search_genre=search_genre,
+                    plot_file=plot_file, year_start=year_start, year_end=year_end,
+                    use_top_ppns=(top_ppns is not None), num_ppns=num_ppns)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')
