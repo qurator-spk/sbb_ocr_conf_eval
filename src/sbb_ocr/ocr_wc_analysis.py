@@ -135,6 +135,17 @@ def genre_statistics(ppn_col, mods_info_df, results_df, replace_subgenres=True):
         plt.tight_layout(pad=2.0)
         plt.savefig("bar_plot_of_all_genres.png")
         plt.close()
+        
+def top_ppns(results_df):
+    top_ppns_df = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0)) & ((results_df["mean_textline"] >= 0.95) & (results_df["mean_textline"] <= 1.0))]
+    top_ppn_unique = top_ppns_df["ppn"].unique()
+    top_ppn_list = top_ppn_unique[:50]
+    if len(top_ppn_list) > 0:
+        print(f"\nList of {len(top_ppn_list)} PPNs with mean word score & mean textline scores between 0.95 and 1.0:")
+        for ppn in top_ppn_list:
+            print(ppn)
+    else:
+        print("\nThere are no PPNs with mean word score & mean textline scores between 0.95 and 1.0 for the applied filters.")
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True, year_start=None, year_end=None):
     all_results = []
@@ -167,14 +178,6 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     
     results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])
     
-    top_ppns = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0)) & ((results_df["mean_textline"] >= 0.95) & (results_df["mean_textline"] <= 1.0))]
-    top_ppn_unique = top_ppns["ppn"].unique()
-    top_ppn_list = top_ppn_unique[:50]  
-    print(f"\nList of {len(top_ppn_list)} PPNs with mean_word score & mean_textline scores between 0.95 and 1.0:")
-    
-    for ppn in top_ppn_list:
-        print(ppn)
-    
     if "2024-11-27" in mods_info_csv:
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["accessCondition-use and reproduction", "accessCondition-restriction on access", "classification-ZVDD", "genre-aad", "identifier-purl", "identifier-vd17", "language_languageTerm", "location_physicalLocation", "location_shelfLocator", "name0_displayForm", "name0_namePart-family", "name0_namePart-given", "name0_role_roleTerm", "originInfo-digitization0_dateCaptured", "originInfo-digitization0_edition", "originInfo-digitization0_place_placeTerm", "originInfo-digitization0_publisher", "originInfo-publication0_dateIssued", "originInfo-publication0_place_placeTerm", "originInfo-publication0_publisher", "relatedItem-original_recordInfo_recordIdentifier", "titleInfo_subTitle", "titleInfo_title", "typeOfResource", "mets_fileSec_fileGrp-FULLTEXT-count", "mets_fileSec_fileGrp-DEFAULT-count", "mets_fileSec_fileGrp-PRESENTATION-count", "mets_fileSec_fileGrp-THUMBS-count", "mets_file", "identifier-RISMA2", "originInfo-production0_dateCreated", "originInfo-production0_edition", "identifier-KOPE", "originInfo-production0_place_placeTerm", "genre-sbb", "mets_fileSec_fileGrp-MAX-count", "mets_fileSec_fileGrp-MIN-count", "mets_fileSec_fileGrp-LOCAL-count", "language_scriptTerm", "name0_namePart", "relatedItem-host_recordInfo_recordIdentifier", "classification-sbb", "identifier-vd18", "identifier-ORIE", "originInfo-publication0_edition", "identifier-PPNanalog", "genre-wikidata", "identifier-vd16", "subject-EC1418_genre", "subject_name0_displayForm", "subject_name0_namePart-family", "subject_name0_namePart-given", "classification-ddc", "identifier-MMED", "relatedItem-original_recordInfo_recordIdentifier-dnb-ppn", "name0_namePart-termsOfAddress", "genre-marcgt", "identifier-zdb", "identifier-RISMA1", "identifier-GW", "identifier-doi", "classification-ark", "abstract", "accessCondition-embargo enddate", "titleInfo_partName", "identifier-KSTO", "identifier-ISSN", "genre", "identifier-EC1418"])
         
@@ -186,6 +189,8 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
 
         if search_genre is not None:
             results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "ppn_mods"])]
+            
+        top_ppns(results_df)
     
     elif "2024-09-06" in mods_info_csv:
         
@@ -195,20 +200,31 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
 
         genre_statistics("recordInfo_recordIdentifier", mods_info_df, results_df)
 
-        #all_genres = mods_info_df["genre-aad"].unique().tolist()
-        #print("Number of all genres: ", len(all_genres))
-        #results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"] == "{'Roman'}", "recordInfo_recordIdentifier"])] # Use "Roman" as an example
-        
         mods_info_df["originInfo-publication0_dateIssued"] = pd.to_numeric(mods_info_df["originInfo-publication0_dateIssued"], errors="coerce")
 
         mods_info_df = mods_info_df.dropna(subset=["originInfo-publication0_dateIssued"])
+        
+        if search_genre is not None:
+            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "recordInfo_recordIdentifier"])]
         
         if year_start is not None and year_end is not None:
             results_df = results_df[results_df["ppn"].isin(
             mods_info_df.loc[
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+                "recordInfo_recordIdentifier"])] 
+                
+        if search_genre is not None and year_start is not None and year_end is not None:
+            results_df = results_df[results_df["ppn"].isin(
+            mods_info_df.loc[
+                (mods_info_df["genre-aad"].str.contains(search_genre, na=False)) &
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
                 "recordInfo_recordIdentifier"])]
+                
+        top_ppns(results_df)
+        
+        ## Create merged_mods_info_df_2025-03-07.csv:
         
         #with open('PPN.list.2024-09-06', 'r') as file:
         #    lines = [line.strip() for line in file.readlines()]
@@ -255,6 +271,8 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
                 "PPN"])]
+                
+        top_ppns(results_df)
     
     if results_df.empty:
         print("\nThere are no results matching the applied filters.")
