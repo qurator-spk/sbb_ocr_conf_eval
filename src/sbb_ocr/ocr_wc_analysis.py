@@ -201,14 +201,14 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     if "2024-11-27" in mods_info_csv:
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["accessCondition-use and reproduction", "accessCondition-restriction on access", "classification-ZVDD", "genre-aad", "identifier-purl", "identifier-vd17", "language_languageTerm", "location_physicalLocation", "location_shelfLocator", "name0_displayForm", "name0_namePart-family", "name0_namePart-given", "name0_role_roleTerm", "originInfo-digitization0_dateCaptured", "originInfo-digitization0_edition", "originInfo-digitization0_place_placeTerm", "originInfo-digitization0_publisher", "originInfo-publication0_dateIssued", "originInfo-publication0_place_placeTerm", "originInfo-publication0_publisher", "relatedItem-original_recordInfo_recordIdentifier", "titleInfo_subTitle", "titleInfo_title", "typeOfResource", "mets_fileSec_fileGrp-FULLTEXT-count", "mets_fileSec_fileGrp-DEFAULT-count", "mets_fileSec_fileGrp-PRESENTATION-count", "mets_fileSec_fileGrp-THUMBS-count", "mets_file", "identifier-RISMA2", "originInfo-production0_dateCreated", "originInfo-production0_edition", "identifier-KOPE", "originInfo-production0_place_placeTerm", "genre-sbb", "mets_fileSec_fileGrp-MAX-count", "mets_fileSec_fileGrp-MIN-count", "mets_fileSec_fileGrp-LOCAL-count", "language_scriptTerm", "name0_namePart", "relatedItem-host_recordInfo_recordIdentifier", "classification-sbb", "identifier-vd18", "identifier-ORIE", "originInfo-publication0_edition", "identifier-PPNanalog", "genre-wikidata", "identifier-vd16", "subject-EC1418_genre", "subject_name0_displayForm", "subject_name0_namePart-family", "subject_name0_namePart-given", "classification-ddc", "identifier-MMED", "relatedItem-original_recordInfo_recordIdentifier-dnb-ppn", "name0_namePart-termsOfAddress", "genre-marcgt", "identifier-zdb", "identifier-RISMA1", "identifier-GW", "identifier-doi", "classification-ark", "abstract", "accessCondition-embargo enddate", "titleInfo_partName", "identifier-KSTO", "identifier-ISSN", "genre", "identifier-EC1418"])
         
-        mods_info_df["ppn_mods"] = mods_info_df["mets_file"].apply(lambda x: x.split("/")[-1].split(".")[0])
+        mods_info_df["PPN"] = mods_info_df["mets_file"].apply(lambda x: x.split("/")[-1].split(".")[0])
         
-        results_df = results_df[results_df["ppn"].isin(mods_info_df["ppn_mods"])]
+        results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
         
-        genre_evaluation("ppn_mods", mods_info_df, results_df)
+        genre_evaluation("PPN", mods_info_df, results_df)
 
         if search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "ppn_mods"])]
+            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
             
         if use_best_ppns:
             best_ppns(results_df, mods_info_df, num_best_ppns=num_best_ppns)
@@ -220,23 +220,27 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "PPN", "accessCondition-embargo enddate", "accessCondition-restriction on access", "accessCondition-use and reproduction", "classification-ZVDD", "classification-ark", "classification-ddc", "classification-sbb", "genre", "genre-aad", "genre-sbb", "genre-wikidata", "identifier-vd16", "identifier-vd17", "identifier-vd18", "language_languageTerm", "language_scriptTerm", "mets_fileSec_fileGrp-FULLTEXT-count", "mets_fileSec_fileGrp-PRESENTATION-count", "originInfo-digitization0_dateCaptured", "originInfo-digitization0_publisher", "originInfo-production0_dateCreated", "originInfo-publication0_dateIssued", "originInfo-publication0_publisher", "recordInfo_recordIdentifier", "subject-EC1418_genre", "titleInfo_title", "typeOfResource", "vd", "vd16", "vd17", "vd18", "columns", "german", "druck"])
         
-        results_df = results_df[results_df["ppn"].isin(mods_info_df["recordInfo_recordIdentifier"])]
+        mods_info_df.drop(columns=['PPN'], inplace=True)
+        
+        mods_info_df["PPN"] = mods_info_df["recordInfo_recordIdentifier"]
+        
+        results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
 
-        genre_evaluation("recordInfo_recordIdentifier", mods_info_df, results_df)
+        genre_evaluation("PPN", mods_info_df, results_df)
 
         mods_info_df["originInfo-publication0_dateIssued"] = pd.to_numeric(mods_info_df["originInfo-publication0_dateIssued"], errors="coerce")
 
         mods_info_df = mods_info_df.dropna(subset=["originInfo-publication0_dateIssued"])
         
         if search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "recordInfo_recordIdentifier"])]
+            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
         
         if year_start is not None and year_end is not None:
             results_df = results_df[results_df["ppn"].isin(
             mods_info_df.loc[
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "recordInfo_recordIdentifier"])] 
+                "PPN"])] 
                 
         if search_genre is not None and year_start is not None and year_end is not None:
             results_df = results_df[results_df["ppn"].isin(
@@ -244,7 +248,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
                 (mods_info_df["genre-aad"].str.contains(search_genre, na=False)) &
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "recordInfo_recordIdentifier"])]
+                "PPN"])]
                 
         if use_best_ppns:
             best_ppns(results_df, mods_info_df, num_best_ppns=num_best_ppns)
