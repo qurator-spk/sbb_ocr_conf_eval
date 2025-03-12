@@ -136,20 +136,34 @@ def genre_statistics(ppn_col, mods_info_df, results_df, replace_subgenres=True):
         plt.savefig("bar_plot_of_all_genres.png")
         plt.close()
         
-def top_ppns(results_df, num_ppns):
-    top_ppns_df = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0)) & ((results_df["mean_textline"] >= 0.95) & (results_df["mean_textline"] <= 1.0))]
-    top_ppn_unique = top_ppns_df["ppn"].unique()
-    top_ppn_list = top_ppn_unique[:num_ppns]
+def best_ppns(results_df, num_best_ppns):
+    best_ppns_df = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0)) & ((results_df["mean_textline"] >= 0.95) & (results_df["mean_textline"] <= 1.0))]
+    best_ppn_unique = best_ppns_df["ppn"].unique()
+    best_ppn_list = best_ppn_unique[:num_best_ppns]
     
-    if len(top_ppn_list) > 0:
-        filtered_top_ppns = top_ppns_df[top_ppns_df["ppn"].isin(top_ppn_list)]
-        filtered_top_ppns_df = filtered_top_ppns[['ppn', 'mean_word', 'mean_textline']].drop_duplicates()
-        print(f"\nList of {len(top_ppn_list)} PPNs found with mean word score & mean textline scores between 0.95 and 1.0:\n")
-        print(filtered_top_ppns_df.to_string(index=False))
+    if len(best_ppn_list) > 0:
+        filtered_best_ppns = best_ppns_df[best_ppns_df["ppn"].isin(best_ppn_list)]
+        filtered_best_ppns_df = filtered_best_ppns[['ppn', 'mean_word', 'mean_textline']].drop_duplicates()
+        print(f"\nList of {len(best_ppn_list)} PPNs found with mean word score & mean textline scores between 0.95 and 1.0:\n")
+        print(filtered_best_ppns_df.to_string(index=False))
     else:
         print("\nThere are no PPNs with mean word score & mean textline scores between 0.95 and 1.0 for the applied filters.")
+        
+def worst_ppns(results_df, num_worst_ppns):
+    worst_ppns_df = results_df[((results_df["mean_word"] >= 0.0) & (results_df["mean_word"] <= 0.05)) & ((results_df["mean_textline"] >= 0.0) & (results_df["mean_textline"] <= 0.05))]
+    worst_ppn_unique = worst_ppns_df["ppn"].unique()
+    worst_ppn_list = worst_ppn_unique[:num_worst_ppns]
+    
+    if len(worst_ppn_list) > 0:
+        filtered_worst_ppns = worst_ppns_df[worst_ppns_df["ppn"].isin(worst_ppn_list)]
+        filtered_worst_ppns_df = filtered_worst_ppns[['ppn', 'mean_word', 'mean_textline']].drop_duplicates()
+        print(f"\nList of {len(worst_ppn_list)} PPNs found with mean word score & mean textline scores between 0.0 and 0.05:\n")
+        print(filtered_worst_ppns_df.to_string(index=False))
+    else:
+        print("\nThere are no PPNs with mean word score & mean textline scores between 0.0 and 0.05 for the applied filters.")
 
-def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True, year_start=None, year_end=None, use_top_ppns=False, num_ppns=50):
+def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
+                    year_start=None, year_end=None, use_best_ppns=False, use_worst_ppns=False, num_best_ppns=50, num_worst_ppns=50):
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):
@@ -192,8 +206,8 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         if search_genre is not None:
             results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "ppn_mods"])]
             
-        if use_top_ppns:
-            top_ppns(results_df, num_ppns=num_ppns)
+        if use_best_ppns:
+            best_ppns(results_df, num_best_ppns=num_best_ppns)
     
     elif "2024-09-06" in mods_info_csv:
         
@@ -225,8 +239,11 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
                 "recordInfo_recordIdentifier"])]
                 
-        if use_top_ppns:
-            top_ppns(results_df, num_ppns=num_ppns)
+        if use_best_ppns:
+            best_ppns(results_df, num_best_ppns=num_best_ppns)
+            
+        if use_worst_ppns:
+            worst_ppns(results_df, num_worst_ppns=num_worst_ppns)
         
         ## Create merged_mods_info_df_2025-03-07.csv:
         
@@ -276,8 +293,8 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
                 "PPN"])]
                 
-        if use_top_ppns:
-            top_ppns(results_df, num_ppns=num_ppns)
+        if use_best_ppns:
+            best_ppns(results_df, num_best_ppns=num_best_ppns)
     
     if results_df.empty:
         print("\nThere are no results matching the applied filters.")

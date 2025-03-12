@@ -19,10 +19,11 @@ def cli():
 @click.option('-g', '--genre', 'search_genre', help='Genre to be evaluated (optional)')
 @click.option('-m', '--mods-info', 'mods_info_csv', default="mods_info_df_2024-11-27.csv", help='mods_info CSV for PPN metadata')
 @click.option('-d', '--date-range', 'date_range', nargs=2, type=(int, int), help='Year range for filtering data, specify <YEAR_START YEAR_END> (optional)')
-@click.option('-t', '--top-ppns', type=int, help='Number of top PPNs with mean word score & mean textline scores between 0.95 and 1.0, specify <TOP_NUMBER> (optional)') 
+@click.option('-b', '--best-ppns', type=int, help='Number of best PPNs with mean word score & mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)')
+@click.option('-w', '--worst-ppns', type=int, help='Number of worst PPNs with mean word score & mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)') 
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
-def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, top_ppns):
+def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, best_ppns, worst_ppns):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
@@ -32,11 +33,12 @@ def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, top_
     else:
         year_start, year_end = date_range
         
-    num_ppns = top_ppns if top_ppns is not None else 50
+    num_best_ppns = best_ppns if best_ppns is not None else 50
+    num_worst_ppns = worst_ppns if worst_ppns is not None else 50
         
     plot_everything(csv_files=csv_files, mods_info_csv=mods_info_csv, search_genre=search_genre,
                     plot_file=plot_file, year_start=year_start, year_end=year_end,
-                    use_top_ppns=(top_ppns is not None), num_ppns=num_ppns)
+                    use_best_ppns=(best_ppns is not None), use_worst_ppns=(worst_ppns is not None), num_best_ppns=num_best_ppns, num_worst_ppns=num_worst_ppns)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')
