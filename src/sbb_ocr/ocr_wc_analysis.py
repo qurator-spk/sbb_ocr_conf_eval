@@ -235,10 +235,39 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
         
         genre_evaluation("PPN", mods_info_df, results_df)
+        
+        mods_info_df.drop(columns=['originInfo-publication0_dateIssued'], inplace=True)
+        
+        mods_info_df["originInfo-publication0_dateIssued"] = mods_info_df["originInfo-production0_dateCreated"]
+        
+        mods_info_df["originInfo-publication0_dateIssued"] = mods_info_df["originInfo-publication0_dateIssued"].astype(str)
+        
+        #mods_info_df = mods_info_df[mods_info_df["originInfo-production0_dateCreated"].str.match(r'^\d{4}$', na=False)]
+        
+        mods_info_df = mods_info_df[
+            (mods_info_df["originInfo-publication0_dateIssued"].str.len() == 4) & 
+            (mods_info_df["originInfo-publication0_dateIssued"].str.isdigit())]
+            
+        mods_info_df["originInfo-publication0_dateIssued"] = mods_info_df["originInfo-publication0_dateIssued"].astype(int)
 
         if search_genre is not None:
             results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-            
+        
+        if year_start is not None and year_end is not None:
+            results_df = results_df[results_df["ppn"].isin(
+            mods_info_df.loc[
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+                "PPN"])]
+                
+        if search_genre is not None and year_start is not None and year_end is not None:
+            results_df = results_df[results_df["ppn"].isin(
+            mods_info_df.loc[
+                (mods_info_df["genre-aad"].str.contains(search_genre, na=False)) &
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+                "PPN"])]
+        
         if mean_word_start is not None and mean_word_end is not None:
             mean_word_confs(results_df, mods_info_df, mean_word_start=mean_word_start, mean_word_end=mean_word_end)
             results_df = results_df[
@@ -268,9 +297,51 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
             results_df = results_df[
                 (results_df['mean_word'] >= mean_word_start) & 
                 (results_df['mean_word'] <= mean_word_end)]
+            
+        if mean_word_start is not None and mean_word_end is not None and year_start is not None and year_end is not None:
+            results_df = results_df[results_df["ppn"].isin(
+            mods_info_df.loc[
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+                "PPN"])] 
+            results_df = results_df[
+                (results_df['mean_word'] >= mean_word_start) & 
+                (results_df['mean_word'] <= mean_word_end)]
+                
+        if mean_word_start is not None and mean_word_end is not None and year_start is not None and year_end is not None and search_genre is not None:
+            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+            results_df = results_df[results_df["ppn"].isin(
+            mods_info_df.loc[
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+                "PPN"])] 
+            results_df = results_df[
+                (results_df['mean_word'] >= mean_word_start) & 
+                (results_df['mean_word'] <= mean_word_end)]
                 
         if mean_textline_start is not None and mean_textline_end is not None and search_genre is not None:
             results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+            results_df = results_df[
+                (results_df['mean_textline'] >= mean_textline_start) & 
+                (results_df['mean_textline'] <= mean_textline_end)]
+            
+        if mean_textline_start is not None and mean_textline_end is not None and year_start is not None and year_end is not None:
+            results_df = results_df[results_df["ppn"].isin(
+            mods_info_df.loc[
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+                "PPN"])] 
+            results_df = results_df[
+                (results_df['mean_textline'] >= mean_textline_start) & 
+                (results_df['mean_textline'] <= mean_textline_end)]
+                
+        if mean_textline_start is not None and mean_textline_end is not None and year_start is not None and year_end is not None and search_genre is not None:
+            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+            results_df = results_df[results_df["ppn"].isin(
+            mods_info_df.loc[
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+                "PPN"])] 
             results_df = results_df[
                 (results_df['mean_textline'] >= mean_textline_start) & 
                 (results_df['mean_textline'] <= mean_textline_end)]
@@ -305,7 +376,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
             mods_info_df.loc[
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
                 (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
+                "PPN"])]
                 
         if search_genre is not None and year_start is not None and year_end is not None:
             results_df = results_df[results_df["ppn"].isin(
