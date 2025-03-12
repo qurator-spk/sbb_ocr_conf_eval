@@ -208,6 +208,9 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
             
         if use_best_ppns:
             best_ppns(results_df, num_best_ppns=num_best_ppns)
+            
+        if use_worst_ppns:
+            worst_ppns(results_df, num_worst_ppns=num_worst_ppns)
     
     elif "2024-09-06" in mods_info_csv:
         
@@ -295,6 +298,9 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
                 
         if use_best_ppns:
             best_ppns(results_df, num_best_ppns=num_best_ppns)
+            
+        if use_worst_ppns:
+            worst_ppns(results_df, num_worst_ppns=num_worst_ppns)
     
     if results_df.empty:
         print("\nThere are no results matching the applied filters.")
