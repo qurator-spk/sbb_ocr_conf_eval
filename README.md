@@ -19,7 +19,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/`
 `mods_info_df_2024-09-06.csv`: 
 - Number of rows: ***64260***
 - Number of columns: ***36***
-- PPNs in `recordInfo_recordIdentifier` column ***(renamed to: `PPN`)***
+- PPNs in `recordInfo_recordIdentifier` column ***(renamed to: ***`PPN`***)***
 - Publication dates in `originInfo-publication0_dateIssued` column
 - Genres in `genre-aad` column ***(too many)***
 - Projects: ***missing***

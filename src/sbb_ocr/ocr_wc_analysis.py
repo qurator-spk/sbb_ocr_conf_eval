@@ -247,111 +247,8 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
             (mods_info_df["originInfo-publication0_dateIssued"].str.isdigit())]
             
         mods_info_df["originInfo-publication0_dateIssued"] = mods_info_df["originInfo-publication0_dateIssued"].astype(int)
-
-        if search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-        
-        if year_start is not None and year_end is not None:
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])]
-                
-        if search_genre is not None and year_start is not None and year_end is not None:
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["genre-aad"].str.contains(search_genre, na=False)) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])]
-        
-        if mean_word_start is not None and mean_word_end is not None:
-            mean_word_confs(results_df, mods_info_df, mean_word_start=mean_word_start, mean_word_end=mean_word_end)
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
-                
-        if mean_textline_start is not None and mean_textline_end is not None:
-            mean_textline_confs(results_df, mods_info_df, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end)
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
-                
-        if mean_word_start is not None and mean_word_end is not None:
-            mean_word_confs(results_df, mods_info_df, mean_word_start=mean_word_start, mean_word_end=mean_word_end)
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
-                
-        if mean_textline_start is not None and mean_textline_end is not None:
-            mean_textline_confs(results_df, mods_info_df, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end)
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
-                
-        if mean_word_start is not None and mean_word_end is not None and search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
-            
-        if mean_word_start is not None and mean_word_end is not None and year_start is not None and year_end is not None:
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
-                
-        if mean_word_start is not None and mean_word_end is not None and year_start is not None and year_end is not None and search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
-                
-        if mean_textline_start is not None and mean_textline_end is not None and search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
-            
-        if mean_textline_start is not None and mean_textline_end is not None and year_start is not None and year_end is not None:
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
-                
-        if mean_textline_start is not None and mean_textline_end is not None and year_start is not None and year_end is not None and search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
-            
-        if use_best_ppns:
-            best_ppns(results_df, mods_info_df, num_best_ppns=num_best_ppns)
-            
-        if use_worst_ppns:
-            worst_ppns(results_df, mods_info_df, num_worst_ppns=num_worst_ppns)
     
     elif "2024-09-06" in mods_info_csv:
-        
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "PPN", "accessCondition-embargo enddate", "accessCondition-restriction on access", "accessCondition-use and reproduction", "classification-ZVDD", "classification-ark", "classification-ddc", "classification-sbb", "genre", "genre-aad", "genre-sbb", "genre-wikidata", "identifier-vd16", "identifier-vd17", "identifier-vd18", "language_languageTerm", "language_scriptTerm", "mets_fileSec_fileGrp-FULLTEXT-count", "mets_fileSec_fileGrp-PRESENTATION-count", "originInfo-digitization0_dateCaptured", "originInfo-digitization0_publisher", "originInfo-production0_dateCreated", "originInfo-publication0_dateIssued", "originInfo-publication0_publisher", "recordInfo_recordIdentifier", "subject-EC1418_genre", "titleInfo_title", "typeOfResource", "vd", "vd16", "vd17", "vd18", "columns", "german", "druck"])
         
         mods_info_df.drop(columns=['PPN'], inplace=True)
@@ -366,107 +263,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
 
         mods_info_df = mods_info_df.dropna(subset=["originInfo-publication0_dateIssued"])
         
-        if search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-        
-        if year_start is not None and year_end is not None:
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])]
-                
-        if search_genre is not None and year_start is not None and year_end is not None:
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["genre-aad"].str.contains(search_genre, na=False)) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])]
-        
-        if mean_word_start is not None and mean_word_end is not None:
-            mean_word_confs(results_df, mods_info_df, mean_word_start=mean_word_start, mean_word_end=mean_word_end)
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
-                
-        if mean_textline_start is not None and mean_textline_end is not None:
-            mean_textline_confs(results_df, mods_info_df, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end)
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
-                
-        if mean_word_start is not None and mean_word_end is not None:
-            mean_word_confs(results_df, mods_info_df, mean_word_start=mean_word_start, mean_word_end=mean_word_end)
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
-                
-        if mean_textline_start is not None and mean_textline_end is not None:
-            mean_textline_confs(results_df, mods_info_df, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end)
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
-                
-        if mean_word_start is not None and mean_word_end is not None and search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
-            
-        if mean_word_start is not None and mean_word_end is not None and year_start is not None and year_end is not None:
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
-                
-        if mean_word_start is not None and mean_word_end is not None and year_start is not None and year_end is not None and search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
-                
-        if mean_textline_start is not None and mean_textline_end is not None and search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
-            
-        if mean_textline_start is not None and mean_textline_end is not None and year_start is not None and year_end is not None:
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
-                
-        if mean_textline_start is not None and mean_textline_end is not None and year_start is not None and year_end is not None and search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
-                
-        if use_best_ppns:
-            best_ppns(results_df, mods_info_df, num_best_ppns=num_best_ppns)
-            
-        if use_worst_ppns:
-            worst_ppns(results_df, mods_info_df, num_worst_ppns=num_worst_ppns)
+        mods_info_df["originInfo-publication0_dateIssued"] = mods_info_df["originInfo-publication0_dateIssued"].astype(int)
         
         ## Create merged_mods_info_df_2025-03-07.csv:
         
@@ -493,100 +290,99 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         #merged_mods_info_df.to_csv("merged_mods_info_df_2025-03-07.csv", index=False)
         
     elif "2025-03-07" in mods_info_csv:
-        
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
         
         genre_evaluation("PPN", mods_info_df, results_df)
 
-        if search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+    if search_genre is not None:
+        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+    
+    if year_start is not None and year_end is not None:
+        results_df = results_df[results_df["ppn"].isin(
+        mods_info_df.loc[
+            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+            "PPN"])] 
+            
+    if search_genre is not None and year_start is not None and year_end is not None:
+        results_df = results_df[results_df["ppn"].isin(
+        mods_info_df.loc[
+            (mods_info_df["genre-aad"].str.contains(search_genre, na=False)) &
+            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+            "PPN"])]
+            
+    if mean_word_start is not None and mean_word_end is not None:
+        mean_word_confs(results_df, mods_info_df, mean_word_start=mean_word_start, mean_word_end=mean_word_end)
+        results_df = results_df[
+            (results_df['mean_word'] >= mean_word_start) & 
+            (results_df['mean_word'] <= mean_word_end)]
+            
+    if mean_textline_start is not None and mean_textline_end is not None:
+        mean_textline_confs(results_df, mods_info_df, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end)
+        results_df = results_df[
+            (results_df['mean_textline'] >= mean_textline_start) & 
+            (results_df['mean_textline'] <= mean_textline_end)]
+            
+    if mean_word_start is not None and mean_word_end is not None and search_genre is not None:
+        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+        results_df = results_df[
+            (results_df['mean_word'] >= mean_word_start) & 
+            (results_df['mean_word'] <= mean_word_end)]
         
-        if year_start is not None and year_end is not None:
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
-                
-        if search_genre is not None and year_start is not None and year_end is not None:
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["genre-aad"].str.contains(search_genre, na=False)) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])]
-                
-        if mean_word_start is not None and mean_word_end is not None:
-            mean_word_confs(results_df, mods_info_df, mean_word_start=mean_word_start, mean_word_end=mean_word_end)
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
-                
-        if mean_textline_start is not None and mean_textline_end is not None:
-            mean_textline_confs(results_df, mods_info_df, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end)
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
-                
-        if mean_word_start is not None and mean_word_end is not None and search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
+    if mean_word_start is not None and mean_word_end is not None and year_start is not None and year_end is not None:
+        results_df = results_df[results_df["ppn"].isin(
+        mods_info_df.loc[
+            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+            "PPN"])] 
+        results_df = results_df[
+            (results_df['mean_word'] >= mean_word_start) & 
+            (results_df['mean_word'] <= mean_word_end)]
             
-        if mean_word_start is not None and mean_word_end is not None and year_start is not None and year_end is not None:
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
-                
-        if mean_word_start is not None and mean_word_end is not None and year_start is not None and year_end is not None and search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) & 
-                (results_df['mean_word'] <= mean_word_end)]
-                
-        if mean_textline_start is not None and mean_textline_end is not None and search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
+    if mean_word_start is not None and mean_word_end is not None and year_start is not None and year_end is not None and search_genre is not None:
+        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+        results_df = results_df[results_df["ppn"].isin(
+        mods_info_df.loc[
+            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+            "PPN"])] 
+        results_df = results_df[
+            (results_df['mean_word'] >= mean_word_start) & 
+            (results_df['mean_word'] <= mean_word_end)]
             
-        if mean_textline_start is not None and mean_textline_end is not None and year_start is not None and year_end is not None:
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
-                
-        if mean_textline_start is not None and mean_textline_end is not None and year_start is not None and year_end is not None and search_genre is not None:
-            results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-            results_df = results_df[results_df["ppn"].isin(
-            mods_info_df.loc[
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-                (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-                "PPN"])] 
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) & 
-                (results_df['mean_textline'] <= mean_textline_end)]
-                
-        if use_best_ppns:
-            best_ppns(results_df, mods_info_df, num_best_ppns=num_best_ppns)
+    if mean_textline_start is not None and mean_textline_end is not None and search_genre is not None:
+        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+        results_df = results_df[
+            (results_df['mean_textline'] >= mean_textline_start) & 
+            (results_df['mean_textline'] <= mean_textline_end)]
+        
+    if mean_textline_start is not None and mean_textline_end is not None and year_start is not None and year_end is not None:
+        results_df = results_df[results_df["ppn"].isin(
+        mods_info_df.loc[
+            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+            "PPN"])] 
+        results_df = results_df[
+            (results_df['mean_textline'] >= mean_textline_start) & 
+            (results_df['mean_textline'] <= mean_textline_end)]
             
-        if use_worst_ppns:
-            worst_ppns(results_df, mods_info_df, num_worst_ppns=num_worst_ppns)
+    if mean_textline_start is not None and mean_textline_end is not None and year_start is not None and year_end is not None and search_genre is not None:
+        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+        results_df = results_df[results_df["ppn"].isin(
+        mods_info_df.loc[
+            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+            "PPN"])] 
+        results_df = results_df[
+            (results_df['mean_textline'] >= mean_textline_start) & 
+            (results_df['mean_textline'] <= mean_textline_end)]
+            
+    if use_best_ppns:
+        best_ppns(results_df, mods_info_df, num_best_ppns=num_best_ppns)
+        
+    if use_worst_ppns:
+        worst_ppns(results_df, mods_info_df, num_worst_ppns=num_worst_ppns)
     
     if results_df.empty:
         print("\nThere are no results matching the applied filters.")
