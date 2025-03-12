@@ -179,9 +179,24 @@ def mean_word_confs(results_df, mods_info_df, mean_word_start, mean_word_end):
         print(filtered_mean_word_confs_df.to_string(index=False))
     else:
         print(f"\nThere are no PPNs with a mean word score between {mean_word_start} and {mean_word_end} for the applied filters.")
+        
+def mean_textline_confs(results_df, mods_info_df, mean_textline_start, mean_textline_end):
+    mean_textline_confs_df = results_df[(results_df["mean_textline"] >= mean_textline_start) & (results_df["mean_textline"] <= mean_textline_end)]
+    mean_textline_confs_unique = mean_textline_confs_df["ppn"].unique()
+    
+    if len(mean_textline_confs_unique) > 0:
+        filtered_mean_textline_confs_df = mean_textline_confs_df[['ppn', 'ppn_page', 'mean_textline']]
+        mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
+        filtered_mean_textline_confs_df = filtered_mean_textline_confs_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
+        filtered_mean_textline_confs_df.drop(columns=['PPN'], inplace=True)
+        print(f"\nList of {len(mean_textline_confs_unique)} PPNs with a mean word score between {mean_textline_start} and {mean_textline_end}:\n")
+        print(filtered_mean_textline_confs_df.to_string(index=False))
+    else:
+        print(f"\nThere are no PPNs with a mean word score between {mean_textline_start} and {mean_textline_end} for the applied filters.")
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
-                    year_start=None, year_end=None, use_best_ppns=False, use_worst_ppns=False, num_best_ppns=50, num_worst_ppns=50, mean_word_start=None, mean_word_end=None):
+                    year_start=None, year_end=None, use_best_ppns=False, use_worst_ppns=False, num_best_ppns=50, num_worst_ppns=50, 
+                    mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None):
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):
@@ -223,6 +238,18 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
 
         if search_genre is not None:
             results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+            
+        if mean_word_start is not None and mean_word_end is not None:
+            mean_word_confs(results_df, mods_info_df, mean_word_start=mean_word_start, mean_word_end=mean_word_end)
+            results_df = results_df[
+                (results_df['mean_word'] >= mean_word_start) & 
+                (results_df['mean_word'] <= mean_word_end)]
+                
+        if mean_textline_start is not None and mean_textline_end is not None:
+            mean_textline_confs(results_df, mods_info_df, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end)
+            results_df = results_df[
+                (results_df['mean_textline'] >= mean_textline_start) & 
+                (results_df['mean_textline'] <= mean_textline_end)]
             
         if use_best_ppns:
             best_ppns(results_df, mods_info_df, num_best_ppns=num_best_ppns)
@@ -266,6 +293,15 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
         if mean_word_start is not None and mean_word_end is not None:
             mean_word_confs(results_df, mods_info_df, mean_word_start=mean_word_start, mean_word_end=mean_word_end)
+            results_df = results_df[
+                (results_df['mean_word'] >= mean_word_start) & 
+                (results_df['mean_word'] <= mean_word_end)]
+                
+        if mean_textline_start is not None and mean_textline_end is not None:
+            mean_textline_confs(results_df, mods_info_df, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end)
+            results_df = results_df[
+                (results_df['mean_textline'] >= mean_textline_start) & 
+                (results_df['mean_textline'] <= mean_textline_end)]
                 
         if use_best_ppns:
             best_ppns(results_df, mods_info_df, num_best_ppns=num_best_ppns)
@@ -326,6 +362,12 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
             results_df = results_df[
                 (results_df['mean_word'] >= mean_word_start) & 
                 (results_df['mean_word'] <= mean_word_end)]
+                
+        if mean_textline_start is not None and mean_textline_end is not None:
+            mean_textline_confs(results_df, mods_info_df, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end)
+            results_df = results_df[
+                (results_df['mean_textline'] >= mean_textline_start) & 
+                (results_df['mean_textline'] <= mean_textline_end)]
                 
         if use_best_ppns:
             best_ppns(results_df, mods_info_df, num_best_ppns=num_best_ppns)

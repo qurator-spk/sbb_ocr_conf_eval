@@ -21,10 +21,11 @@ def cli():
 @click.option('-d', '--date-range', 'date_range', nargs=2, type=(int, int), help='Year range for filtering data, specify <YEAR_START YEAR_END> (optional)')
 @click.option('-b', '--best-ppns', type=int, help='Number of best PPNs with mean word score & mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)')
 @click.option('-w', '--worst-ppns', type=int, help='Number of worst PPNs with mean word score & mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)')
-@click.option('-wc', '--mean-word-confs', 'mean_word_confs', nargs=2, type=(float, float), help='Mean wrod confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)')
+@click.option('-wc', '--mean-word-confs', 'mean_word_confs', nargs=2, type=(float, float), help='Mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)')
+@click.option('-tc', '--mean-textline-confs', 'mean_textline_confs', nargs=2, type=(float, float), help='Mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)')
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
-def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, best_ppns, worst_ppns, mean_word_confs):
+def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, best_ppns, worst_ppns, mean_word_confs, mean_textline_confs):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
@@ -39,13 +40,18 @@ def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, best
     else:
         mean_word_start, mean_word_end = mean_word_confs
         
+    if mean_textline_confs is None:
+        mean_textline_start, mean_textline_end = (None, None)
+    else:
+        mean_textline_start, mean_textline_end = mean_textline_confs
+        
     num_best_ppns = best_ppns if best_ppns is not None else 50
     num_worst_ppns = worst_ppns if worst_ppns is not None else 50
         
     plot_everything(csv_files=csv_files, mods_info_csv=mods_info_csv, search_genre=search_genre,
                     plot_file=plot_file, year_start=year_start, year_end=year_end,
                     use_best_ppns=(best_ppns is not None), use_worst_ppns=(worst_ppns is not None), num_best_ppns=num_best_ppns, num_worst_ppns=num_worst_ppns,
-                    mean_word_start=mean_word_start, mean_word_end=mean_word_end)
+                    mean_word_start=mean_word_start, mean_word_end=mean_word_end, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')
