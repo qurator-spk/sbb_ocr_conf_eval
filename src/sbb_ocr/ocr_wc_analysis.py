@@ -242,8 +242,6 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
         mods_info_df["originInfo-publication0_dateIssued"] = mods_info_df["originInfo-publication0_dateIssued"].astype(str)
         
-        #mods_info_df = mods_info_df[mods_info_df["originInfo-production0_dateCreated"].str.match(r'^\d{4}$', na=False)]
-        
         mods_info_df = mods_info_df[
             (mods_info_df["originInfo-publication0_dateIssued"].str.len() == 4) & 
             (mods_info_df["originInfo-publication0_dateIssued"].str.isdigit())]
