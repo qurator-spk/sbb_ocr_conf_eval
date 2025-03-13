@@ -30,7 +30,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/`
 - Number of rows: ***224183***
 - Number of columns: ***69***
 - PPNs in `PPN` column ***(via workaround)***
-- Publication dates in `originInfo-production0_dateCreated` column ***(kept strings that are 4 digits long)***
+- Publication dates in `originInfo-publication0_dateIssued` column ***(kept strings that are 4 digits long)***
 - Genres in `genre-aad` column ***(too many)***
 - Projects: ***missing***
 - Titlepages: ***missing***
