@@ -237,16 +237,14 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
         genre_evaluation("PPN", mods_info_df, results_df)
         
-        mods_info_df.drop(columns=['originInfo-publication0_dateIssued'], inplace=True)
+        rows_to_drop_4_char = mods_info_df[mods_info_df["originInfo-publication0_dateIssued"].str.len() != 4].index
+        mods_info_df.drop(index=rows_to_drop_4_char, inplace=True)
         
-        mods_info_df["originInfo-publication0_dateIssued"] = mods_info_df["originInfo-production0_dateCreated"]
+        rows_to_drop_XX = mods_info_df[~mods_info_df["originInfo-publication0_dateIssued"].str.isdigit()].index
+        mods_info_df.drop(index=rows_to_drop_XX, inplace=True)
         
-        mods_info_df["originInfo-publication0_dateIssued"] = mods_info_df["originInfo-publication0_dateIssued"].astype(str)
-        
-        mods_info_df = mods_info_df[
-            (mods_info_df["originInfo-publication0_dateIssued"].str.len() == 4) & 
-            (mods_info_df["originInfo-publication0_dateIssued"].str.isdigit())]
-            
+        mods_info_df["originInfo-publication0_dateIssued"] = pd.to_numeric(mods_info_df["originInfo-publication0_dateIssued"], errors="coerce")
+        mods_info_df = mods_info_df.dropna(subset=["originInfo-publication0_dateIssued"])
         mods_info_df["originInfo-publication0_dateIssued"] = mods_info_df["originInfo-publication0_dateIssued"].astype(int)
     
     elif "2024-09-06" in mods_info_csv:
@@ -261,9 +259,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         genre_evaluation("PPN", mods_info_df, results_df)
 
         mods_info_df["originInfo-publication0_dateIssued"] = pd.to_numeric(mods_info_df["originInfo-publication0_dateIssued"], errors="coerce")
-
         mods_info_df = mods_info_df.dropna(subset=["originInfo-publication0_dateIssued"])
-        
         mods_info_df["originInfo-publication0_dateIssued"] = mods_info_df["originInfo-publication0_dateIssued"].astype(int)
         
         ## Create merged_mods_info_df_2025-03-07.csv:
