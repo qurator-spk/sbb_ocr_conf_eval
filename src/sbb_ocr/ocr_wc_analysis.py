@@ -194,6 +194,21 @@ def mean_textline_confs(results_df, mods_info_df, mean_textline_start, mean_text
         print(filtered_mean_textline_confs_df.to_string(index=False))
     else:
         print(f"\nThere are no PPNs with a mean word score between {mean_textline_start} and {mean_textline_end} for the applied filters.")
+        
+def date_ranges(results_df, mods_info_df, year_start, year_end):
+    date_range_df = results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[(mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end), "PPN"])] 
+    date_range_df_unique = date_range_df["ppn"].unique()
+    
+    if len(date_range_df_unique) > 0:
+        filtered_date_range_df = date_range_df[['ppn', 'ppn_page', 'mean_word', 'mean_textline']]
+        mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
+        filtered_date_range_df = filtered_date_range_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
+        filtered_date_range_df.drop(columns=['PPN'], inplace=True)
+        print(f"\nList of {len(date_range_df_unique)} PPNs found in the date range between {year_start} and {year_end}:\n")
+        print(filtered_date_range_df.to_string(index=False))
+    else:
+        print("\nThere are no PPNs in the date range between {year_start} and {year_end}.")
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, use_best_ppns=False, use_worst_ppns=False, num_best_ppns=50, num_worst_ppns=50, 
@@ -295,6 +310,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
     
     if year_start is not None and year_end is not None:
+        date_ranges(results_df, mods_info_df, year_start, year_end)
         results_df = results_df[results_df["ppn"].isin(
         mods_info_df.loc[
             (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
