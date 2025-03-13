@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde  
 from tqdm import tqdm  
 import json
+from rich import print
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
 
