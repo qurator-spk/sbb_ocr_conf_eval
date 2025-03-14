@@ -64,10 +64,10 @@ def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))
 
-def genre_evaluation(ppn_col, mods_info_df, results_df, replace_subgenres=True):
+def genre_evaluation(mods_info_df, results_df, replace_subgenres=True):
     matching_ppn_mods = results_df["ppn"].unique()
 
-    filtered_genres = mods_info_df[mods_info_df[ppn_col].isin(matching_ppn_mods)]
+    filtered_genres = mods_info_df[mods_info_df["PPN"].isin(matching_ppn_mods)]
 
     all_genres_raw = set(filtered_genres["genre-aad"].tolist())
     print("\nNumber of all genres: ", len(all_genres_raw))
@@ -264,8 +264,6 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
         results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
         
-        genre_evaluation("PPN", mods_info_df, results_df)
-        
         rows_to_drop_4_char = mods_info_df[mods_info_df["originInfo-publication0_dateIssued"].str.len() != 4].index
         mods_info_df.drop(index=rows_to_drop_4_char, inplace=True)
         
@@ -284,8 +282,6 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         mods_info_df["PPN"] = mods_info_df["recordInfo_recordIdentifier"]
         
         results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
-
-        genre_evaluation("PPN", mods_info_df, results_df)
 
         mods_info_df["originInfo-publication0_dateIssued"] = pd.to_numeric(mods_info_df["originInfo-publication0_dateIssued"], errors="coerce")
         mods_info_df = mods_info_df.dropna(subset=["originInfo-publication0_dateIssued"])
@@ -317,9 +313,9 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
     elif "2025-03-07" in mods_info_csv:
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
-        
-        genre_evaluation("PPN", mods_info_df, results_df)
-
+    
+    genre_evaluation(mods_info_df, results_df)
+    
     if search_genre is not None:
         genres(results_df, mods_info_df, search_genre)
         results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
