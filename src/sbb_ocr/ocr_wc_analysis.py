@@ -314,13 +314,6 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     elif "2025-03-07" in mods_info_csv:
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
     
-    #if show_genre_evaluation:
-    #    genre_evaluation(mods_info_df, results_df)
-    
-    if search_genre is not None:
-        genres(results_df, mods_info_df, search_genre)
-        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
-    
     if year_start is not None and year_end is not None:
         date_ranges(results_df, mods_info_df, year_start, year_end)
         results_df = results_df[results_df["ppn"].isin(
@@ -411,6 +404,10 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
     if show_genre_evaluation:
         genre_evaluation(mods_info_df, results_df)
+        
+    if search_genre is not None:
+        genres(results_df, mods_info_df, search_genre)
+        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
     
     if results_df.empty:
         print("\nThere are no results matching the applied filters.")
