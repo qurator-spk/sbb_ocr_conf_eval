@@ -150,7 +150,7 @@ def best_ppns(results_df, mods_info_df, num_best_ppns):
         print(f"\nList of {len(best_ppn_list)} PPNs found with mean word score & mean textline scores between 0.95 and 1.0:\n")
         print(filtered_best_ppns_df.to_string(index=False))
     else:
-        print("\nThere are no PPNs with mean word score & mean textline scores between 0.95 and 1.0 for the applied filters.")
+        print("\nNo PPNs found for the applied filters.")
         
 def worst_ppns(results_df, mods_info_df, num_worst_ppns):
     worst_ppns_df = results_df[((results_df["mean_word"] >= 0.0) & (results_df["mean_word"] <= 0.05)) & ((results_df["mean_textline"] >= 0.0) & (results_df["mean_textline"] <= 0.05))]
@@ -165,7 +165,7 @@ def worst_ppns(results_df, mods_info_df, num_worst_ppns):
         print(f"\nList of {len(worst_ppn_list)} PPNs found with mean word score & mean textline scores between 0.0 and 0.05:\n")
         print(filtered_worst_ppns_df.to_string(index=False))
     else:
-        print("\nThere are no PPNs with mean word score & mean textline scores between 0.0 and 0.05 for the applied filters.")
+        print("\nNo PPNs found for the applied filters.")
         
 def mean_word_confs(results_df, mods_info_df, mean_word_start, mean_word_end):
     mean_word_confs_df = results_df[(results_df["mean_word"] >= mean_word_start) & (results_df["mean_word"] <= mean_word_end)]
@@ -179,7 +179,7 @@ def mean_word_confs(results_df, mods_info_df, mean_word_start, mean_word_end):
         print(f"\nList of {len(mean_word_confs_unique)} PPNs with a mean word score between {mean_word_start} and {mean_word_end}:\n")
         print(filtered_mean_word_confs_df.to_string(index=False))
     else:
-        print(f"\nThere are no PPNs with a mean word score between {mean_word_start} and {mean_word_end} for the applied filters.")
+        print(f"\nNo PPNs found for the applied filters.")
         
 def mean_textline_confs(results_df, mods_info_df, mean_textline_start, mean_textline_end):
     mean_textline_confs_df = results_df[(results_df["mean_textline"] >= mean_textline_start) & (results_df["mean_textline"] <= mean_textline_end)]
@@ -193,7 +193,7 @@ def mean_textline_confs(results_df, mods_info_df, mean_textline_start, mean_text
         print(f"\nList of {len(mean_textline_confs_unique)} PPNs with a mean word score between {mean_textline_start} and {mean_textline_end}:\n")
         print(filtered_mean_textline_confs_df.to_string(index=False))
     else:
-        print(f"\nThere are no PPNs with a mean word score between {mean_textline_start} and {mean_textline_end} for the applied filters.")
+        print(f"\nNo PPNs found for the applied filters.")
         
 def date_ranges(results_df, mods_info_df, year_start, year_end):
     date_range_df = results_df[results_df["ppn"].isin(mods_info_df.loc[(mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
@@ -208,7 +208,7 @@ def date_ranges(results_df, mods_info_df, year_start, year_end):
         print(f"\nList of {len(date_range_df_unique)} PPNs found in the date range between {year_start} and {year_end}:\n")
         print(filtered_date_range_df.to_string(index=False))
     else:
-        print("\nThere are no PPNs in the date range between {year_start} and {year_end}.")
+        print("\nNo PPNs found for the applied filters.")
         
 def genres(results_df, mods_info_df, search_genre):
     genres_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
@@ -222,7 +222,7 @@ def genres(results_df, mods_info_df, search_genre):
         print(f"\nList of {len(genres_df_unique)} PPNs of the {search_genre} genre:\n")
         print(filtered_genres_df.to_string(index=False))
     else:
-        print("\nThere are no PPNs of the {search_genre} genre.")
+        print("\nNo PPNs found for the applied filters.")
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, use_best_ppns=False, use_worst_ppns=False, num_best_ppns=50, num_worst_ppns=50, 
@@ -416,6 +416,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         print("\nThere are no results matching the applied filters.")
     else:
         print("\nStatistics results:\n", results_df)
+        print("\nResults description:\n", results_df.describe())
 
         # Main plotting function  
         fig, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
