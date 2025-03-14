@@ -226,7 +226,7 @@ def genres(results_df, mods_info_df, search_genre):
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, use_best_ppns=False, use_worst_ppns=False, num_best_ppns=50, num_worst_ppns=50, 
-                    mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None):
+                    mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None, show_genre_evaluation=False):
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):
@@ -314,7 +314,8 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     elif "2025-03-07" in mods_info_csv:
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
     
-    genre_evaluation(mods_info_df, results_df)
+    #if show_genre_evaluation:
+    #    genre_evaluation(mods_info_df, results_df)
     
     if search_genre is not None:
         genres(results_df, mods_info_df, search_genre)
@@ -407,6 +408,9 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
     if use_worst_ppns:
         worst_ppns(results_df, mods_info_df, num_worst_ppns=num_worst_ppns)
+        
+    if show_genre_evaluation:
+        genre_evaluation(mods_info_df, results_df)
     
     if results_df.empty:
         print("\nThere are no results matching the applied filters.")
