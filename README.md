@@ -78,22 +78,23 @@ Commands:
 
 
 Options:
-    --help                           Show this message and exit
+    --help                            Show this message and exit
   
     plot:
-       -m, --mods-info               Add MODS_INFO_FILE with the PPN metadata
-       -g, --genre                   Add GENRE to be evaluated (optional)
-       -d, --date-range              Add date range for filtering data, specify <YEAR_START YEAR_END> (optional)
-       -b, --best-ppns               Add number of best PPNs with mean word score & mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)
-       -w, --worst-ppns              Add number of worst PPNs with mean word score & mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
-       -wc, --mean-word-confs        Add mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)
-       -tc, --mean-textline-confs    Add mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)
+       -m,  --mods-info               Add MODS_INFO_FILE with the PPN metadata
+       -g,  --genre                   Add GENRE to be evaluated (optional)
+       -ge, --show-genre-evaluation   Evaluate the number of genres in the CSV_FILES (optional)
+       -d,  --date-range              Add date range for filtering data, specify <YEAR_START YEAR_END> (optional)
+       -b,  --best-ppns               Add number of best PPNs with mean word score & mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)
+       -w,  --worst-ppns              Add number of worst PPNs with mean word score & mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
+       -wc, --mean-word-confs         Add mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)
+       -tc, --mean-textline-confs     Add mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)
  
     ppn2pagexml:
-       --format                      Whether to output csv or json
-       --output                      Print to this file
+       --format                       Whether to output csv or json
+       --output                       Print to this file
  
     ppn2confs:
-       --format                      Whether to output csv or json
-       --output                      Print to this file
+       --format                       Whether to output csv or json
+       --output                       Print to this file
 ```
