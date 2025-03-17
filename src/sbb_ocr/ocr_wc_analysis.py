@@ -71,7 +71,6 @@ def load_csv_to_list(csv_file):
 
 def genre_evaluation(mods_info_df, results_df, replace_subgenres=True):
     matching_ppn_mods = results_df["ppn"].unique()
-
     filtered_genres = mods_info_df[mods_info_df["PPN"].isin(matching_ppn_mods)]
 
     all_genres_raw = set(filtered_genres["genre-aad"].tolist())
@@ -99,13 +98,15 @@ def genre_evaluation(mods_info_df, results_df, replace_subgenres=True):
             genre_counts[genre] += 1
         else:
             genre_counts[genre] = 1
+            
+    genre_counts_df = pd.DataFrame(list(genre_counts.items()), columns=['Genre', 'Count'])
+    genre_counts_df_sorted = genre_counts_df.sort_values(by='Count', ascending=False)
+
+    print("\nUnique genres and their counts:\n")
+    print(genre_counts_df_sorted.to_string(index=False))
 
     sorted_genre_counts = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)
     sorted_genre_counts_descending = sorted(genre_counts.items(), key=lambda x: x[1], reverse=False)
-
-    print("\nUnique genres and their counts:")
-    for genre, count in sorted_genre_counts:
-        print(f"{genre}: {count}")
 
     if sorted_genre_counts:
         highest_genre, highest_count = sorted_genre_counts[0]  # Get the genre with the highest count
