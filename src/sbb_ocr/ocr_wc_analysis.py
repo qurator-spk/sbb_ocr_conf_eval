@@ -256,11 +256,12 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     else:
         if output:
             mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
-            results_df = results_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
-            results_df.drop(columns=['PPN'], inplace=True)
-            results_df.to_csv(output, index=False)
+            results_df_save = results_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
+            results_df_save.drop(columns=['PPN'], inplace=True)
+            results_df_save.to_csv(output, index=False)
+            print(f"\nSave results to: {output.name}")
             
-        print("\nResults description:\n", filtered_results_df.shape)
+        print("\nResults description: \n")
         print(filtered_results_df.describe(include='all'))
 
         # Main plotting function  
