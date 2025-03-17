@@ -171,16 +171,18 @@ def worst_ppns(csv_files, results_df, results_df_original, mods_info_df, num_wor
     else:
         print("\nNo PPNs found for the applied filters.")
         
-def mean_word_confs(results_df, mods_info_df, mean_word_start, mean_word_end):
+def mean_word_confs(csv_files, results_df, results_df_original, mods_info_df, mean_word_start, mean_word_end):
     mean_word_confs_df = results_df[(results_df["mean_word"] >= mean_word_start) & (results_df["mean_word"] <= mean_word_end)]
     mean_word_confs_unique = mean_word_confs_df["ppn"].unique()
+    
+    all_ppns = results_df_original["ppn"].unique()
     
     if len(mean_word_confs_unique) > 0:
         filtered_mean_word_confs_df = mean_word_confs_df[['ppn', 'ppn_page', 'mean_word']]
         mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
         filtered_mean_word_confs_df = filtered_mean_word_confs_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
         filtered_mean_word_confs_df.drop(columns=['PPN'], inplace=True)
-        print(f"\nList of {len(mean_word_confs_unique)} PPNs with a mean word score between {mean_word_start} and {mean_word_end}:\n")
+        print(f"\nResults: {len(mean_word_confs_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
         print(filtered_mean_word_confs_df.to_string(index=False))
     else:
         print(f"\nNo PPNs found for the applied filters.")
@@ -310,7 +312,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
             "PPN"])]
             
     if mean_word_start is not None and mean_word_end is not None:
-        mean_word_confs(results_df, mods_info_df, mean_word_start=mean_word_start, mean_word_end=mean_word_end)
+        mean_word_confs(csv_files, results_df, results_df_original, mods_info_df, mean_word_start=mean_word_start, mean_word_end=mean_word_end)
         results_df = results_df[
             (results_df['mean_word'] >= mean_word_start) & 
             (results_df['mean_word'] <= mean_word_end)]
