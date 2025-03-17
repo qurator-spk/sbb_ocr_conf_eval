@@ -21,7 +21,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/`
 - Number of columns: ***36***
 - PPNs in `recordInfo_recordIdentifier` column ***(renamed to: ***`PPN`***)***
 - Publication dates in `originInfo-publication0_dateIssued` column
-- Genres in `genre-aad` column ***(too many)***
+- Genres in `genre-aad` column
 - Projects: ***missing***
 - Titlepages: ***missing***
 - Source: `T:\QURATOR\2024-08-select-documents-for-mass-digitization\2024-09-06\documents.csv`
@@ -31,7 +31,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/`
 - Number of columns: ***69***
 - PPNs in `PPN` column ***(via workaround)***
 - Publication dates in `originInfo-publication0_dateIssued` column ***(kept strings that are 4 digits long)***
-- Genres in `genre-aad` column ***(too many)***
+- Genres in `genre-aad` column
 - Projects: ***missing***
 - Titlepages: ***missing***
 - Source: `@lx0246:/data/mike.gerber/2024-11-mods_info-etc/2024-11-27/mods_info_df.parquet.sqlite3`
