@@ -145,7 +145,7 @@ def genre_evaluation(mods_info_df, results_df, replace_subgenres=True):
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, use_best_ppns=False, use_worst_ppns=False, num_best_ppns=50, num_worst_ppns=50, 
-                    mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None, show_genre_evaluation=False):
+                    mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None, show_genre_evaluation=False, output=False):
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):
@@ -254,8 +254,14 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     if results_df.empty:
         print("\nThere are no results matching the applied filters.")
     else:
-        #print("\nStatistics results:\n", results_df)
-        print("\nResults description:\n", filtered_results_df.describe(include='all'))
+        if output:
+            mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
+            results_df = results_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
+            results_df.drop(columns=['PPN'], inplace=True)
+            results_df.to_csv(output, index=False)
+            
+        print("\nResults description:\n", filtered_results_df.shape)
+        print(filtered_results_df.describe(include='all'))
 
         # Main plotting function  
         fig, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
