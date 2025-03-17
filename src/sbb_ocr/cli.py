@@ -69,6 +69,32 @@ def convert_mods_info(mods_info_sqlite, mods_info_csv):
             columns_to_drop.append(c)
     mods_info_df.drop(columns=columns_to_drop, inplace=True)
     mods_info_df.to_csv(mods_info_csv, index = False)
+    
+@cli.command('merge-mods-info')
+@click.argument('PPN_LIST')
+@click.argument('MODS_INFO_CSV')
+def merge_mods_info(ppn_list, mods_info_csv):
+    """
+    Merge a list of PPNs (e.g., PPN.list.2024-09-06) with a MODS_INFO_FILE (e.g., mods_info_df_2024-09-06.csv) to create a lighter version of the MODS_INFO_FILE (e.g., merged_mods_info_df_2025-03-07.csv).
+    """
+    with open(ppn_list, 'r') as file:
+            lines = [line.strip() for line in file.readlines()]
+
+        ppn_list_df = pd.DataFrame(lines, columns=['PPN'])
+        filtered_mods_info_df = mods_info_df[mods_info_df['recordInfo_recordIdentifier'].isin(ppn_list_df['PPN'])]
+        
+        merged_mods_info_df = pd.DataFrame()
+        merged_mods_info_df['PPN'] = ppn_list_df['PPN']
+        merged_mods_info_df = merged_mods_info_df.merge(filtered_mods_info_df[['recordInfo_recordIdentifier', 'genre-aad', 'originInfo-publication0_dateIssued']],
+                                left_on='PPN', right_on='recordInfo_recordIdentifier', how='left')
+
+        merged_mods_info_df.drop(columns='recordInfo_recordIdentifier', inplace=True)
+        merged_mods_info_df["originInfo-publication0_dateIssued"] = pd.to_numeric(merged_mods_info_df["originInfo-publication0_dateIssued"], errors="coerce")
+        merged_mods_info_df.dropna(subset=["originInfo-publication0_dateIssued"], inplace=True)
+        merged_mods_info_df["originInfo-publication0_dateIssued"] = merged_mods_info_df["originInfo-publication0_dateIssued"].astype(int)
+        merged_mods_info_df = merged_mods_info_df.reset_index(drop=True)
+        print("\nMerged mods_info_df: \n", merged_mods_info_df.head())
+        merged_mods_info_df.to_csv(mods_info_csv, index=False)
 
 @cli.command('ppn2kitodo')
 @click.argument('PPN', nargs=-1)

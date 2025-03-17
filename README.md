@@ -73,8 +73,9 @@ Commands:
     ppn2confs               Get the table of line and word confidences for PPN
     ppn2kitodo              Translate PPN into Kitodo ID
     ppn2pagexml             Get a list of PAGE-XML files for PPN
-    convert-mods-info       Convert mods_info.parquet.sqlite3 to CONF_CSV_FILE and remove all non-zero indexed names
     ppn2mets                Get METS file for PPN
+    convert-mods-info       Convert mods_info.parquet.sqlite3 to CONF_CSV_FILE and remove all non-zero indexed names
+    merge-mods-info         Merge a list of PPNs (e.g., PPN.list.2024-09-06) with a MODS_INFO_FILE (e.g., mods_info_df_2024-09-06.csv) to create a lighter version of the MODS_INFO_FILE (e.g., merged_mods_info_df_2025-03-07.csv).
 
 
 Options:
