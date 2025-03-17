@@ -10,4 +10,6 @@ statistics_results.jpg
 /test*
 /.~lock*
 /bar*
+/PPN*
 /res*
+/merged*
