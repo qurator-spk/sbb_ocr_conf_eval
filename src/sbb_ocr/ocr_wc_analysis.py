@@ -2,6 +2,7 @@ from contextlib import contextmanager
 import csv
 import pandas as pd  
 import numpy as np 
+from numpy.linalg import LinAlgError
 import matplotlib.pyplot as plt  
 from scipy.stats import gaussian_kde  
 from tqdm import tqdm  
@@ -35,25 +36,29 @@ def plot_density(ax, data, title, xlabel, ylabel, density_color, legend_loc):
     ax.set_xlim(0, 1.0)
     ax.set_xticks(np.arange(0, 1.1, 0.1))
     
-    kde = gaussian_kde(data)
-    x_range = np.linspace(0, 1, 100)
-    density_values = kde(x_range)
-    max_kde_density = np.max(density_values) 
-    round_up_half_integer = (int(max_kde_density * 2) + (max_kde_density * 2 % 1 > 0)) / 2  
-    ax.set_ylim(0, round_up_half_integer)
-    ax.set_yticks(np.arange(0, round_up_half_integer + 0.01, 0.5))
+    try:
+        kde = gaussian_kde(data)
+        x_range = np.linspace(0, 1, 100)
+        density_values = kde(x_range)
+        max_kde_density = np.max(density_values) 
+        round_up_half_integer = (int(max_kde_density * 2) + (max_kde_density * 2 % 1 > 0)) / 2  
+        ax.set_ylim(0, round_up_half_integer)
+        ax.set_yticks(np.arange(0, round_up_half_integer + 0.01, 0.5))
 
-    mean_value = np.mean(data)
-    median_value = np.median(data)
-    quantiles = np.quantile(data, [0.25, 0.75])
+        mean_value = np.mean(data)
+        median_value = np.median(data)
+        quantiles = np.quantile(data, [0.25, 0.75])
 
-    ax.axvline(mean_value, color="black", linestyle="solid", linewidth=1, label="Mean")
-    ax.axvline(quantiles[0], color="black", linestyle="dashed", linewidth=1, label="Q1: 25%")
-    ax.axvline(median_value, color="black", linestyle="dotted", linewidth=1, label="Q2: 50% (Median)")
-    ax.axvline(quantiles[1], color="black", linestyle="dashdot", linewidth=1, label="Q3: 75%")
+        ax.axvline(mean_value, color="black", linestyle="solid", linewidth=1, label="Mean")
+        ax.axvline(quantiles[0], color="black", linestyle="dashed", linewidth=1, label="Q1: 25%")
+        ax.axvline(median_value, color="black", linestyle="dotted", linewidth=1, label="Q2: 50% (Median)")
+        ax.axvline(quantiles[1], color="black", linestyle="dashdot", linewidth=1, label="Q3: 75%")
 
-    ax.plot(x_range, density_values, color=density_color, lw=2)
-    ax.legend(loc=legend_loc)
+        ax.plot(x_range, density_values, color=density_color, lw=2)
+        ax.legend(loc=legend_loc)
+        
+    except LinAlgError as e:
+        print(f"Cannot plot the data!\nLinAlgError encountered while performing KDE: \n{e}. \nThe data does not have enough variation in its dimensions to accurately estimate a continuous probability density function. \nIncrease the number of PPNs to be filtered!\n")
 
 @contextmanager
 def load_csv(csv_file):
