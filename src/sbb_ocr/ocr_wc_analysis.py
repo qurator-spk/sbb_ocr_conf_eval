@@ -70,7 +70,7 @@ def genre_evaluation(mods_info_df, results_df, replace_subgenres=True):
     filtered_genres = mods_info_df[mods_info_df["PPN"].isin(matching_ppn_mods)]
 
     all_genres_raw = set(filtered_genres["genre-aad"].tolist())
-    print("\nNumber of all genres: ", len(all_genres_raw))
+    #print("\nNumber of all genres: ", len(all_genres_raw))
     all_genres = []
     for genre_raw in all_genres_raw:
         genres_json = genre_raw.replace('{', '[').replace('}', ']').replace("'", '"')
@@ -86,7 +86,7 @@ def genre_evaluation(mods_info_df, results_df, replace_subgenres=True):
         all_genres += genres
 
     all_genres_reduced = set(all_genres)
-    print("\nNumber of all genres (after reduction): ", len(all_genres_reduced))
+    #print("\nNumber of all genres (after reduction): ", len(all_genres_reduced))
 
     genre_counts = {}
     for genre in all_genres:
@@ -137,32 +137,36 @@ def genre_evaluation(mods_info_df, results_df, replace_subgenres=True):
         plt.savefig("bar_plot_of_all_genres.png")
         plt.close()
         
-def best_ppns(results_df, mods_info_df, num_best_ppns):
+def best_ppns(csv_files, results_df, results_df_original, mods_info_df, num_best_ppns):
     best_ppns_df = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0)) & ((results_df["mean_textline"] >= 0.95) & (results_df["mean_textline"] <= 1.0))]
     best_ppn_unique = best_ppns_df["ppn"].unique()
     best_ppn_list = best_ppn_unique[:num_best_ppns]
+    
+    all_ppns = results_df_original["ppn"].unique()
     
     if len(best_ppn_list) > 0:
         filtered_best_ppns_df = best_ppns_df[['ppn', 'ppn_page', 'mean_word', 'mean_textline']]
         mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
         filtered_best_ppns_df = filtered_best_ppns_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
         filtered_best_ppns_df.drop(columns=['PPN'], inplace=True)
-        print(f"\nList of {len(best_ppn_list)} PPNs found with mean word score & mean textline scores between 0.95 and 1.0:\n")
+        print(f"\nResults: {len(best_ppn_list)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
         print(filtered_best_ppns_df.to_string(index=False))
     else:
         print("\nNo PPNs found for the applied filters.")
         
-def worst_ppns(results_df, mods_info_df, num_worst_ppns):
+def worst_ppns(csv_files, results_df, results_df_original, mods_info_df, num_worst_ppns):
     worst_ppns_df = results_df[((results_df["mean_word"] >= 0.0) & (results_df["mean_word"] <= 0.05)) & ((results_df["mean_textline"] >= 0.0) & (results_df["mean_textline"] <= 0.05))]
     worst_ppn_unique = worst_ppns_df["ppn"].unique()
     worst_ppn_list = worst_ppn_unique[:num_worst_ppns]
     
+    all_ppns = results_df_original["ppn"].unique()
+    
     if len(worst_ppn_list) > 0:
         filtered_worst_ppns_df = worst_ppns_df[['ppn', 'ppn_page', 'mean_word', 'mean_textline']]
         mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
-        filtered_worst_ppns_df = filtered_best_ppns_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
+        filtered_worst_ppns_df = filtered_worst_ppns_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
         filtered_worst_ppns_df.drop(columns=['PPN'], inplace=True)
-        print(f"\nList of {len(worst_ppn_list)} PPNs found with mean word score & mean textline scores between 0.0 and 0.05:\n")
+        print(f"\nResults: {len(worst_ppn_list)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
         print(filtered_worst_ppns_df.to_string(index=False))
     else:
         print("\nNo PPNs found for the applied filters.")
@@ -263,6 +267,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         mods_info_df["PPN"] = mods_info_df["mets_file"].apply(lambda x: x.split("/")[-1].split(".")[0])
         
         results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
+        results_df_original = results_df.copy()
         
         rows_to_drop_4_char = mods_info_df[mods_info_df["originInfo-publication0_dateIssued"].str.len() != 4].index
         mods_info_df.drop(index=rows_to_drop_4_char, inplace=True)
@@ -280,8 +285,6 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         mods_info_df.drop(columns=['PPN'], inplace=True)
         
         mods_info_df["PPN"] = mods_info_df["recordInfo_recordIdentifier"]
-        
-        results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
 
         mods_info_df["originInfo-publication0_dateIssued"] = pd.to_numeric(mods_info_df["originInfo-publication0_dateIssued"], errors="coerce")
         mods_info_df = mods_info_df.dropna(subset=["originInfo-publication0_dateIssued"])
@@ -397,10 +400,10 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
             (results_df['mean_textline'] <= mean_textline_end)]
             
     if use_best_ppns:
-        best_ppns(results_df, mods_info_df, num_best_ppns=num_best_ppns)
+        best_ppns(csv_files, results_df, results_df_original, mods_info_df, num_best_ppns=num_best_ppns)
         
     if use_worst_ppns:
-        worst_ppns(results_df, mods_info_df, num_worst_ppns=num_worst_ppns)
+        worst_ppns(csv_files, results_df, results_df_original, mods_info_df, num_worst_ppns=num_worst_ppns)
         
     if show_genre_evaluation:
         genre_evaluation(mods_info_df, results_df)
