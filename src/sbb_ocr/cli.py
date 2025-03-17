@@ -24,7 +24,7 @@ def cli():
 @click.option('-wc', '--mean-word-confs', 'mean_word_confs', nargs=2, type=(float, float), help='Mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)')
 @click.option('-tc', '--mean-textline-confs', 'mean_textline_confs', nargs=2, type=(float, float), help='Mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)')
 @click.option('-ge', '--show-genre-evaluation', 'show_genre_evaluation', is_flag=True, default=False, help="Evaluate the number of genres in the CSV_FILES (optional)")
-@click.option('-o', '--output', 'output', type=click.File('w'), default=False, help='Save the results into a OUTPUT_CSV_FILE (optional)')
+@click.option('-o', '--output', 'output', type=click.File('w'), default=False, help='Save the results to an OUTPUT_CSV_FILE (optional)')
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, best_ppns, worst_ppns, mean_word_confs, mean_textline_confs, show_genre_evaluation, output):
