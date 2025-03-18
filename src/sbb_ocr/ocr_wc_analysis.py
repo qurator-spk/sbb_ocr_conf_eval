@@ -158,7 +158,7 @@ def dates_evaluation(mods_info_df, results_df, replace_subgenres=True):
     print(year_counts_df.to_string(index=False))
     
     plt.figure(figsize=(30, 15))
-    plt.bar(year_counts_df['year'].astype(str), year_counts_df['count'], color=plt.cm.tab10.colors, width=0.5)
+    plt.bar(year_counts_df['Year'].astype(str), year_counts_df['Count'], color=plt.cm.tab10.colors, width=0.5)
     plt.title('Publication Counts per Year', fontsize=18)
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=13)

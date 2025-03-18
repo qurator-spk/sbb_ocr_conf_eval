@@ -85,8 +85,9 @@ Options:
        -m,  --mods-info               Add MODS_INFO_FILE with the PPN metadata
        -o,  --output                  Save the results to an OUTPUT_CSV_FILE (optional)
        -g,  --genre                   Add GENRE to be evaluated (optional)
-       -ge, --show-genre-evaluation   Evaluate the number of genres in the CSV_FILES (optional)
+       -ge, --show-genre-evaluation   Evaluate the number of genres in the CSV_FILES and save the corresponding bar plot (optional)
        -d,  --date-range              Add date range for filtering data, specify <YEAR_START YEAR_END> (optional)
+       -de, --show-dates-evaluation   Evaluate the number of years in the CSV_FILES and save the corresponding bar plot(optional)
        -b,  --best-ppns               Add number of best PPNs with mean word score & mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)
        -w,  --worst-ppns              Add number of worst PPNs with mean word score & mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
        -wc, --mean-word-confs         Add mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)
