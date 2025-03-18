@@ -142,10 +142,25 @@ def genre_evaluation(mods_info_df, results_df, replace_subgenres=True):
         plt.tight_layout(pad=2.0)
         plt.savefig("bar_plot_of_all_genres.png")
         plt.close()
+        
+def dates_evaluation(mods_info_df, results_df, replace_subgenres=True):
+    unique_years = mods_info_df["originInfo-publication0_dateIssued"].unique()
+    num_unique_years = len(unique_years)
+    print(f"\nNumber of unique years: {num_unique_years}")
+    
+    year_counts = mods_info_df["originInfo-publication0_dateIssued"].value_counts().sort_index()
+    
+    # Convert to DataFrame
+    year_counts_df = year_counts.reset_index()  # Resetting the index to convert Series to DataFrame
+    year_counts_df.columns = ['year', 'count']  # Rename columns
+
+    # Display the resulting DataFrame
+    print("\nYear counts:")
+    print(year_counts_df.to_string(index=False))
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, use_best_ppns=False, use_worst_ppns=False, num_best_ppns=50, num_worst_ppns=50, 
-                    mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None, show_genre_evaluation=False, output=False):
+                    mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None, show_genre_evaluation=False, output=False, show_dates_evaluation=False):
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):
@@ -250,6 +265,9 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
     if show_genre_evaluation:
         genre_evaluation(mods_info_df, results_df)
+        
+    if show_dates_evaluation:
+        dates_evaluation(mods_info_df, results_df)
     
     if results_df.empty:
         print("\nThere are no results matching the applied filters.")
