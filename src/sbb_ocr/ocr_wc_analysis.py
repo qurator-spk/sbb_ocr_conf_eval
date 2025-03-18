@@ -144,19 +144,33 @@ def genre_evaluation(mods_info_df, results_df, replace_subgenres=True):
         plt.close()
         
 def dates_evaluation(mods_info_df, results_df, replace_subgenres=True):
+    matching_ppn_mods = results_df["ppn"].unique()
+    mods_info_df = mods_info_df[mods_info_df["PPN"].isin(matching_ppn_mods)]
     unique_years = mods_info_df["originInfo-publication0_dateIssued"].unique()
     num_unique_years = len(unique_years)
     print(f"\nNumber of unique years: {num_unique_years}")
     
     year_counts = mods_info_df["originInfo-publication0_dateIssued"].value_counts().sort_index()
-    
-    # Convert to DataFrame
-    year_counts_df = year_counts.reset_index()  # Resetting the index to convert Series to DataFrame
-    year_counts_df.columns = ['year', 'count']  # Rename columns
+    year_counts_df = year_counts.reset_index() 
+    year_counts_df.columns = ['year', 'count']
 
-    # Display the resulting DataFrame
-    print("\nYear counts:")
+    print("\nUnique years and their counts:\n")
     print(year_counts_df.to_string(index=False))
+    
+    plt.figure(figsize=(30, 15))
+    plt.bar(year_counts_df['year'].astype(str), year_counts_df['count'], color=plt.cm.tab10.colors, width=0.5)
+    plt.title('Publication Counts per Year', fontsize=18)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=13)
+    plt.xlabel('Year', fontsize=16)
+    plt.ylabel('Count', fontsize=16)
+    plt.xticks(rotation=45)
+    plt.xlim(-0.5, len(year_counts_df['year']) - 0.5)
+    plt.ylim(0.0, max(year_counts_df['count']) + 0.01)
+    plt.yticks(np.arange(0, max(year_counts_df['count']) + 1, 1))
+    plt.tight_layout(pad=1.0)
+    plt.savefig("bar_plot_of_all_years.png")
+    plt.close()
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, use_best_ppns=False, use_worst_ppns=False, num_best_ppns=50, num_worst_ppns=50, 
