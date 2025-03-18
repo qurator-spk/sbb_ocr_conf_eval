@@ -174,7 +174,8 @@ def dates_evaluation(mods_info_df, results_df, replace_subgenres=True):
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, use_best_ppns=False, use_worst_ppns=False, num_best_ppns=50, num_worst_ppns=50, 
-                    mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None, show_genre_evaluation=False, output=False, show_dates_evaluation=False):
+                    mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None, show_genre_evaluation=False, 
+                    output=False, show_dates_evaluation=False, show_results=False):
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):
@@ -267,15 +268,16 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
     all_ppns = results_df_original["ppn"].unique()
     
-    if len(results_df_unique) > 0:
-        filtered_results_df = results_df[['ppn', 'ppn_page', 'mean_word']]
-        mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
-        filtered_results_df = filtered_results_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
-        filtered_results_df.drop(columns=['PPN'], inplace=True)
-        print(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
-        print(filtered_results_df.to_string(index=False))
-    else:
-        print("\nNo PPNs found for the applied filters.")
+    if show_results:
+        if len(results_df_unique) > 0:
+            filtered_results_df = results_df[['ppn', 'ppn_page', 'mean_word']]
+            mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
+            filtered_results_df = filtered_results_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
+            filtered_results_df.drop(columns=['PPN'], inplace=True)
+            print(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
+            print(filtered_results_df.to_string(index=False))
+        else:
+            print("\nNo PPNs found for the applied filters.")
         
     if show_genre_evaluation:
         genre_evaluation(mods_info_df, results_df)

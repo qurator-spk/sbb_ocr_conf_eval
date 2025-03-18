@@ -26,9 +26,10 @@ def cli():
 @click.option('-ge', '--show-genre-evaluation', 'show_genre_evaluation', is_flag=True, default=False, help="Evaluate the number of genres in the CSV_FILES (optional)")
 @click.option('-o', '--output', 'output', type=click.File('w'), help='Save the results to an OUTPUT_CSV_FILE (optional)')
 @click.option('-de', '--show-dates-evaluation', 'show_dates_evaluation', is_flag=True, default=False, help="Evaluate the number of years in the CSV_FILES (optional)")
+@click.option('-r', '--show-results', 'show_results', is_flag=True, default=False, help="Show the light version of the results [ppn, ppn_page, mean_word, originInfo-publication0_dateIssued, genre-aad] (optional)")
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
-def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, best_ppns, worst_ppns, mean_word_confs, mean_textline_confs, show_genre_evaluation, output, show_dates_evaluation):
+def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, best_ppns, worst_ppns, mean_word_confs, mean_textline_confs, show_genre_evaluation, output, show_dates_evaluation, show_results):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
@@ -55,7 +56,7 @@ def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, best
                     plot_file=plot_file, year_start=year_start, year_end=year_end,
                     use_best_ppns=(best_ppns is not None), use_worst_ppns=(worst_ppns is not None), num_best_ppns=num_best_ppns, num_worst_ppns=num_worst_ppns,
                     mean_word_start=mean_word_start, mean_word_end=mean_word_end, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end, 
-                    show_genre_evaluation=show_genre_evaluation, output=output, show_dates_evaluation=show_dates_evaluation)
+                    show_genre_evaluation=show_genre_evaluation, output=output, show_dates_evaluation=show_dates_evaluation, show_results=show_results)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')
