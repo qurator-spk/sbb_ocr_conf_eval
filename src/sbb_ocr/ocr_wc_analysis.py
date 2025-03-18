@@ -152,7 +152,7 @@ def dates_evaluation(mods_info_df, results_df, replace_subgenres=True):
     
     year_counts = mods_info_df["originInfo-publication0_dateIssued"].value_counts().sort_index()
     year_counts_df = year_counts.reset_index() 
-    year_counts_df.columns = ['year', 'count']
+    year_counts_df.columns = ['Year', 'Count']
 
     print("\nUnique years and their counts:\n")
     print(year_counts_df.to_string(index=False))
@@ -165,9 +165,9 @@ def dates_evaluation(mods_info_df, results_df, replace_subgenres=True):
     plt.xlabel('Year', fontsize=16)
     plt.ylabel('Count', fontsize=16)
     plt.xticks(rotation=45)
-    plt.xlim(-0.5, len(year_counts_df['year']) - 0.5)
-    plt.ylim(0.0, max(year_counts_df['count']) + 0.01)
-    plt.yticks(np.arange(0, max(year_counts_df['count']) + 1, 1))
+    plt.xlim(-0.5, len(year_counts_df['Year']) - 0.5)
+    plt.ylim(0.0, max(year_counts_df['Count']) + 0.01)
+    plt.yticks(np.arange(0, max(year_counts_df['Count']) + 1, 1))
     plt.tight_layout(pad=1.0)
     plt.savefig("bar_plot_of_all_years.png")
     plt.close()
@@ -286,15 +286,19 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     if results_df.empty:
         print("\nThere are no results matching the applied filters.")
     else:
+        mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
+        results_df = results_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
+        results_df.drop(columns=['PPN'], inplace=True)
+        results_df_description = results_df.describe(include='all')
         if output:
-            mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
-            results_df_save = results_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
-            results_df_save.drop(columns=['PPN'], inplace=True)
-            results_df_save.to_csv(output, index=False)
-            print(f"\nSave results to: {output.name}")
+            results_df.to_csv(output, index=False)
+            print(f"\nSaved results to: {output.name}")
+            output_desc = output.name.split(".")[0] + "_desc.csv" 
+            results_df_description.to_csv(output_desc, index=False)
+            print(f"\nSaved results description to: {output_desc}")
             
         print("\nResults description: \n")
-        print(filtered_results_df.describe(include='all'))
+        print(results_df_description)
 
         # Main plotting function  
         fig, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
