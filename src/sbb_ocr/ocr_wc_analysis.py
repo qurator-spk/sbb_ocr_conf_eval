@@ -8,6 +8,7 @@ from scipy.stats import gaussian_kde
 from tqdm import tqdm  
 import json
 from rich import print
+import os
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
 
@@ -176,6 +177,15 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
                     year_start=None, year_end=None, use_best_ppns=False, use_worst_ppns=False, num_best_ppns=50, num_worst_ppns=50, 
                     mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None, show_genre_evaluation=False, 
                     output=False, show_dates_evaluation=False, show_results=False):
+    for file in csv_files:
+        if not os.path.exists(file):
+            print(f"File does not exist: {file}")
+            return
+
+    if not os.path.exists(mods_info_csv):
+        print(f"File does not exist: {mods_info_csv}")
+        return
+        
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):
