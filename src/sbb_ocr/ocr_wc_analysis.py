@@ -179,7 +179,8 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
                     use_top_ppns_textline=False, use_bottom_ppns_textline=False, num_top_ppns_textline=1, num_bottom_ppns_textline=1,
                     mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None, show_genre_evaluation=False, 
                     output=False, show_dates_evaluation=False, show_results=False,
-                    use_best_mean_word_confs=False, use_worst_mean_word_confs=False, num_best_mean_word_confs=50, num_worst_mean_word_confs=50):
+                    use_best_mean_word_confs=False, use_worst_mean_word_confs=False, num_best_mean_word_confs=1, num_worst_mean_word_confs=1,
+                    use_best_mean_textline_confs=False, use_worst_mean_textline_confs=False, num_best_mean_textline_confs=1, num_worst_mean_textline_confs=1):
     for file in csv_files:
         if not os.path.exists(file):
             print(f"File does not exist: {file}")
@@ -291,17 +292,37 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
         results_df = results_df.head(num_bottom_ppns_textline)
         
+    if use_best_mean_word_confs:
+        results_df = results_df.sort_values(by='mean_word', ascending=False)
+        best_unique_ppns = results_df['ppn'].drop_duplicates().head(num_best_mean_word_confs)
+        results_df = results_df[results_df['ppn'].isin(best_unique_ppns)]
+    elif use_worst_mean_word_confs:
+        results_df = results_df.sort_values(by='mean_word', ascending=True)
+        worst_unique_ppns = results_df['ppn'].drop_duplicates().head(num_worst_mean_word_confs)
+        results_df = results_df[results_df['ppn'].isin(worst_unique_ppns)]
+        
+    if use_best_mean_textline_confs:
+        results_df = results_df.sort_values(by='mean_textline', ascending=False)
+        best_unique_ppns = results_df['ppn'].drop_duplicates().head(num_best_mean_textline_confs)
+        results_df = results_df[results_df['ppn'].isin(best_unique_ppns)]
+    elif use_worst_mean_textline_confs:
+        results_df = results_df.sort_values(by='mean_textline', ascending=True)
+        worst_unique_ppns = results_df['ppn'].drop_duplicates().head(num_worst_mean_textline_confs)
+        results_df = results_df[results_df['ppn'].isin(worst_unique_ppns)]
+        
     results_df_unique = results_df["ppn"].unique()
         
     all_ppns = results_df_original["ppn"].unique()
     
+    print(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
+    
     if show_results:
         if len(results_df_unique) > 0:
-            filtered_results_df = results_df[['ppn', 'ppn_page', 'mean_word']]
+            filtered_results_df = results_df[['ppn', 'ppn_page', 'mean_word', 'mean_textline']]
             mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
             filtered_results_df = filtered_results_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
             filtered_results_df.drop(columns=['PPN'], inplace=True)
-            print(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
+            
             print(filtered_results_df.to_string(index=False))
         else:
             print("\nNo PPNs found for the applied filters.")

@@ -31,13 +31,15 @@ def cli():
 @click.option('-r', '--show-results', 'show_results', is_flag=True, default=False, help="Show the light version of the results [ppn, ppn_page, mean_word, originInfo-publication0_dateIssued, genre-aad] (optional)")
 @click.option('-bmw', '--best-mean-word-confs', type=int, help='Number of PPNs with the best mean word scores, specify <NUMBER_OF> (optional)')
 @click.option('-wmw', '--worst-mean-word-confs', type=int, help='Number of PPNs with the worst mean word scores, specify <NUMBER_OF> (optional)')
+@click.option('-bmt', '--best-mean-textline-confs', type=int, help='Number of PPNs with the best mean textline scores, specify <NUMBER_OF> (optional)')
+@click.option('-wmt', '--worst-mean-textline-confs', type=int, help='Number of PPNs with the worst mean textline scores, specify <NUMBER_OF> (optional)')
 
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, 
              top_ppns_word, bottom_ppns_word, top_ppns_textline, bottom_ppns_textline, 
              mean_word_confs, mean_textline_confs, show_genre_evaluation, output, show_dates_evaluation, show_results,
-             best_mean_word_confs, worst_mean_word_confs):
+             best_mean_word_confs, worst_mean_word_confs, best_mean_textline_confs, worst_mean_textline_confs):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
@@ -65,7 +67,9 @@ def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range,
     
     num_best_mean_word_confs = best_mean_word_confs if best_mean_word_confs is not None else 50
     num_worst_mean_word_confs = worst_mean_word_confs if worst_mean_word_confs is not None else 50
-
+    
+    num_best_mean_textline_confs = best_mean_textline_confs if best_mean_textline_confs is not None else 50
+    num_worst_mean_textline_confs = worst_mean_textline_confs if worst_mean_textline_confs is not None else 50
         
     plot_everything(csv_files=csv_files, mods_info_csv=mods_info_csv, search_genre=search_genre,
                     plot_file=plot_file, year_start=year_start, year_end=year_end,
@@ -74,7 +78,9 @@ def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range,
                     mean_word_start=mean_word_start, mean_word_end=mean_word_end, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end, 
                     show_genre_evaluation=show_genre_evaluation, output=output, show_dates_evaluation=show_dates_evaluation, show_results=show_results,
                     use_best_mean_word_confs=(best_mean_word_confs is not None), use_worst_mean_word_confs=(worst_mean_word_confs is not None), 
-                    num_best_mean_word_confs=num_best_mean_word_confs, num_worst_mean_word_confs=num_worst_mean_word_confs)
+                    num_best_mean_word_confs=num_best_mean_word_confs, num_worst_mean_word_confs=num_worst_mean_word_confs,
+                    use_best_mean_textline_confs=(best_mean_textline_confs is not None), use_worst_mean_textline_confs=(worst_mean_textline_confs is not None), 
+                    num_best_mean_textline_confs=num_best_mean_textline_confs, num_worst_mean_textline_confs=num_worst_mean_textline_confs)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')
