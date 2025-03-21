@@ -89,8 +89,10 @@ Options:
        -ge,  --show-genre-evaluation   Evaluate the number of genres in the CSV_FILES and save the corresponding bar plot (optional)
        -d,   --date-range              Choose a date range for filtering the data, specify <YEAR_START YEAR_END> (optional)
        -de,  --show-dates-evaluation   Evaluate the number of years in the CSV_FILES and save the corresponding bar plot(optional)
-       -top, --top-ppns                Choose a number of top PPN_PAGEs with mean word score & mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)
-       -bot, --bottom-ppns             Choose a number of bottom PPN_PAGEs with mean word score & mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
+       -topw, --top-ppns-word          Choose a number of top PPN_PAGEs with mean word scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)
+       -botw, --bottom-ppns-word       Choose a number of bottom PPN_PAGEs with mean word scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
+       -topt, --top-ppns-textline      Choose a number of top PPN_PAGEs with mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)
+       -bott, --bottom-ppns-textline   Choose a number of bottom PPN_PAGEs with mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
        -wc,  --mean-word-confs         Choose a mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)
        -tc,  --mean-textline-confs     Choose a mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)
  

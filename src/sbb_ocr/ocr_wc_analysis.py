@@ -174,7 +174,9 @@ def dates_evaluation(mods_info_df, results_df, replace_subgenres=True):
     plt.close()
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
-                    year_start=None, year_end=None, use_top_ppns=False, use_bottom_ppns=False, num_top_ppns=1, num_bottom_ppns=1, 
+                    year_start=None, year_end=None, 
+                    use_top_ppns_word=False, use_bottom_ppns_word=False, num_top_ppns_word=1, num_bottom_ppns_word=1, 
+                    use_top_ppns_textline=False, use_bottom_ppns_textline=False, num_top_ppns_textline=1, num_bottom_ppns_textline=1,
                     mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None, show_genre_evaluation=False, 
                     output=False, show_dates_evaluation=False, show_results=False,
                     use_best_mean_word_confs=False, use_worst_mean_word_confs=False, num_best_mean_word_confs=50, num_worst_mean_word_confs=50):
@@ -271,14 +273,23 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     if search_genre:
         results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
         
-    if use_top_ppns:
-        results_df = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0)) & ((results_df["mean_textline"] >= 0.95) & (results_df["mean_textline"] <= 1.0))]
+    if use_top_ppns_word:
+        results_df = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0))]
         results_df = results_df.sort_values(by='mean_word', ascending=False)
-        results_df = results_df.head(num_top_ppns)
-    elif use_bottom_ppns:
-        results_df = results_df[((results_df["mean_word"] >= 0.0) & (results_df["mean_word"] <= 0.05)) & ((results_df["mean_textline"] >= 0.0) & (results_df["mean_textline"] <= 0.05))]
+        results_df = results_df.head(num_top_ppns_word)
+    elif use_bottom_ppns_word:
+        results_df = results_df[((results_df["mean_word"] >= 0.0) & (results_df["mean_word"] <= 0.05))]
         results_df = results_df.sort_values(by='mean_word', ascending=True)
-        results_df = results_df.head(num_bottom_ppns)
+        results_df = results_df.head(num_bottom_ppns_word)
+        
+    if use_top_ppns_textline:
+        results_df = results_df[((results_df["mean_textline"] >= 0.95) & (results_df["mean_textline"] <= 1.0))]
+        results_df = results_df.sort_values(by='mean_textline', ascending=False)
+        results_df = results_df.head(num_top_ppns_textline)
+    elif use_bottom_ppns_textline:
+        results_df = results_df[((results_df["mean_textline"] >= 0.0) & (results_df["mean_textline"] <= 0.05))]
+        results_df = results_df.sort_values(by='mean_textline', ascending=True)
+        results_df = results_df.head(num_bottom_ppns_textline)
         
     results_df_unique = results_df["ppn"].unique()
         
