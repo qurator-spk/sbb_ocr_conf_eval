@@ -27,9 +27,13 @@ def cli():
 @click.option('-o', '--output', 'output', type=click.File('w'), help='Save the results to an OUTPUT_CSV_FILE (optional)')
 @click.option('-de', '--show-dates-evaluation', 'show_dates_evaluation', is_flag=True, default=False, help="Evaluate the number of years in the CSV_FILES (optional)")
 @click.option('-r', '--show-results', 'show_results', is_flag=True, default=False, help="Show the light version of the results [ppn, ppn_page, mean_word, originInfo-publication0_dateIssued, genre-aad] (optional)")
+@click.option('-bmw', '--best-mean-word-confs', type=int, help='Number of PPNs with the best mean word scores, specify <NUMBER_OF> (optional)')
+@click.option('-wmw', '--worst-mean-word-confs', type=int, help='Number of PPNs with the worst mean word scores, specify <NUMBER_OF> (optional)')
+
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
-def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, top_ppns, bottom_ppns, mean_word_confs, mean_textline_confs, show_genre_evaluation, output, show_dates_evaluation, show_results):
+def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, top_ppns, bottom_ppns, mean_word_confs, mean_textline_confs, show_genre_evaluation, output, show_dates_evaluation, show_results,
+             best_mean_word_confs, worst_mean_word_confs):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
@@ -51,12 +55,18 @@ def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, top_
         
     num_top_ppns = top_ppns if top_ppns is not None else 50
     num_bottom_ppns = bottom_ppns if bottom_ppns is not None else 50
+    
+    num_best_mean_word_confs = best_mean_word_confs if best_mean_word_confs is not None else 50
+    num_worst_mean_word_confs = worst_mean_word_confs if worst_mean_word_confs is not None else 50
+
         
     plot_everything(csv_files=csv_files, mods_info_csv=mods_info_csv, search_genre=search_genre,
                     plot_file=plot_file, year_start=year_start, year_end=year_end,
                     use_top_ppns=(top_ppns is not None), use_bottom_ppns=(bottom_ppns is not None), num_top_ppns=num_top_ppns, num_bottom_ppns=num_bottom_ppns,
                     mean_word_start=mean_word_start, mean_word_end=mean_word_end, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end, 
-                    show_genre_evaluation=show_genre_evaluation, output=output, show_dates_evaluation=show_dates_evaluation, show_results=show_results)
+                    show_genre_evaluation=show_genre_evaluation, output=output, show_dates_evaluation=show_dates_evaluation, show_results=show_results,
+                    use_best_mean_word_confs=(best_mean_word_confs is not None), use_worst_mean_word_confs=(worst_mean_word_confs is not None), 
+                    num_best_mean_word_confs=num_best_mean_word_confs, num_worst_mean_word_confs=num_worst_mean_word_confs)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')
@@ -82,7 +92,7 @@ def merge_mods_info(ppn_list, mods_info_csv):
     Merge a list of PPNs (e.g., PPN.list.2024-09-06) with a MODS_INFO_FILE (e.g., mods_info_df_2024-09-06.csv) to create a lighter version of the MODS_INFO_FILE (e.g., merged_mods_info_df_2025-03-07.csv).
     """
     with open(ppn_list, 'r') as file:
-            lines = [line.strip() for line in file.readlines()]
+        lines = [line.strip() for line in file.readlines()]
 
     ppn_list_df = pd.DataFrame(lines, columns=['PPN'])
     filtered_mods_info_df = mods_info_df[mods_info_df['recordInfo_recordIdentifier'].isin(ppn_list_df['PPN'])]
