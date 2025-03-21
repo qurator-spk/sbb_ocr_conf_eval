@@ -79,26 +79,26 @@ Commands:
 
 
 Options:
-    --help                            Show this message and exit
+    --help                             Show this message and exit
   
     plot:
-       -m,  --mods-info               Add a MODS_INFO_FILE with the PPN metadata
-       -r,  --show-results            Show the light version of the results [ppn, ppn_page, mean_word, originInfo-publication0_dateIssued, genre-aad] (optional)
-       -o,  --output                  Save the results and the description of the results to an OUTPUT_CSV_FILE (optional)
-       -g,  --genre                   Choose a GENRE (optional)
-       -ge, --show-genre-evaluation   Evaluate the number of genres in the CSV_FILES and save the corresponding bar plot (optional)
-       -d,  --date-range              Choose a date range for filtering the data, specify <YEAR_START YEAR_END> (optional)
-       -de, --show-dates-evaluation   Evaluate the number of years in the CSV_FILES and save the corresponding bar plot(optional)
-       -b,  --best-ppns               Choose a number of best PPNs with mean word score & mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)
-       -w,  --worst-ppns              Choose a number of worst PPNs with mean word score & mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
-       -wc, --mean-word-confs         Choose a mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)
-       -tc, --mean-textline-confs     Choose a mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)
+       -m,   --mods-info               Add a MODS_INFO_FILE with the PPN metadata
+       -r,   --show-results            Show the light version of the results [ppn, ppn_page, mean_word, originInfo-publication0_dateIssued, genre-aad] (optional)
+       -o,   --output                  Save the results and the description of the results to an OUTPUT_CSV_FILE (optional)
+       -g,   --genre                   Choose a GENRE (optional)
+       -ge,  --show-genre-evaluation   Evaluate the number of genres in the CSV_FILES and save the corresponding bar plot (optional)
+       -d,   --date-range              Choose a date range for filtering the data, specify <YEAR_START YEAR_END> (optional)
+       -de,  --show-dates-evaluation   Evaluate the number of years in the CSV_FILES and save the corresponding bar plot(optional)
+       -top, --top-ppns                Choose a number of top PPNs with mean word score & mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)
+       -bot, --bottom-ppns             Choose a number of bottom PPNs with mean word score & mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
+       -wc,  --mean-word-confs         Choose a mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)
+       -tc,  --mean-textline-confs     Choose a mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)
  
     ppn2pagexml:
-       --format                       Whether to output csv or json
-       --output                       Print to this file
+       --format                        Whether to output csv or json
+       --output                        Print to this file
  
     ppn2confs:
-       --format                       Whether to output csv or json
-       --output                       Print to this file
+       --format                        Whether to output csv or json
+       --output                        Print to this file
 ```

@@ -174,7 +174,7 @@ def dates_evaluation(mods_info_df, results_df, replace_subgenres=True):
     plt.close()
 
 def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
-                    year_start=None, year_end=None, use_best_ppns=False, use_worst_ppns=False, num_best_ppns=50, num_worst_ppns=50, 
+                    year_start=None, year_end=None, use_top_ppns=False, use_bottom_ppns=False, num_top_ppns=50, num_bottom_ppns=50, 
                     mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None, show_genre_evaluation=False, 
                     output=False, show_dates_evaluation=False, show_results=False):
     for file in csv_files:
@@ -244,6 +244,9 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
     elif "2025-03-07" in mods_info_csv:
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
+        
+    elif "2025-03-19" in mods_info_csv:
+        mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
     
     results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
     
@@ -267,12 +270,12 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     if search_genre:
         results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
         
-    if use_best_ppns:
+    if use_top_ppns:
         results_df = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0)) & ((results_df["mean_textline"] >= 0.95) & (results_df["mean_textline"] <= 1.0))]
-        results_df_unique = results_df["ppn"].unique()[:num_best_ppns]
-    elif use_worst_ppns:
+        results_df_unique = results_df["ppn"].unique()[:num_top_ppns]
+    elif use_bottom_ppns:
         results_df = results_df[((results_df["mean_word"] >= 0.0) & (results_df["mean_word"] <= 0.05)) & ((results_df["mean_textline"] >= 0.0) & (results_df["mean_textline"] <= 0.05))]
-        results_df_unique = results_df["ppn"].unique()[:num_worst_ppns]
+        results_df_unique = results_df["ppn"].unique()[:num_bottom_ppns]
     else:    
         results_df_unique = results_df["ppn"].unique()
         

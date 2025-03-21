@@ -19,8 +19,8 @@ def cli():
 @click.option('-g', '--genre', 'search_genre', help='Genre to be evaluated (optional)')
 @click.option('-m', '--mods-info', 'mods_info_csv', default="mods_info_df_2024-11-27.csv", help='mods_info CSV for PPN metadata')
 @click.option('-d', '--date-range', 'date_range', nargs=2, type=(int, int), help='Year range for filtering data, specify <YEAR_START YEAR_END> (optional)')
-@click.option('-b', '--best-ppns', type=int, help='Number of best PPNs with mean word score & mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)')
-@click.option('-w', '--worst-ppns', type=int, help='Number of worst PPNs with mean word score & mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)')
+@click.option('-top', '--top-ppns', type=int, help='Number of top PPNs with mean word score & mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)')
+@click.option('-bot', '--bottom-ppns', type=int, help='Number of bottom PPNs with mean word score & mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)')
 @click.option('-wc', '--mean-word-confs', 'mean_word_confs', nargs=2, type=(float, float), help='Mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)')
 @click.option('-tc', '--mean-textline-confs', 'mean_textline_confs', nargs=2, type=(float, float), help='Mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)')
 @click.option('-ge', '--show-genre-evaluation', 'show_genre_evaluation', is_flag=True, default=False, help="Evaluate the number of genres in the CSV_FILES (optional)")
@@ -29,7 +29,7 @@ def cli():
 @click.option('-r', '--show-results', 'show_results', is_flag=True, default=False, help="Show the light version of the results [ppn, ppn_page, mean_word, originInfo-publication0_dateIssued, genre-aad] (optional)")
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
-def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, best_ppns, worst_ppns, mean_word_confs, mean_textline_confs, show_genre_evaluation, output, show_dates_evaluation, show_results):
+def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, top_ppns, bottom_ppns, mean_word_confs, mean_textline_confs, show_genre_evaluation, output, show_dates_evaluation, show_results):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
@@ -49,12 +49,12 @@ def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, best
     else:
         mean_textline_start, mean_textline_end = mean_textline_confs
         
-    num_best_ppns = best_ppns if best_ppns is not None else 50
-    num_worst_ppns = worst_ppns if worst_ppns is not None else 50
+    num_top_ppns = top_ppns if top_ppns is not None else 50
+    num_bottom_ppns = bottom_ppns if bottom_ppns is not None else 50
         
     plot_everything(csv_files=csv_files, mods_info_csv=mods_info_csv, search_genre=search_genre,
                     plot_file=plot_file, year_start=year_start, year_end=year_end,
-                    use_best_ppns=(best_ppns is not None), use_worst_ppns=(worst_ppns is not None), num_best_ppns=num_best_ppns, num_worst_ppns=num_worst_ppns,
+                    use_top_ppns=(top_ppns is not None), use_bottom_ppns=(bottom_ppns is not None), num_top_ppns=num_top_ppns, num_bottom_ppns=num_bottom_ppns,
                     mean_word_start=mean_word_start, mean_word_end=mean_word_end, mean_textline_start=mean_textline_start, mean_textline_end=mean_textline_end, 
                     show_genre_evaluation=show_genre_evaluation, output=output, show_dates_evaluation=show_dates_evaluation, show_results=show_results)
 
