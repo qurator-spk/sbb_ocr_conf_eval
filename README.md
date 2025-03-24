@@ -6,6 +6,16 @@
 
 Location: `/nfs/git-annex/michal.bubula/csv/`
 
+`merged_mods_info_df_2025-03-19.csv`:
+- Number of rows: ***47716***
+- Number of columns: ***3***
+- PPNs in `PPN` column
+- Genres in `genre-aad` column
+- Publication dates in `originInfo-publication0_dateIssued` column ***(with all rows, e.g. 18XX)***
+- Projects: ***missing***
+- Titlepages: ***missing***
+- Source: Merge of `mods_info_df_2024-09-06.csv` and `PPN.list.2024-09-06` (rows: 47716)
+
 `merged_mods_info_df_2025-03-07.csv`:
 - Number of rows: ***47694***
 - Number of columns: ***3***
@@ -14,7 +24,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/`
 - Publication dates in `originInfo-publication0_dateIssued` column ***(dropped NaNs)***
 - Projects: ***missing***
 - Titlepages: ***missing***
-- Source: Merge of `mods_info_df_2024-09-06.csv` and `PPN.list.2024-09-06`
+- Source: Merge of `mods_info_df_2024-09-06.csv` and `PPN.list.2024-09-06` (rows: 47716)
 
 `mods_info_df_2024-09-06.csv`: 
 - Number of rows: ***64260***
