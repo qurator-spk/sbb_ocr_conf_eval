@@ -251,6 +251,9 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         
     elif "2025-03-19" in mods_info_csv:
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
+        
+    elif "2025-03-24" in mods_info_csv:
+        mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
     
     results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
     

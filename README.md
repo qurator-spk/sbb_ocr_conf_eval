@@ -6,8 +6,18 @@
 
 Location: `/nfs/git-annex/michal.bubula/csv/`
 
+`merged_mods_info_df_2025-03-24.csv`:
+- Number of rows: ***64259*** (without header row)
+- Number of columns: ***3***
+- PPNs in `PPN` column
+- Genres in `genre-aad` column
+- Publication dates in `originInfo-publication0_dateIssued` column ***(with all rows, e.g. 18XX)***
+- Projects: ***missing***
+- Titlepages: ***missing***
+- Source: All columns of `mods_info_df_2024-09-06.csv` dropped, except for `PPN`, `genre-aad` and `originInfo-publication0_dateIssued`
+
 `merged_mods_info_df_2025-03-19.csv`:
-- Number of rows: ***47716***
+- Number of rows: ***47716*** (without header row)
 - Number of columns: ***3***
 - PPNs in `PPN` column
 - Genres in `genre-aad` column
@@ -17,7 +27,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/`
 - Source: Merge of `mods_info_df_2024-09-06.csv` and `PPN.list.2024-09-06` (rows: 47716)
 
 `merged_mods_info_df_2025-03-07.csv`:
-- Number of rows: ***47694***
+- Number of rows: ***47694*** (without header row)
 - Number of columns: ***3***
 - PPNs in `PPN` column
 - Genres in `genre-aad` column
@@ -27,7 +37,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/`
 - Source: Merge of `mods_info_df_2024-09-06.csv` and `PPN.list.2024-09-06` (rows: 47716)
 
 `mods_info_df_2024-09-06.csv`: 
-- Number of rows: ***64260***
+- Number of rows: ***64259*** (without header row)
 - Number of columns: ***36***
 - PPNs in `recordInfo_recordIdentifier` column ***(renamed to: ***`PPN`***)***
 - Publication dates in `originInfo-publication0_dateIssued` column
@@ -37,7 +47,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/`
 - Source: `T:\QURATOR\2024-08-select-documents-for-mass-digitization\2024-09-06\documents.csv`
 	
 `mods_info_df_2024-11-27.csv`: 
-- Number of rows: ***224183***
+- Number of rows: ***224182*** (without header row)
 - Number of columns: ***69***
 - PPNs in `PPN` column ***(via workaround)***
 - Publication dates in `originInfo-publication0_dateIssued` column ***(kept strings that are 4 digits long)***
