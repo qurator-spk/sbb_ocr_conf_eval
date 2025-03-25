@@ -6,6 +6,16 @@
 
 Location: `/nfs/git-annex/michal.bubula/csv/`
 
+`merged_mods_info_df_2025-03-25.csv`:
+- Number of rows: ***64228*** (without header row)
+- Number of columns: ***3***
+- PPNs in `PPN` column
+- Genres in `genre-aad` column
+- Publication dates in `originInfo-publication0_dateIssued` column ***(dropped NaNs)***
+- Projects: ***missing***
+- Titlepages: ***missing***
+- Source: `merged_mods_info_df_2025-03-24.csv` with dropped NaNs in `originInfo-publication0_dateIssued` column
+
 `merged_mods_info_df_2025-03-24.csv`:
 - Number of rows: ***64259*** (without header row)
 - Number of columns: ***3***
