@@ -60,6 +60,8 @@ def plot_density(ax, data, title, xlabel, ylabel, density_color, legend_loc):
         
     except LinAlgError as e:
         print(f"Cannot plot the data!\nLinAlgError encountered while performing KDE: \n{e}. \nThe data does not have enough variation in its dimensions to accurately estimate a continuous probability density function. \nIncrease the number of PPNs to be filtered!\n")
+    except ValueError as v:
+        print(f"Cannot plot the data!\nValueError encountered while performing KDE: \n{v}. \nIncrease the number of PPNs to be filtered!\n")
 
 @contextmanager
 def load_csv(csv_file):
@@ -261,7 +263,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
         
     elif "2025-03-25" in mods_info_csv:
-        mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])    
+        mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])  
     
     results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
     results_df.to_csv("results2.csv", index=False)
