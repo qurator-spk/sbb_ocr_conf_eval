@@ -109,32 +109,36 @@ Commands:
 
 
 Options:
-    --help                                 Show this message and exit
+    --help                                         Show this message and exit
   
     plot:
-       -m,    --mods-info                  Add a MODS_INFO_FILE with the PPN metadata
-       -r,    --show-results               Show the light version of the results [ppn, ppn_page, mean_word, originInfo-publication0_dateIssued, genre-aad] (optional)
-       -o,    --output                     Save the results and the description of the results to an OUTPUT_CSV_FILE (optional)
-       -g,    --genre                      Choose a GENRE (optional)
-       -ge,   --show-genre-evaluation      Evaluate the number of genres in the CSV_FILES and save the corresponding bar plot (optional)
-       -d,    --date-range                 Choose a date range for filtering the data, specify <YEAR_START YEAR_END> (optional)
-       -de,   --show-dates-evaluation      Evaluate the number of years in the CSV_FILES and save the corresponding bar plot(optional)
-       -topw, --top-ppns-word              Choose a number of top PPN_PAGEs with mean word scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)
-       -botw, --bottom-ppns-word           Choose a number of bottom PPN_PAGEs with mean word nscores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
-       -topt, --top-ppns-textline          Choose a number of top PPN_PAGEs with mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)
-       -bott, --bottom-ppns-textline       Choose a number of bottom PPN_PAGEs with mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
-       -wc,   --mean-word-confs            Choose a mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)
-       -tc,   --mean-textline-confs        Choose a mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)
-       -bmw,  --best-mean-word-confs       Choose a number of PPNs with the best mean word scores, specify <NUMBER_OF> (optional)
-       -wmw,  --worst-mean-word-confs      Choose a number of PPNs with the worst mean word scores, specify <NUMBER_OF> (optional)
-       -bmt,  --best-mean-textline-confs   Choose a number of PPNs with the best mean textline scores, specify <NUMBER_OF> (optional)
-       -wmt,  --worst-mean-textline-confs  Choose a number of PPNs with the worst mean textline scores, specify <NUMBER_OF> (optional)
+       -m,     --mods-info                         Add a MODS_INFO_FILE with the PPN metadata
+       -r,     --show-results                      Show the light version of the results [ppn, ppn_page, mean_word, originInfo-publication0_dateIssued, genre-aad] (optional)
+       -o,     --output                            Save the results and the description of the results to an OUTPUT_CSV_FILE (optional)
+       -g,     --genre                             Choose a GENRE (optional)
+       -ge,    --show-genre-evaluation             Evaluate the number of genres in the CSV_FILES and save the corresponding bar plot (optional)
+       -d,     --date-range                        Choose a date range for filtering the data, specify <YEAR_START YEAR_END> (optional)
+       -de,    --show-dates-evaluation             Evaluate the number of years in the CSV_FILES and save the corresponding bar plot(optional)
+       -wc,    --mean-word-confs                   Choose a mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)
+       -tc,    --mean-textline-confs               Choose a mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)
+       -bmw,   --best-mean-word-confs              Choose a number of PPN_PAGEs with the best mean word scores, specify <NUMBER_OF> (optional)
+       -wmw,   --worst-mean-word-confs             Choose a number of PPN_PAGEs with the worst mean word scores, specify <NUMBER_OF> (optional)
+       -bmt,   --best-mean-textline-confs          Choose a number of PPN_PAGEs with the best mean textline scores, specify <NUMBER_OF> (optional)
+       -wmt,   --worst-mean-textline-confs         Choose a number of PPN_PAGEs with the worst mean textline scores, specify <NUMBER_OF> (optional)
+       -topw,  --top-ppns-word                     Choose a number of top PPN_PAGEs with mean word scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)
+       -botw,  --bottom-ppns-word                  Choose a number of bottom PPN_PAGEs with mean word nscores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
+       -topt,  --top-ppns-textline                 Choose a number of top PPN_PAGEs with mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)
+       -bott,  --bottom-ppns-textline              Choose a number of bottom PPN_PAGEs with mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
+       -bmwu,  --best-mean-word-confs-unique       Choose a number of unique PPNs whose PPN_PAGEs have the best mean word scores, specify <NUMBER_OF> (optional)
+       -wmwu,  --worst-mean-word-confs-unique      Choose a number of unique PPNs whose PPN_PAGEs have the worst mean word scores, specify <NUMBER_OF> (optional)
+       -bmtu,  --best-mean-textline-confs-unique   Choose a number of unique PPNs whose PPN_PAGEs have the best mean textline scores, specify <NUMBER_OF> (optional)
+       -wmtu,  --worst-mean-textline-confs-unique  Choose a number of unique PPNs whose PPN_PAGEs have the worst mean textline scores, specify <NUMBER_OF> (optional)
  
     ppn2pagexml:
-       --format                            Whether to output csv or json
-       --output                            Print to this file
+       --format                                    Whether to output csv or json
+       --output                                    Print to this file
  
     ppn2confs:
-       --format                            Whether to output csv or json
-       --output                            Print to this file
+       --format                                    Whether to output csv or json
+       --output                                    Print to this file
 ```

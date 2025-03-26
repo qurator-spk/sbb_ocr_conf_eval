@@ -181,6 +181,8 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
                     use_top_ppns_textline=False, use_bottom_ppns_textline=False, num_top_ppns_textline=1, num_bottom_ppns_textline=1,
                     mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None, show_genre_evaluation=False, 
                     output=False, show_dates_evaluation=False, show_results=False,
+                    use_best_mean_word_confs_unique=False, use_worst_mean_word_confs_unique=False, num_best_mean_word_confs_unique=1, num_worst_mean_word_confs_unique=1,
+                    use_best_mean_textline_confs_unique=False, use_worst_mean_textline_confs_unique=False, num_best_mean_textline_confs_unique=1, num_worst_mean_textline_confs_unique=1,
                     use_best_mean_word_confs=False, use_worst_mean_word_confs=False, num_best_mean_word_confs=1, num_worst_mean_word_confs=1,
                     use_best_mean_textline_confs=False, use_worst_mean_textline_confs=False, num_best_mean_textline_confs=1, num_worst_mean_textline_confs=1):
     for file in csv_files:
@@ -306,26 +308,39 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
         results_df = results_df.head(num_bottom_ppns_textline)
         
+    if use_best_mean_word_confs_unique:
+        results_df = results_df.sort_values(by='mean_word', ascending=False)
+        best_unique_ppns = results_df['ppn'].drop_duplicates().head(num_best_mean_word_confs_unique)
+        results_df = results_df[results_df['ppn'].isin(best_unique_ppns)]
+    elif use_worst_mean_word_confs_unique:
+        results_df = results_df.sort_values(by='mean_word', ascending=True)
+        worst_unique_ppns = results_df['ppn'].drop_duplicates().head(num_worst_mean_word_confs_unique)
+        results_df = results_df[results_df['ppn'].isin(worst_unique_ppns)]
+        
+    if use_best_mean_textline_confs_unique:
+        results_df = results_df.sort_values(by='mean_textline', ascending=False)
+        best_unique_ppns = results_df['ppn'].drop_duplicates().head(num_best_mean_textline_confs_unique)
+        results_df = results_df[results_df['ppn'].isin(best_unique_ppns)]
+    elif use_worst_mean_textline_confs_unique:
+        results_df = results_df.sort_values(by='mean_textline', ascending=True)
+        worst_unique_ppns = results_df['ppn'].drop_duplicates().head(num_worst_mean_textline_confs_unique)
+        results_df = results_df[results_df['ppn'].isin(worst_unique_ppns)]
+        
     if use_best_mean_word_confs:
         results_df = results_df.sort_values(by='mean_word', ascending=False)
-        best_unique_ppns = results_df['ppn'].drop_duplicates().head(num_best_mean_word_confs)
-        results_df = results_df[results_df['ppn'].isin(best_unique_ppns)]
+        results_df = results_df.head(num_best_mean_word_confs)
     elif use_worst_mean_word_confs:
         results_df = results_df.sort_values(by='mean_word', ascending=True)
-        worst_unique_ppns = results_df['ppn'].drop_duplicates().head(num_worst_mean_word_confs)
-        results_df = results_df[results_df['ppn'].isin(worst_unique_ppns)]
+        results_df = results_df.head(num_worst_mean_word_confs)
         
     if use_best_mean_textline_confs:
         results_df = results_df.sort_values(by='mean_textline', ascending=False)
-        best_unique_ppns = results_df['ppn'].drop_duplicates().head(num_best_mean_textline_confs)
-        results_df = results_df[results_df['ppn'].isin(best_unique_ppns)]
+        results_df = results_df.head(num_best_mean_textline_confs)
     elif use_worst_mean_textline_confs:
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
-        worst_unique_ppns = results_df['ppn'].drop_duplicates().head(num_worst_mean_textline_confs)
-        results_df = results_df[results_df['ppn'].isin(worst_unique_ppns)]
+        results_df = results_df.head(num_worst_mean_textline_confs)
         
     results_df_unique = results_df["ppn"].unique()
-        
     all_ppns = results_df_original["ppn"].unique()
     
     print(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
