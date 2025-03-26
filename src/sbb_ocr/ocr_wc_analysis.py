@@ -264,8 +264,34 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     elif "2025-03-24" in mods_info_csv:
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
         
+        ppn_list_df = pd.read_csv("PPN.list.2024-09-06", header=None, names=['PPN_from_list'], dtype=str)
+        print(ppn_list_df.head(30))
+        
+        filtered_mods_info_df = mods_info_df[mods_info_df['PPN'].isin(ppn_list_df['PPN_from_list'])]
+        
+        merged_mods_info_df = pd.DataFrame()
+        merged_mods_info_df['PPN_from_list'] = ppn_list_df['PPN_from_list']
+        merged_mods_info_df = merged_mods_info_df.merge(filtered_mods_info_df[['PPN', 'genre-aad', 'originInfo-publication0_dateIssued']],
+                                left_on='PPN_from_list', right_on='PPN', how='left')
+                                
+        merged_mods_info_df.drop(columns='PPN_from_list', inplace=True)
+        merged_mods_info_df.to_csv("merged_mods_info_df_2025-03-26.csv", index=False)
+        print()
+        print(merged_mods_info_df.head(30))
+        
     elif "2025-03-25" in mods_info_csv:
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])  
+        
+    elif "2025-03-26" in mods_info_csv:
+        mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
+        
+        # PPNs that are in mods_info_df["PPN"], but not in results_df["ppn"]
+        diff_in_mods_info_df = mods_info_df[~mods_info_df["PPN"].isin(results_df["ppn"])]
+        diff_in_mods_info_df.to_csv("diff_in_mods_info.csv", index=False)
+
+        # PPNs that are in results_df["ppn"], but not in mods_info_df["PPN"]
+        diff_in_results_df = results_df[~results_df["ppn"].isin(mods_info_df["PPN"])]
+        diff_in_results_df.to_csv("diff_in_results_df.csv", index=False)
     
     results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
     results_df.to_csv("results2.csv", index=False)

@@ -6,6 +6,16 @@
 
 Location: `/nfs/git-annex/michal.bubula/csv/`
 
+`merged_mods_info_df_2025-03-26.csv`:
+- Number of rows: ***47716*** (without header row)
+- Number of columns: ***3***
+- PPNs in `PPN` column
+- Genres in `genre-aad` column
+- Publication dates in `originInfo-publication0_dateIssued` column ***(dropped NaNs)***
+- Projects: ***missing***
+- Titlepages: ***missing***
+- Source: Merge of `mods_info_df_2024-09-24.csv` and `PPN.list.2024-09-06` (rows: 47716)
+
 `merged_mods_info_df_2025-03-25.csv`:
 - Number of rows: ***64228*** (without header row)
 - Number of columns: ***3***
@@ -118,7 +128,7 @@ Options:
        -g,     --genre                             Choose a GENRE (optional)
        -ge,    --show-genre-evaluation             Evaluate the number of genres in the CSV_FILES and save the corresponding bar plot (optional)
        -d,     --date-range                        Choose a date range for filtering the data, specify <YEAR_START YEAR_END> (optional)
-       -de,    --show-dates-evaluation             Evaluate the number of years in the CSV_FILES and save the corresponding bar plot(optional)
+       -de,    --show-dates-evaluation             Evaluate the number of years in the CSV_FILES and save the corresponding bar plot (optional)
        -wc,    --mean-word-confs                   Choose a mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)
        -tc,    --mean-textline-confs               Choose a mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)
        -bmw,   --best-mean-word-confs              Choose a number of PPN_PAGEs with the best mean word scores, specify <NUMBER_OF> (optional)
