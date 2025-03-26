@@ -11,7 +11,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/`
 - Number of columns: ***3***
 - PPNs in `PPN` column
 - Genres in `genre-aad` column
-- Publication dates in `originInfo-publication0_dateIssued` column ***(dropped NaNs)***
+- Publication dates in `originInfo-publication0_dateIssued` column ***(with all rows, e.g. 18XX)***
 - Projects: ***missing***
 - Titlepages: ***missing***
 - Source: Merge of `mods_info_df_2024-09-24.csv` and `PPN.list.2024-09-06` (rows: 47716)
