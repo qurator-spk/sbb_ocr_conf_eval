@@ -225,35 +225,14 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])
     results_df_original = results_df.copy()
     
-    if "2024-11-27" in mods_info_csv:
-        mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["accessCondition-use and reproduction", "accessCondition-restriction on access", "classification-ZVDD", "genre-aad", "identifier-purl", "identifier-vd17", "language_languageTerm", "location_physicalLocation", "location_shelfLocator", "name0_displayForm", "name0_namePart-family", "name0_namePart-given", "name0_role_roleTerm", "originInfo-digitization0_dateCaptured", "originInfo-digitization0_edition", "originInfo-digitization0_place_placeTerm", "originInfo-digitization0_publisher", "originInfo-publication0_dateIssued", "originInfo-publication0_place_placeTerm", "originInfo-publication0_publisher", "relatedItem-original_recordInfo_recordIdentifier", "titleInfo_subTitle", "titleInfo_title", "typeOfResource", "mets_fileSec_fileGrp-FULLTEXT-count", "mets_fileSec_fileGrp-DEFAULT-count", "mets_fileSec_fileGrp-PRESENTATION-count", "mets_fileSec_fileGrp-THUMBS-count", "mets_file", "identifier-RISMA2", "originInfo-production0_dateCreated", "originInfo-production0_edition", "identifier-KOPE", "originInfo-production0_place_placeTerm", "genre-sbb", "mets_fileSec_fileGrp-MAX-count", "mets_fileSec_fileGrp-MIN-count", "mets_fileSec_fileGrp-LOCAL-count", "language_scriptTerm", "name0_namePart", "relatedItem-host_recordInfo_recordIdentifier", "classification-sbb", "identifier-vd18", "identifier-ORIE", "originInfo-publication0_edition", "identifier-PPNanalog", "genre-wikidata", "identifier-vd16", "subject-EC1418_genre", "subject_name0_displayForm", "subject_name0_namePart-family", "subject_name0_namePart-given", "classification-ddc", "identifier-MMED", "relatedItem-original_recordInfo_recordIdentifier-dnb-ppn", "name0_namePart-termsOfAddress", "genre-marcgt", "identifier-zdb", "identifier-RISMA1", "identifier-GW", "identifier-doi", "classification-ark", "abstract", "accessCondition-embargo enddate", "titleInfo_partName", "identifier-KSTO", "identifier-ISSN", "genre", "identifier-EC1418"])
-        
-        mods_info_df["PPN_mods"] = mods_info_df["mets_file"].apply(lambda x: x.split("/")[-1].split(".")[0])
-    
-    elif "2024-09-06" in mods_info_csv:
-        mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "PPN", "accessCondition-embargo enddate", "accessCondition-restriction on access", "accessCondition-use and reproduction", "classification-ZVDD", "classification-ark", "classification-ddc", "classification-sbb", "genre", "genre-aad", "genre-sbb", "genre-wikidata", "identifier-vd16", "identifier-vd17", "identifier-vd18", "language_languageTerm", "language_scriptTerm", "mets_fileSec_fileGrp-FULLTEXT-count", "mets_fileSec_fileGrp-PRESENTATION-count", "originInfo-digitization0_dateCaptured", "originInfo-digitization0_publisher", "originInfo-production0_dateCreated", "originInfo-publication0_dateIssued", "originInfo-publication0_publisher", "recordInfo_recordIdentifier", "subject-EC1418_genre", "titleInfo_title", "typeOfResource", "vd", "vd16", "vd17", "vd18", "columns", "german", "druck"])
-        
-        mods_info_df.drop(columns=['PPN'], inplace=True)
-        mods_info_df["PPN"] = mods_info_df["recordInfo_recordIdentifier"]
-
-        mods_info_df["originInfo-publication0_dateIssued"] = pd.to_numeric(mods_info_df["originInfo-publication0_dateIssued"], errors="coerce")
-        mods_info_df = mods_info_df.dropna(subset=["originInfo-publication0_dateIssued"])
-        mods_info_df["originInfo-publication0_dateIssued"] = mods_info_df["originInfo-publication0_dateIssued"].astype(int)
-        
-    elif "2025-03-07" in mods_info_csv:
+    if "metadata" in mods_info_csv:
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
         
-    elif "2025-03-19" in mods_info_csv:
-        mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
+        ppn_list_df = pd.read_csv("ppns_pipeline_batch_01_2024.txt", header=None, names=['PPN'], dtype=str)
+        print(ppn_list_df.head(30))
         
-    elif "2025-03-24" in mods_info_csv:
-        mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN_mods", "genre-aad", "originInfo-publication0_dateIssued"])
-        
-    elif "2025-03-25" in mods_info_csv:
-        mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])  
-        
-    elif "2025-03-26" in mods_info_csv:
-        mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
+        results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
+        all_ppns = results_df["ppn"].unique()
     
     if year_start and year_end:
         results_df = results_df[results_df["ppn"].isin(
@@ -326,7 +305,6 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         results_df = results_df.head(num_worst_mean_textline_confs)
         
     results_df_unique = results_df["ppn"].unique()
-    all_ppns = results_df_original["ppn"].unique()
     
     print(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
     
