@@ -2,79 +2,20 @@
 
 > Evaluating OCR @StabiBerlin
 
-## MODS_INFO_FILES description
+## METADATA_FILES description
 
-Location: `/nfs/git-annex/michal.bubula/csv/`
+Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 
-`merged_mods_info_df_2025-03-26.csv`:
+`metadata.csv`:
 - Number of rows: ***47716*** (without header row)
 - Number of columns: ***3***
 - PPNs in `PPN` column
 - Genres in `genre-aad` column
-- Publication dates in `originInfo-publication0_dateIssued` column ***(with all rows, e.g. 18XX)***
+- Publication dates in `originInfo-publication0_dateIssued` column ***(with 22 rows, which elements are not 4 digits)***
 - Projects: ***missing***
 - Titlepages: ***missing***
-- Source: Merge of `mods_info_df_2024-09-24.csv` and `PPN.list.2024-09-06` (rows: 47716)
+- Source: Created from `mods_info_df_2024-09-06.csv` and `ppns_pipeline_batch_01_2024.txt` (rows: 47716)
 
-`merged_mods_info_df_2025-03-25.csv`:
-- Number of rows: ***64228*** (without header row)
-- Number of columns: ***3***
-- PPNs in `PPN` column
-- Genres in `genre-aad` column
-- Publication dates in `originInfo-publication0_dateIssued` column ***(dropped NaNs)***
-- Projects: ***missing***
-- Titlepages: ***missing***
-- Source: `merged_mods_info_df_2025-03-24.csv` with dropped NaNs in `originInfo-publication0_dateIssued` column
-
-`merged_mods_info_df_2025-03-24.csv`:
-- Number of rows: ***64259*** (without header row)
-- Number of columns: ***3***
-- PPNs in `PPN` column
-- Genres in `genre-aad` column
-- Publication dates in `originInfo-publication0_dateIssued` column ***(with all rows, e.g. 18XX)***
-- Projects: ***missing***
-- Titlepages: ***missing***
-- Source: All columns of `mods_info_df_2024-09-06.csv` dropped, except for `PPN`, `genre-aad` and `originInfo-publication0_dateIssued`
-
-`merged_mods_info_df_2025-03-19.csv`:
-- Number of rows: ***47716*** (without header row)
-- Number of columns: ***3***
-- PPNs in `PPN` column
-- Genres in `genre-aad` column
-- Publication dates in `originInfo-publication0_dateIssued` column ***(with all rows, e.g. 18XX)***
-- Projects: ***missing***
-- Titlepages: ***missing***
-- Source: Merge of `mods_info_df_2024-09-06.csv` and `PPN.list.2024-09-06` (rows: 47716)
-
-`merged_mods_info_df_2025-03-07.csv`:
-- Number of rows: ***47694*** (without header row)
-- Number of columns: ***3***
-- PPNs in `PPN` column
-- Genres in `genre-aad` column
-- Publication dates in `originInfo-publication0_dateIssued` column ***(dropped NaNs)***
-- Projects: ***missing***
-- Titlepages: ***missing***
-- Source: Merge of `mods_info_df_2024-09-06.csv` and `PPN.list.2024-09-06` (rows: 47716)
-
-`mods_info_df_2024-09-06.csv`: 
-- Number of rows: ***64259*** (without header row)
-- Number of columns: ***36***
-- PPNs in `recordInfo_recordIdentifier` column ***(renamed to: ***`PPN`***)***
-- Publication dates in `originInfo-publication0_dateIssued` column
-- Genres in `genre-aad` column
-- Projects: ***missing***
-- Titlepages: ***missing***
-- Source: `T:\QURATOR\2024-08-select-documents-for-mass-digitization\2024-09-06\documents.csv`
-	
-`mods_info_df_2024-11-27.csv`: 
-- Number of rows: ***224182*** (without header row)
-- Number of columns: ***69***
-- PPNs in `PPN` column ***(via workaround)***
-- Publication dates in `originInfo-publication0_dateIssued` column ***(kept strings that are 4 digits long)***
-- Genres in `genre-aad` column
-- Projects: ***missing***
-- Titlepages: ***missing***
-- Source: `@lx0246:/data/mike.gerber/2024-11-mods_info-etc/2024-11-27/mods_info_df.parquet.sqlite3`
 
 ## Installation
 
@@ -99,13 +40,13 @@ Usage:
 
 Examples: 
 
-    sbb_ocr plot -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
+    sbb_ocr plot -m /path/METADATA_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
  
-    sbb_ocr plot -g GENRE -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
+    sbb_ocr plot -g GENRE -m /path/METADATA_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
  
-    sbb_ocr plot -d <YEAR_START YEAR_END> -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
+    sbb_ocr plot -d <YEAR_START YEAR_END> -m /path/METADATA_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
  
-    sbb_ocr plot -g GENRE -d <YEAR_START YEAR_END> -m /path/MODS_INFO_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
+    sbb_ocr plot -g GENRE -d <YEAR_START YEAR_END> -m /path/METADATA_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
 
 
 Commands:
@@ -114,6 +55,7 @@ Commands:
     ppn2kitodo              Translate PPN into Kitodo ID
     ppn2pagexml             Get a list of PAGE-XML files for PPN
     ppn2mets                Get METS file for PPN
+    create-metadata         Create a lighter version of the METADATA_FILE (e.g., metadata.csv) based on a list of PPNs (e.g., ppns_pipeline_batch_01_2024.txt) and a MODS_INFO_FILE (e.g., mods_info_df_2024-09-06.csv).
     convert-mods-info       Convert mods_info.parquet.sqlite3 to CONF_CSV_FILE and remove all non-zero indexed names
     merge-mods-info         Merge a list of PPNs (e.g., PPN.list.2024-09-06) with a MODS_INFO_FILE (e.g., mods_info_df_2024-09-06.csv) to create a lighter version of the MODS_INFO_FILE (e.g., merged_mods_info_df_2025-03-07.csv).
 
@@ -122,7 +64,7 @@ Options:
     --help                                         Show this message and exit
   
     plot:
-       -m,     --mods-info                         Add a MODS_INFO_FILE with the PPN metadata
+       -m,     --mods-info                         Add a METADATA_FILE with the PPN metadata
        -r,     --show-results                      Show the light version of the results [ppn, ppn_page, mean_word, originInfo-publication0_dateIssued, genre-aad] (optional)
        -o,     --output                            Save the results and the description of the results to an OUTPUT_CSV_FILE (optional)
        -g,     --genre                             Choose a GENRE (optional)
