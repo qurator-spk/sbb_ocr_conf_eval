@@ -223,14 +223,20 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     progbar.close()
     
     results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])
-    results_df_original = results_df.copy()
     
     if "metadata" in mods_info_csv:
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
+        
+        # Create a dataframe with all PPNs processed by the OCR pipeline
         ppn_list_df = pd.read_csv("ppns_pipeline_batch_01_2024.txt", header=None, names=['PPN'], dtype=str)
+        
+        # Reduce the results dataframe to include only those PPNs that are in the PPN list
         results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
+        
+        # Count the number of unique PPNs in the results dataframe
         all_ppns = results_df["ppn"].unique()
         
+        # Change all years that are empty strings or 18XX to 2025
         mods_info_df.loc[mods_info_df["originInfo-publication0_dateIssued"].isin(["", "18XX"]), "originInfo-publication0_dateIssued"] = "2025"
     
     if year_start and year_end:
