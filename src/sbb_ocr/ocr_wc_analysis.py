@@ -227,12 +227,11 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     
     if "metadata" in mods_info_csv:
         mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
-        
         ppn_list_df = pd.read_csv("ppns_pipeline_batch_01_2024.txt", header=None, names=['PPN'], dtype=str)
-        print(ppn_list_df.head(30))
-        
         results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
         all_ppns = results_df["ppn"].unique()
+        
+        mods_info_df.loc[mods_info_df["originInfo-publication0_dateIssued"].isin(["", "18XX"]), "originInfo-publication0_dateIssued"] = "2025"
     
     if year_start and year_end:
         results_df = results_df[results_df["ppn"].isin(
