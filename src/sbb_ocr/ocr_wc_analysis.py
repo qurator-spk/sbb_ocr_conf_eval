@@ -176,15 +176,17 @@ def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
     plt.savefig("bar_plot_of_all_years.png")
     plt.close()
     
-def get_ppn_subdirectory_names(parent_directory):
+def get_ppn_subdirectory_names(parent_dir):
     ppn_subdirectory_names = []
 
-    for item in os.listdir(parent_directory):
-        item_path = os.path.join(parent_directory, item)
+    for item in os.listdir(parent_dir):
+        item_path = os.path.join(parent_dir, item)
         if os.path.isdir(item_path) and item.startswith('PPN'):
             ppn_subdirectory_names.append(item)
             
-    print(ppn_subdirectory_names)
+    ppn_df = pd.DataFrame(ppn_subdirectory_names, columns=['PPN'])
+    print("\nPPNs found:\n")
+    print(ppn_df)
 
     return ppn_subdirectory_names
     
