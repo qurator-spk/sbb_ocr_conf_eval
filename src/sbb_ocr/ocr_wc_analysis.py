@@ -9,6 +9,7 @@ from tqdm import tqdm
 import json
 from rich import print
 import os
+import subprocess
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
 
@@ -436,3 +437,35 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         plt.savefig(plot_file)
         plt.close()
         #plt.show()
+        
+def evaluate_everything(dinglehopper_dir=None, gt_dir=None, ocr_dir=None, report_dir=None):
+    if dinglehopper_dir and gt_dir and ocr_dir and report_dir:
+        os.chdir(dinglehopper_dir)
+        valid_directory_count = 0
+        
+        for entry in os.listdir():
+            full_path = os.path.join(dinglehopper_dir, entry)
+            if os.path.isdir(full_path) and entry.startswith("PPN"):
+                valid_directory_count += 1
+    
+        with tqdm(total=valid_directory_count) as progbar:
+            for entry in os.listdir():
+                full_path = os.path.join(dinglehopper_dir, entry)
+                
+                if os.path.isdir(full_path) and entry.startswith("PPN"):
+                    progbar.set_description(f"Processing directory: {entry}")
+                    # Change to the subdirectory
+                    os.chdir(full_path)
+                    command_string = f"ocrd-dinglehopper -I {gt_dir},{ocr_dir} -O {report_dir}"
+                    command_list = command_string.split()
+                    try:
+                        result = subprocess.run(command_list, check=True, capture_output=True, text=True)
+                    except subprocess.CalledProcessError as e:
+                        print(f"Failed to run command in {entry}. Exit code: {e.returncode}, Error: {e.stderr}")
+                    
+                    os.chdir(dinglehopper_dir)
+                    progbar.update(1)
+        progbar.close()
+                
+                
+   

@@ -3,7 +3,7 @@ import sys
 import csv
 import click
 from .ppn_handler import PpnHandler, PpnHandlerConfig
-from .ocr_wc_analysis import plot_everything
+from .ocr_wc_analysis import plot_everything, evaluate_everything
 import pandas as pd
 import sqlite3
 
@@ -97,6 +97,19 @@ def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range,
                     use_best_mean_textline_confs=(best_mean_textline_confs is not None), use_worst_mean_textline_confs=(worst_mean_textline_confs is not None), 
                     num_best_mean_textline_confs=num_best_mean_textline_confs, num_worst_mean_textline_confs=num_worst_mean_textline_confs,
                     ppn_directory=ppn_directory)
+
+@cli.command('evaluate')
+@click.option('-d', '--dinglehopper', 'dinglehopper', nargs=4, type=(str, str, str, str), help='Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)')
+def evaluate(dinglehopper):
+    """
+    Evaluate OCR word confidence scores with word error rates.
+    """
+    if dinglehopper is None:
+        dinglehopper_dir, gt_dir, ocr_dir, report_dir = (None, None)
+    else:
+        dinglehopper_dir, gt_dir, ocr_dir, report_dir = dinglehopper
+    
+    evaluate_everything(dinglehopper_dir=dinglehopper_dir, gt_dir=gt_dir, ocr_dir=ocr_dir, report_dir=report_dir)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')

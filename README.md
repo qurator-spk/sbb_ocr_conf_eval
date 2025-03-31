@@ -51,6 +51,7 @@ Examples:
 
 Commands:
     plot                    Plot confidence metrics from all CONF_CSV_FILES, output to a single PLOT_FILE 
+    evaluate                Evaluate OCR word confidence scores with word error rates
     ppn2confs               Get the table of line and word confidences for PPN
     ppn2kitodo              Translate PPN into Kitodo ID
     ppn2pagexml             Get a list of PAGE-XML files for PPN
@@ -86,6 +87,9 @@ Options:
        -bmtu,   --best-mean-textline-confs-unique   Choose a number of unique PPNs whose PPN_PAGEs have the best mean textline scores, specify <NUMBER_OF> (optional)
        -wmtu,   --worst-mean-textline-confs-unique  Choose a number of unique PPNs whose PPN_PAGEs have the worst mean textline scores, specify <NUMBER_OF> (optional)
        -ppndir, --ppn-directory                     Generate a CSV with confidence scores from the names of PPN subdirectories, specify <PARENT_DIRECTORY> (optional)
+   
+    evaluate:
+       -d,      --dinglehopper                      Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)
  
     ppn2pagexml:
        --format                                     Whether to output csv or json
