@@ -191,6 +191,11 @@ def get_ppn_subdirectory_names(parent_dir):
     return ppn_subdirectory_names
     
 def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
+    for param in [parent_dir, gt_dir, ocr_dir, report_dir]:
+        if ';' in param or '&' in param or '|' in param or '`' in param:
+            print("\nInvalid parameters: semicolon (;), ampersand (&), pipe (|), and backtick (`) are not allowed.\n")
+            return
+        
     os.chdir(parent_dir)
     valid_directory_count = 0
     
@@ -210,7 +215,7 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
                 command_string = f"ocrd-dinglehopper -I {gt_dir},{ocr_dir} -O {report_dir}"
                 command_list = command_string.split()
                 try:
-                    result = subprocess.run(command_list, check=True, capture_output=True, text=True)
+                    result = subprocess.run(command_list, check=True, capture_output=True, text=True, shell=False)
                 except subprocess.CalledProcessError as e:
                     print(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
                 
