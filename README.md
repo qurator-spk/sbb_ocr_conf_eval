@@ -99,3 +99,20 @@ Options:
        --format                                     Whether to output csv or json
        --output                                     Print to this file
 ```
+
+## Extra installation
+
+In order to use `sbb_ocr evaluate -d` you have to properly install `dinglehopper`:
+```
+git clone https://github.com/qurator-spk/dinglehopper
+cd dinglehopper/
+pip install -e . 'uniseg<0.9'
+```
+
+The directories are structured as follows:
+```
+<PARENT_DIRECTORY>
+    +-- <GT_DIRECTORY>
+    +-- <OCR_DIRECTORY>
+    +-- <REPORT_DIRECTORY>
+```
