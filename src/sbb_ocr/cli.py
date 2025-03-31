@@ -37,13 +37,14 @@ def cli():
 @click.option('-wmw', '--worst-mean-word-confs', type=int, help='Number of PPN_PAGEs with the worst mean word scores, specify <NUMBER_OF> (optional)')
 @click.option('-bmt', '--best-mean-textline-confs', type=int, help='Number of PPN_PAGEs with the best mean textline scores, specify <NUMBER_OF> (optional)')
 @click.option('-wmt', '--worst-mean-textline-confs', type=int, help='Number of PPN_PAGEs with the worst mean textline scores, specify <NUMBER_OF> (optional)')
+@click.option('-ppndir', '--ppn-directory', help='Generate a CSV with confidence scores from the names of PPN subdirectories, specify <PARENT_DIRECTORY> (optional)')
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range, 
              top_ppns_word, bottom_ppns_word, top_ppns_textline, bottom_ppns_textline, 
              mean_word_confs, mean_textline_confs, show_genre_evaluation, output, show_dates_evaluation, show_results,
              best_mean_word_confs_unique, worst_mean_word_confs_unique, best_mean_textline_confs_unique, worst_mean_textline_confs_unique,
-             best_mean_word_confs, worst_mean_word_confs, best_mean_textline_confs, worst_mean_textline_confs):
+             best_mean_word_confs, worst_mean_word_confs, best_mean_textline_confs, worst_mean_textline_confs, ppn_directory):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
@@ -94,7 +95,8 @@ def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range,
                     use_best_mean_word_confs=(best_mean_word_confs is not None), use_worst_mean_word_confs=(worst_mean_word_confs is not None), 
                     num_best_mean_word_confs=num_best_mean_word_confs, num_worst_mean_word_confs=num_worst_mean_word_confs,
                     use_best_mean_textline_confs=(best_mean_textline_confs is not None), use_worst_mean_textline_confs=(worst_mean_textline_confs is not None), 
-                    num_best_mean_textline_confs=num_best_mean_textline_confs, num_worst_mean_textline_confs=num_worst_mean_textline_confs)
+                    num_best_mean_textline_confs=num_best_mean_textline_confs, num_worst_mean_textline_confs=num_worst_mean_textline_confs,
+                    ppn_directory=ppn_directory)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')

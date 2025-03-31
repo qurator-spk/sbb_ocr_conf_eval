@@ -174,6 +174,18 @@ def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
     plt.tight_layout(pad=1.0)
     plt.savefig("bar_plot_of_all_years.png")
     plt.close()
+    
+def get_ppn_subdirectory_names(parent_directory):
+    ppn_subdirectory_names = []
+
+    for item in os.listdir(parent_directory):
+        item_path = os.path.join(parent_directory, item)
+        if os.path.isdir(item_path) and item.startswith('PPN'):
+            ppn_subdirectory_names.append(item)
+            
+    print(ppn_subdirectory_names)
+
+    return ppn_subdirectory_names
 
 def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, 
@@ -184,7 +196,8 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                     use_best_mean_word_confs_unique=False, use_worst_mean_word_confs_unique=False, num_best_mean_word_confs_unique=1, num_worst_mean_word_confs_unique=1,
                     use_best_mean_textline_confs_unique=False, use_worst_mean_textline_confs_unique=False, num_best_mean_textline_confs_unique=1, num_worst_mean_textline_confs_unique=1,
                     use_best_mean_word_confs=False, use_worst_mean_word_confs=False, num_best_mean_word_confs=1, num_worst_mean_word_confs=1,
-                    use_best_mean_textline_confs=False, use_worst_mean_textline_confs=False, num_best_mean_textline_confs=1, num_worst_mean_textline_confs=1):
+                    use_best_mean_textline_confs=False, use_worst_mean_textline_confs=False, num_best_mean_textline_confs=1, num_worst_mean_textline_confs=1,
+                    ppn_directory=None):
     for file in csv_files:
         if not os.path.exists(file):
             print(f"File does not exist: {file}")
@@ -305,6 +318,19 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
     elif use_worst_mean_textline_confs:
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
         results_df = results_df.head(num_worst_mean_textline_confs)
+        
+    if ppn_directory:
+        ppn_names = get_ppn_subdirectory_names(ppn_directory)
+        ppn_names_df = pd.DataFrame(ppn_names, columns=["PPN"])
+        
+        results_df = results_df[results_df["ppn"].isin(ppn_names_df["PPN"])]
+        unique_ppns = results_df["ppn"].unique()
+        unique_ppn_count = results_df["ppn"].nunique()
+        print(f"Number of unique PPNs: {unique_ppn_count}")
+        print("Unique PPNs are:")
+        print(unique_ppns)
+        
+        results_df.to_csv("ppn_names_confs.csv", index=False)
         
     results_df_unique = results_df["ppn"].unique()
     
