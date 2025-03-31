@@ -222,7 +222,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                             continue
                         mean_textline, median_textline, standard_deviation_textline = statistics(textline_confs)
                         mean_word, median_word, standard_deviation_word = statistics(word_confs)
-                        ppn_page = f'{row[0]}_{row[1]}_{row[2]}'
+                        ppn_page = f'{row[0]}_{row[1]}'
                         ppn = f'{row[0]}'
                         all_results.append([ppn, ppn_page, mean_word, median_word, standard_deviation_word, mean_textline, median_textline, standard_deviation_textline])
                                                
