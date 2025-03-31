@@ -187,6 +187,69 @@ def get_ppn_subdirectory_names(parent_directory):
     print(ppn_subdirectory_names)
 
     return ppn_subdirectory_names
+    
+def generate_error_rates(parent_dir, report_dir):
+    data = []
+    valid_directory_count = 0
+    os.chdir(parent_dir)
+    for ppn_name in os.listdir():
+        full_path = os.path.join(parent_dir, ppn_name)
+        if os.path.isdir(full_path) and ppn_name.startswith("PPN"):
+            valid_directory_count += 1
+
+    with tqdm(total=valid_directory_count) as progbar:
+        for ppn_name in os.listdir():
+            full_path = os.path.join(parent_dir, ppn_name)
+
+            if os.path.isdir(full_path) and ppn_name.startswith("PPN"):
+                progbar.set_description(f"Processing directory: {ppn_name}")
+                eval_dir = os.path.join(full_path, report_dir)
+
+                if os.path.exists(eval_dir) and os.path.isdir(eval_dir):
+                    for json_file in os.listdir(eval_dir):
+                        if json_file.endswith(".json"):
+                            json_path = os.path.join(eval_dir, json_file)
+                            
+                            with open(json_path, 'r') as f:
+                                json_data = json.load(f)
+                                
+                            gt = json_data.get('gt', None)
+                            ocr = json_data.get('ocr', None)
+                            n_characters = json_data.get('n_characters', None)
+                            n_words = json_data.get('n_words', None)
+                            cer = json_data.get('cer', None)
+                            wer = json_data.get('wer', None)
+
+                            if cer is None or cer == "inf" or cer == "infinity" or float(cer) > 1:
+                                cer = 1.0
+                            else:
+                                cer = float(cer)
+
+                            if wer is None or wer == "inf" or wer == "infinity" or float(wer) > 1:
+                                wer = 1.0
+                            else:
+                                wer = float(wer)
+                                
+                            page = gt.split('/')[-1]
+                            ppn_page = f'{ppn_name}_{page}'
+
+                            ppn_name_data = {
+                                'ppn': ppn_name,
+                                'ppn_page': ppn_page,
+                                'gt': gt,
+                                'ocr': ocr,
+                                'cer': cer,
+                                'wer': wer,
+                                'n_characters': n_characters,
+                                'n_words': n_words
+                            }
+                            
+                            data.append(ppn_name_data)
+                progbar.update(1)
+    progbar.close()
+
+    error_rates_df = pd.DataFrame(data)
+    return error_rates_df
 
 def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, 
@@ -438,22 +501,22 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         plt.close()
         #plt.show()
         
-def evaluate_everything(dinglehopper_dir=None, gt_dir=None, ocr_dir=None, report_dir=None):
-    if dinglehopper_dir and gt_dir and ocr_dir and report_dir:
-        os.chdir(dinglehopper_dir)
+def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None):
+    if parent_dir and gt_dir and ocr_dir and report_dir:
+        os.chdir(parent_dir)
         valid_directory_count = 0
         
-        for entry in os.listdir():
-            full_path = os.path.join(dinglehopper_dir, entry)
-            if os.path.isdir(full_path) and entry.startswith("PPN"):
+        for ppn_name in os.listdir():
+            full_path = os.path.join(parent_dir, ppn_name)
+            if os.path.isdir(full_path) and ppn_name.startswith("PPN"):
                 valid_directory_count += 1
     
         with tqdm(total=valid_directory_count) as progbar:
-            for entry in os.listdir():
-                full_path = os.path.join(dinglehopper_dir, entry)
+            for ppn_name in os.listdir():
+                full_path = os.path.join(parent_dir, ppn_name)
                 
-                if os.path.isdir(full_path) and entry.startswith("PPN"):
-                    progbar.set_description(f"Processing directory: {entry}")
+                if os.path.isdir(full_path) and ppn_name.startswith("PPN"):
+                    progbar.set_description(f"Processing directory: {ppn_name}")
                     # Change to the subdirectory
                     os.chdir(full_path)
                     command_string = f"ocrd-dinglehopper -I {gt_dir},{ocr_dir} -O {report_dir}"
@@ -461,11 +524,15 @@ def evaluate_everything(dinglehopper_dir=None, gt_dir=None, ocr_dir=None, report
                     try:
                         result = subprocess.run(command_list, check=True, capture_output=True, text=True)
                     except subprocess.CalledProcessError as e:
-                        print(f"Failed to run command in {entry}. Exit code: {e.returncode}, Error: {e.stderr}")
+                        print(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
                     
-                    os.chdir(dinglehopper_dir)
+                    os.chdir(parent_dir)
                     progbar.update(1)
         progbar.close()
-                
-                
+
+    if parent_dir_error and report_dir_error:
+        error_rates_df = generate_error_rates(parent_dir_error, report_dir_error)
+        print("\nResults:\n")
+        print(error_rates_df)
+        error_rates_df.to_csv("../test_error_rates_df.csv", index=False)
    

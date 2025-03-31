@@ -44,9 +44,9 @@ Examples:
  
     sbb_ocr plot -g GENRE -m /path/METADATA_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
  
-    sbb_ocr plot -d <YEAR_START YEAR_END> -m /path/METADATA_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
+    sbb_ocr plot -d <YEAR_START> <YEAR_END> -m /path/METADATA_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
  
-    sbb_ocr plot -g GENRE -d <YEAR_START YEAR_END> -m /path/METADATA_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
+    sbb_ocr evaluate -d <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY>
 
 
 Commands:
@@ -70,7 +70,7 @@ Options:
        -o,      --output                            Save the results and the description of the results to an OUTPUT_CSV_FILE (optional)
        -g,      --genre                             Choose a GENRE (optional)
        -ge,     --show-genre-evaluation             Evaluate the number of genres in the CSV_FILES and save the corresponding bar plot (optional)
-       -d,      --date-range                        Choose a date range for filtering the data, specify <YEAR_START YEAR_END> (optional)
+       -d,      --date-range                        Choose a date range for filtering the data, specify <YEAR_START> <YEAR_END> (optional)
        -de,     --show-dates-evaluation             Evaluate the number of years in the CSV_FILES and save the corresponding bar plot (optional)
        -wc,     --mean-word-confs                   Choose a mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)
        -tc,     --mean-textline-confs               Choose a mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)
@@ -90,6 +90,7 @@ Options:
    
     evaluate:
        -d,      --dinglehopper                      Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)
+       -e,      --error-rates                       Generate a CSV with error rates created by ocrd-dinglehopper, specify <PARENT_DIRECTORY> <REPORT_DIRECTORY> (optional)
  
     ppn2pagexml:
        --format                                     Whether to output csv or json

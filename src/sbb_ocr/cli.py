@@ -18,7 +18,7 @@ def cli():
 @cli.command('plot')
 @click.option('-g', '--genre', 'search_genre', help='Genre to be evaluated (optional)')
 @click.option('-m', '--metadata', 'metadata_csv', default="some_data.csv", help='METADATA_FILE with the PPN metadata (optional)')
-@click.option('-d', '--date-range', 'date_range', nargs=2, type=(int, int), help='Year range for filtering data, specify <YEAR_START YEAR_END> (optional)')
+@click.option('-d', '--date-range', 'date_range', nargs=2, type=(int, int), help='Year range for filtering data, specify <YEAR_START> <YEAR_END> (optional)')
 @click.option('-topw', '--top-ppns-word', type=int, help='Number of top PPN_PAGESs with mean word scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)')
 @click.option('-botw', '--bottom-ppns-word', type=int, help='Number of bottom PPN_PAGEs with mean word scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)')
 @click.option('-topt', '--top-ppns-textline', type=int, help='Number of top PPN_PAGESs with mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)')
@@ -100,16 +100,23 @@ def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range,
 
 @cli.command('evaluate')
 @click.option('-d', '--dinglehopper', 'dinglehopper', nargs=4, type=(str, str, str, str), help='Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)')
-def evaluate(dinglehopper):
+@click.option('-e', '--error-rates', 'error_rates', nargs=2, type=(str, str), help='Generate a CSV with error rates created by Dinglehopper, specify <PARENT_DIRECTORY> <REPORT_DIRECTORY> (optional)')
+def evaluate(dinglehopper, error_rates):
     """
     Evaluate OCR word confidence scores with word error rates.
     """
     if dinglehopper is None:
-        dinglehopper_dir, gt_dir, ocr_dir, report_dir = (None, None)
+        parent_dir, gt_dir, ocr_dir, report_dir = (None, None, None, None)
     else:
-        dinglehopper_dir, gt_dir, ocr_dir, report_dir = dinglehopper
+        parent_dir, gt_dir, ocr_dir, report_dir = dinglehopper
+        
+    if error_rates is None:
+        parent_dir_error, report_dir_error = (None, None, None, None)
+    else:
+        parent_dir_error, report_dir_error = error_rates
     
-    evaluate_everything(dinglehopper_dir=dinglehopper_dir, gt_dir=gt_dir, ocr_dir=ocr_dir, report_dir=report_dir)
+    evaluate_everything(parent_dir=parent_dir, gt_dir=gt_dir, ocr_dir=ocr_dir, report_dir=report_dir,
+                        parent_dir_error=parent_dir_error, report_dir_error=report_dir_error)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')
