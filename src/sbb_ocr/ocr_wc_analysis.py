@@ -188,10 +188,10 @@ def get_ppn_subdirectory_names(parent_directory):
 
     return ppn_subdirectory_names
     
-def generate_error_rates(parent_dir, report_dir):
-    data = []
-    valid_directory_count = 0
+def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
     os.chdir(parent_dir)
+    valid_directory_count = 0
+    
     for ppn_name in os.listdir():
         full_path = os.path.join(parent_dir, ppn_name)
         if os.path.isdir(full_path) and ppn_name.startswith("PPN"):
@@ -200,10 +200,38 @@ def generate_error_rates(parent_dir, report_dir):
     with tqdm(total=valid_directory_count) as progbar:
         for ppn_name in os.listdir():
             full_path = os.path.join(parent_dir, ppn_name)
+            
+            if os.path.isdir(full_path) and ppn_name.startswith("PPN"):
+                progbar.set_description(f"Processing directory: {ppn_name}")
+                # Change to the subdirectory
+                os.chdir(full_path)
+                command_string = f"ocrd-dinglehopper -I {gt_dir},{ocr_dir} -O {report_dir}"
+                command_list = command_string.split()
+                try:
+                    result = subprocess.run(command_list, check=True, capture_output=True, text=True)
+                except subprocess.CalledProcessError as e:
+                    print(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
+                
+                os.chdir(parent_dir)
+                progbar.update(1)
+    progbar.close()
+    
+def generate_error_rates(parent_dir_error, report_dir_error):
+    data = []
+    valid_directory_count = 0
+    os.chdir(parent_dir_error)
+    for ppn_name in os.listdir():
+        full_path = os.path.join(parent_dir_error, ppn_name)
+        if os.path.isdir(full_path) and ppn_name.startswith("PPN"):
+            valid_directory_count += 1
+
+    with tqdm(total=valid_directory_count) as progbar:
+        for ppn_name in os.listdir():
+            full_path = os.path.join(parent_dir_error, ppn_name)
 
             if os.path.isdir(full_path) and ppn_name.startswith("PPN"):
                 progbar.set_description(f"Processing directory: {ppn_name}")
-                eval_dir = os.path.join(full_path, report_dir)
+                eval_dir = os.path.join(full_path, report_dir_error)
 
                 if os.path.exists(eval_dir) and os.path.isdir(eval_dir):
                     for json_file in os.listdir(eval_dir):
@@ -503,32 +531,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         
 def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None):
     if parent_dir and gt_dir and ocr_dir and report_dir:
-        os.chdir(parent_dir)
-        valid_directory_count = 0
-        
-        for ppn_name in os.listdir():
-            full_path = os.path.join(parent_dir, ppn_name)
-            if os.path.isdir(full_path) and ppn_name.startswith("PPN"):
-                valid_directory_count += 1
-    
-        with tqdm(total=valid_directory_count) as progbar:
-            for ppn_name in os.listdir():
-                full_path = os.path.join(parent_dir, ppn_name)
-                
-                if os.path.isdir(full_path) and ppn_name.startswith("PPN"):
-                    progbar.set_description(f"Processing directory: {ppn_name}")
-                    # Change to the subdirectory
-                    os.chdir(full_path)
-                    command_string = f"ocrd-dinglehopper -I {gt_dir},{ocr_dir} -O {report_dir}"
-                    command_list = command_string.split()
-                    try:
-                        result = subprocess.run(command_list, check=True, capture_output=True, text=True)
-                    except subprocess.CalledProcessError as e:
-                        print(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
-                    
-                    os.chdir(parent_dir)
-                    progbar.update(1)
-        progbar.close()
+        use_dinglehopper(parent_dir=parent_dir, gt_dir=gt_dir, ocr_dir=ocr_dir, report_dir=report_dir)
 
     if parent_dir_error and report_dir_error:
         error_rates_df = generate_error_rates(parent_dir_error, report_dir_error)

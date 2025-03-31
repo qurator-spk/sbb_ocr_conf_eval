@@ -111,7 +111,7 @@ def evaluate(dinglehopper, error_rates):
         parent_dir, gt_dir, ocr_dir, report_dir = dinglehopper
         
     if error_rates is None:
-        parent_dir_error, report_dir_error = (None, None, None, None)
+        parent_dir_error, report_dir_error = (None, None)
     else:
         parent_dir_error, report_dir_error = error_rates
     
