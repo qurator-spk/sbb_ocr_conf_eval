@@ -64,7 +64,7 @@ Options:
     --help                                         Show this message and exit
   
     plot:
-       -m,     --mods-info                         Add a METADATA_FILE with the PPN metadata
+       -m,     --metadata                          Add a METADATA_FILE with the PPN metadata
        -r,     --show-results                      Show the light version of the results [ppn, ppn_page, mean_word, originInfo-publication0_dateIssued, genre-aad] (optional)
        -o,     --output                            Save the results and the description of the results to an OUTPUT_CSV_FILE (optional)
        -g,     --genre                             Choose a GENRE (optional)

@@ -72,9 +72,9 @@ def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))
 
-def genre_evaluation(mods_info_df, results_df, replace_subgenres=True):
+def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
     matching_ppn_mods = results_df["ppn"].unique()
-    filtered_genres = mods_info_df[mods_info_df["PPN"].isin(matching_ppn_mods)]
+    filtered_genres = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
 
     all_genres_raw = set(filtered_genres["genre-aad"].tolist())
     print("\nNumber of all genres: ", len(all_genres_raw))
@@ -146,14 +146,14 @@ def genre_evaluation(mods_info_df, results_df, replace_subgenres=True):
         plt.savefig("bar_plot_of_all_genres.png")
         plt.close()
         
-def dates_evaluation(mods_info_df, results_df, replace_subgenres=True):
+def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
     matching_ppn_mods = results_df["ppn"].unique()
-    mods_info_df = mods_info_df[mods_info_df["PPN"].isin(matching_ppn_mods)]
-    unique_years = mods_info_df["originInfo-publication0_dateIssued"].unique()
+    metadata_df = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
+    unique_years = metadata_df["originInfo-publication0_dateIssued"].unique()
     num_unique_years = len(unique_years)
     print(f"\nNumber of unique years: {num_unique_years}")
     
-    year_counts = mods_info_df["originInfo-publication0_dateIssued"].value_counts().sort_index()
+    year_counts = metadata_df["originInfo-publication0_dateIssued"].value_counts().sort_index()
     year_counts_df = year_counts.reset_index() 
     year_counts_df.columns = ['Year', 'Count']
 
@@ -175,7 +175,7 @@ def dates_evaluation(mods_info_df, results_df, replace_subgenres=True):
     plt.savefig("bar_plot_of_all_years.png")
     plt.close()
 
-def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
+def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, 
                     use_top_ppns_word=False, use_bottom_ppns_word=False, num_top_ppns_word=1, num_bottom_ppns_word=1, 
                     use_top_ppns_textline=False, use_bottom_ppns_textline=False, num_top_ppns_textline=1, num_bottom_ppns_textline=1,
@@ -189,10 +189,6 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
         if not os.path.exists(file):
             print(f"File does not exist: {file}")
             return
-
-    if not os.path.exists(mods_info_csv):
-        print(f"File does not exist: {mods_info_csv}")
-        return
         
     all_results = []
     with tqdm(total=len(csv_files)) as progbar:
@@ -224,26 +220,27 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     
     results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])
     
-    if "metadata" in mods_info_csv:
-        mods_info_df = pd.DataFrame(load_csv_to_list(mods_info_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
-        
-        # Create a dataframe with all PPNs processed by the OCR pipeline
-        ppn_list_df = pd.read_csv("ppns_pipeline_batch_01_2024.txt", header=None, names=['PPN'], dtype=str)
-        
-        # Reduce the results dataframe to include only those PPNs that are in the PPN list
-        results_df = results_df[results_df["ppn"].isin(mods_info_df["PPN"])]
-        
-        # Count the number of unique PPNs in the results dataframe
-        all_ppns = results_df["ppn"].unique()
-        
-        # Change all years that are empty strings or 18XX to 2025
-        mods_info_df.loc[mods_info_df["originInfo-publication0_dateIssued"].isin(["", "18XX"]), "originInfo-publication0_dateIssued"] = "2025"
+    if "metadata" in metadata_csv:
+        if not os.path.exists(metadata_csv):
+            print(f"File does not exist: {metadata_csv}")
+            return
+        else:
+            metadata_df = pd.DataFrame(load_csv_to_list(metadata_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
+            
+            # Reduce the results dataframe to include only those PPNs that are in the PPN list
+            results_df = results_df[results_df["ppn"].isin(metadata_df["PPN"])]
+            
+            # Change all years that are empty strings or 18XX to 2025
+            metadata_df.loc[metadata_df["originInfo-publication0_dateIssued"].isin(["", "18XX"]), "originInfo-publication0_dateIssued"] = "2025"
+            
+    # Count the number of unique PPNs in the results dataframe
+    all_ppns = results_df["ppn"].unique()
     
     if year_start and year_end:
         results_df = results_df[results_df["ppn"].isin(
-        mods_info_df.loc[
-            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-            (mods_info_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+        metadata_df.loc[
+            (metadata_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
+            (metadata_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
             "PPN"])] 
             
     if mean_word_start and mean_word_end:
@@ -257,7 +254,7 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
             (results_df['mean_textline'] <= mean_textline_end)]
             
     if search_genre:
-        results_df = results_df[results_df["ppn"].isin(mods_info_df.loc[mods_info_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+        results_df = results_df[results_df["ppn"].isin(metadata_df.loc[metadata_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
         
     if use_top_ppns_word:
         results_df = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0))]
@@ -316,8 +313,8 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
     if show_results:
         if len(results_df_unique) > 0:
             filtered_results_df = results_df[['ppn', 'ppn_page', 'mean_word', 'mean_textline']]
-            mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
-            filtered_results_df = filtered_results_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
+            metadata_filtered = metadata_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
+            filtered_results_df = filtered_results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
             filtered_results_df.drop(columns=['PPN'], inplace=True)
             
             print(filtered_results_df.to_string(index=False))
@@ -325,27 +322,31 @@ def plot_everything(csv_files : list[str], mods_info_csv, search_genre, plot_fil
             print("\nNo PPNs found for the applied filters.")
         
     if show_genre_evaluation:
-        genre_evaluation(mods_info_df, results_df)
+        genre_evaluation(metadata_df, results_df)
         
     if show_dates_evaluation:
-        dates_evaluation(mods_info_df, results_df)
+        dates_evaluation(metadata_df, results_df)
     
     if results_df.empty:
         print("\nThere are no results matching the applied filters.")
     else:
-        mods_info_filtered = mods_info_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
-        results_df = results_df.merge(mods_info_filtered, left_on='ppn', right_on='PPN')
-        results_df.drop(columns=['PPN'], inplace=True)
-        results_df_description = results_df.describe(include='all')
+        if "metadata" in metadata_csv:
+            metadata_filtered = metadata_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
+            results_df = results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
+            results_df.drop(columns=['PPN'], inplace=True)
+            results_df_description = results_df.describe(include='all')
+            print("\nResults description: \n")
+            print(results_df_description)
+        else:
+            print("\nResults description: \n")
+            print(results_df.describe(include='all'))
+            
         if output:
             results_df.to_csv(output, index=False)
             print(f"\nSaved results to: {output.name}")
             output_desc = output.name.split(".")[0] + "_desc.csv" 
             results_df_description.to_csv(output_desc, index=False)
             print(f"\nSaved results description to: {output_desc}")
-            
-        print("\nResults description: \n")
-        print(results_df_description)
 
         # Main plotting function  
         fig, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))

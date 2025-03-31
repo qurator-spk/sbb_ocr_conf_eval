@@ -17,7 +17,7 @@ def cli():
 
 @cli.command('plot')
 @click.option('-g', '--genre', 'search_genre', help='Genre to be evaluated (optional)')
-@click.option('-m', '--mods-info', 'mods_info_csv', default="mods_info_df_2024-11-27.csv", help='mods_info CSV for PPN metadata')
+@click.option('-m', '--metadata', 'metadata_csv', default="some_data.csv", help='METADATA_FILE with the PPN metadata (optional)')
 @click.option('-d', '--date-range', 'date_range', nargs=2, type=(int, int), help='Year range for filtering data, specify <YEAR_START YEAR_END> (optional)')
 @click.option('-topw', '--top-ppns-word', type=int, help='Number of top PPN_PAGESs with mean word scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)')
 @click.option('-botw', '--bottom-ppns-word', type=int, help='Number of bottom PPN_PAGEs with mean word scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)')
@@ -39,7 +39,7 @@ def cli():
 @click.option('-wmt', '--worst-mean-textline-confs', type=int, help='Number of PPN_PAGEs with the worst mean textline scores, specify <NUMBER_OF> (optional)')
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
-def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range, 
+def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range, 
              top_ppns_word, bottom_ppns_word, top_ppns_textline, bottom_ppns_textline, 
              mean_word_confs, mean_textline_confs, show_genre_evaluation, output, show_dates_evaluation, show_results,
              best_mean_word_confs_unique, worst_mean_word_confs_unique, best_mean_textline_confs_unique, worst_mean_textline_confs_unique,
@@ -81,7 +81,7 @@ def plot_cli(search_genre, mods_info_csv, csv_files, plot_file, date_range,
     num_best_mean_textline_confs_unique = best_mean_textline_confs_unique if best_mean_textline_confs_unique is not None else 50
     num_worst_mean_textline_confs_unique = worst_mean_textline_confs_unique if worst_mean_textline_confs_unique is not None else 50
         
-    plot_everything(csv_files=csv_files, mods_info_csv=mods_info_csv, search_genre=search_genre,
+    plot_everything(csv_files=csv_files, metadata_csv=metadata_csv, search_genre=search_genre,
                     plot_file=plot_file, year_start=year_start, year_end=year_end,
                     use_top_ppns_word=(top_ppns_word is not None), use_bottom_ppns_word=(bottom_ppns_word is not None), num_top_ppns_word=num_top_ppns_word, num_bottom_ppns_word=num_bottom_ppns_word,
                     use_top_ppns_textline=(top_ppns_textline is not None), use_bottom_ppns_textline=(bottom_ppns_textline is not None), num_top_ppns_textline=num_top_ppns_textline, num_bottom_ppns_textline=num_bottom_ppns_textline,
