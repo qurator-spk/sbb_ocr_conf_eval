@@ -191,9 +191,11 @@ def get_ppn_subdirectory_names(parent_dir):
     return ppn_subdirectory_names
     
 def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
+    special_chars = [';', '&', '|', '`', '(', ')', '{', '}', '~', '>', '>>', '<', '\'', '\"', '\\', ' ', '$', '?', '*', '!', ':', '=', '#', '^']
+    
     for param in [parent_dir, gt_dir, ocr_dir, report_dir]:
-        if ';' in param or '&' in param or '|' in param or '`' in param:
-            print("\nInvalid parameters: semicolon (;), ampersand (&), pipe (|), and backtick (`) are not allowed.\n")
+        if any(char in param for char in special_chars):
+            print(f"\nInvalid parameters: special characters {special_chars} are not allowed.\n")
             return
         
     os.chdir(parent_dir)
