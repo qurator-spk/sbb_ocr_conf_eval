@@ -135,7 +135,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
         plt.yticks(fontsize=65)
         plt.grid(axis='x', linestyle='--', alpha=0.7)
         plt.ylim(-0.5, len(genres) - 0.5)
-        plt.xlim(0, 600)
+        #plt.xlim(0, 600) # For large bar plots
 
         # Adding data labels next to bars
         for bar in bars:
