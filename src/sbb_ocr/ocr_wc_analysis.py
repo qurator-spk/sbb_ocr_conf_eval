@@ -171,7 +171,10 @@ def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
     plt.xticks(rotation=45)
     plt.xlim(-0.5, len(year_counts_df['Year']) - 0.5)
     plt.ylim(0.0, max(year_counts_df['Count']) + 0.01)
-    plt.yticks(np.arange(0, max(year_counts_df['Count']) + 1, 1))
+    if 400 > max(year_counts_df['Count']) > 30:
+        plt.yticks(np.arange(0, max(year_counts_df['Count']) + 1, 10))
+    else:
+        plt.yticks(np.arange(0, max(year_counts_df['Count']) + 1, 1))
     plt.tight_layout(pad=1.0)
     plt.savefig("bar_plot_of_all_years.png")
     plt.close()
