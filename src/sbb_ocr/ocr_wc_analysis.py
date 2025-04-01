@@ -134,7 +134,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
         plt.title('Counts of Unique Genres', fontsize=120)
         plt.xticks(fontsize=65)
         plt.yticks(fontsize=65)
-        plt.grid(axis='x', linestyle='--', alpha=0.7)
+        plt.grid(axis='x', linestyle='--', alpha=0.8)
         plt.ylim(-0.5, len(genres) - 0.5)
         #plt.xlim(0, 600) # For large bar plots
 
@@ -142,7 +142,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
         for bar in bars:
             xval = bar.get_width()
             plt.text(xval, bar.get_y() + bar.get_height()/2, int(xval), ha='left', va='center', fontsize=65)  # Display counts next to bars
-
+        
         plt.tight_layout(pad=2.0)
         plt.savefig("bar_plot_of_all_genres.png")
         plt.close()
@@ -150,6 +150,12 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
 def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
     matching_ppn_mods = results_df["ppn"].unique()
     metadata_df = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
+    
+    min_year = metadata_df["originInfo-publication0_dateIssued"].min()
+    max_year = metadata_df["originInfo-publication0_dateIssued"].max()
+    print(f"\nEarliest year: {min_year}")
+    print(f"\nLatest year: {max_year}")
+    
     unique_years = metadata_df["originInfo-publication0_dateIssued"].unique()
     num_unique_years = len(unique_years)
     print(f"\nNumber of unique years: {num_unique_years}")
@@ -161,22 +167,24 @@ def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
     print("\nUnique years and their counts:\n")
     print(year_counts_df.to_string(index=False))
     
-    plt.figure(figsize=(30, 15))
+    plt.figure(figsize=(max(30, num_unique_years * 0.25), 15))
     plt.bar(year_counts_df['Year'].astype(str), year_counts_df['Count'], color=plt.cm.tab10.colors, width=0.5)
     plt.title('Publication Counts per Year', fontsize=18)
-    plt.xticks(fontsize=12)
+    plt.xticks(fontsize=12, rotation=45)
     plt.yticks(fontsize=13)
     plt.xlabel('Year', fontsize=16)
     plt.ylabel('Count', fontsize=16)
-    plt.xticks(rotation=45)
     plt.xlim(-0.5, len(year_counts_df['Year']) - 0.5)
     plt.ylim(0.0, max(year_counts_df['Count']) + 0.01)
-    if 400 > max(year_counts_df['Count']) > 30:
+    if 800 > max(year_counts_df['Count']) >= 400:
+        plt.yticks(np.arange(0, max(year_counts_df['Count']) + 1, 50))
+    elif 400 > max(year_counts_df['Count']) > 30:
         plt.yticks(np.arange(0, max(year_counts_df['Count']) + 1, 10))
     else:
         plt.yticks(np.arange(0, max(year_counts_df['Count']) + 1, 1))
+    plt.grid(axis='y', linestyle='--', alpha=0.8)
     plt.tight_layout(pad=1.0)
-    plt.savefig("bar_plot_of_all_years.png")
+    plt.savefig(f"date_range_{min_year}-{max_year}_bar_plot.png")
     plt.close()
     
 def get_ppn_subdirectory_names(parent_dir):
