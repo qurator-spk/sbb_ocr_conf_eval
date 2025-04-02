@@ -5,7 +5,7 @@
 ## METADATA_FILES description
 
 Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive` 
-- Number of PPNS: ***46506****
+- Number of PPNS: ***46506***
 - Number of PPN_PAGES: ***4632942***
 - Number of CSV_FILES: ***10988***
 
