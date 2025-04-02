@@ -309,7 +309,7 @@ def generate_error_rates(parent_dir_error, report_dir_error, error_rates_filenam
                             else:
                                 wer = float(wer)
                                 
-                            page = gt.split('/')[-1]
+                            page = gt.split('/')[-1].replace(".page", "")
                             ppn_page = f'{ppn_name}_{page}'
 
                             ppn_name_data = {
@@ -328,12 +328,24 @@ def generate_error_rates(parent_dir_error, report_dir_error, error_rates_filenam
     progbar.close()
 
     error_rates_df = pd.DataFrame(data)
+    error_rates_df.sort_values(by='ppn_page', ascending=True, inplace=True)
     logging.info("\nResults:\n")
     logging.info(error_rates_df)
     print("\nResults:\n")
     print(error_rates_df)
     os.chdir(os.pardir)
     error_rates_df.to_csv(error_rates_filename, index=False)
+    
+def merge_csv(conf_df, error_rates_df, wcwer_filename):
+    ppn_conf_df = pd.DataFrame(load_csv_to_list(conf_df)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])
+    ppn_error_rates_df = pd.DataFrame(load_csv_to_list(error_rates_df)[1:], columns=["ppn", "ppn_page", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
+    ppn_error_rates_df.drop(columns=["ppn"], inplace=True)
+    ppn_conf_df = ppn_conf_df[ppn_conf_df['ppn_page'].isin(ppn_error_rates_df['ppn_page'])]
+    wcwer_df = pd.merge(ppn_conf_df, ppn_error_rates_df, on='ppn_page', how='inner')
+    wcwer_df.sort_values(by='ppn_page', ascending=True, inplace=True)
+    print(wcwer_df)
+    wcwer_df.to_csv(wcwer_filename, index=False)
+    
 
 def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, 
@@ -591,7 +603,8 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         plt.close()
         #plt.show()
         
-def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, error_rates_filename=None, use_logging=None):
+def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, error_rates_filename=None,
+                        use_logging=None, conf_df=None, error_rates_df=None, wcwer_filename=None):
     if use_logging:
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         log_filename = f'log_evaluate_{timestamp}.txt'
@@ -603,4 +616,5 @@ def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=N
     if parent_dir_error and report_dir_error and error_rates_filename:
         generate_error_rates(parent_dir_error=parent_dir_error, report_dir_error=report_dir_error, error_rates_filename=error_rates_filename)
         
-        
+    if conf_df and error_rates_df and wcwer_filename:
+        merge_csv(conf_df=conf_df, error_rates_df=error_rates_df, wcwer_filename=wcwer_filename)    

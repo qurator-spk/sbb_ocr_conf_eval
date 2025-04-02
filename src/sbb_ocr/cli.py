@@ -108,8 +108,8 @@ def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range,
 @click.option('-d', '--dinglehopper', 'dinglehopper', nargs=4, type=(str, str, str, str), help='Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)')
 @click.option('-e', '--error-rates', 'error_rates', nargs=3, type=(str, str, str), help='Generate a CSV (error_rates_df.csv) with error rates created by ocrd-dinglehopper, specify <PARENT_DIRECTORY> <REPORT_DIRECTORY> <ERROR_RATES_CSV> (optional)')
 @click.option('-log', '--use-logging', 'use_logging', is_flag=True, default=False, help="Save all log messages to log_evaluate_{TIMESTAMP}.txt (optional)")
-
-def evaluate(dinglehopper, error_rates, use_logging):
+@click.option('-m', '--merge-csv', 'merge_csv', nargs=3, type=(str, str, str), help='Generate a CSV with confidence scores and error rates by merging <CONF_CSV> and <ERROR_RATES_CSV>, specify <CONF_CSV> <ERROR_RATES_CSV> <MERGED_CSV>')
+def evaluate(dinglehopper, error_rates, use_logging, merge_csv):
     """
     Evaluate OCR word confidence scores with word error rates.
     """
@@ -122,10 +122,15 @@ def evaluate(dinglehopper, error_rates, use_logging):
         parent_dir_error, report_dir_error, error_rates_filename = (None, None, None)
     else:
         parent_dir_error, report_dir_error, error_rates_filename = error_rates
+        
+    if merge_csv is None:
+        conf_df, error_rates_df, wcwer_filename = (None, None, None)
+    else:
+        conf_df, error_rates_df, wcwer_filename = merge_csv
     
     evaluate_everything(parent_dir=parent_dir, gt_dir=gt_dir, ocr_dir=ocr_dir, report_dir=report_dir,
                         parent_dir_error=parent_dir_error, report_dir_error=report_dir_error, error_rates_filename=error_rates_filename,
-                        use_logging=use_logging)
+                        use_logging=use_logging, conf_df=conf_df, error_rates_df=error_rates_df, wcwer_filename=wcwer_filename)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')
