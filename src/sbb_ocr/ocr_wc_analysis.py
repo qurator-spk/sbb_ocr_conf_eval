@@ -343,6 +343,9 @@ def merge_csv(conf_df, error_rates_df, wcwer_filename):
     ppn_conf_df = ppn_conf_df[ppn_conf_df['ppn_page'].isin(ppn_error_rates_df['ppn_page'])]
     wcwer_df = pd.merge(ppn_conf_df, ppn_error_rates_df, on='ppn_page', how='inner')
     wcwer_df.sort_values(by='ppn_page', ascending=True, inplace=True)
+    logging.info("\nResults:\n")
+    logging.info(wcwer_df)
+    print("\nResults:\n")
     print(wcwer_df)
     wcwer_df.to_csv(wcwer_filename, index=False)
     
