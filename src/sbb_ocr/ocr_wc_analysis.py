@@ -349,7 +349,28 @@ def merge_csv(conf_df, error_rates_df, wcwer_filename):
     print(wcwer_df)
     wcwer_df.to_csv(wcwer_filename, index=False)
     
-
+def plot_wer_vs_wc(wcwer_csv, plot_filename):
+    wcwer_df = pd.DataFrame(load_csv_to_list(wcwer_csv)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
+    
+    wcwer_df['mean_word'] = pd.to_numeric(wcwer_df['mean_word'])
+    wcwer_df['wer'] = pd.to_numeric(wcwer_df['wer'])
+    wcwer_df.sort_values(by='mean_word', ascending=True, inplace=True)
+    
+    ppn_pages_count = wcwer_df["ppn_page"].nunique()
+    plt.figure(figsize=(ppn_pages_count * 0.1, ppn_pages_count * 0.1)) 
+    plt.scatter(wcwer_df["mean_word"], wcwer_df["wer"], color='blue', marker='x', s=100)
+    plt.xlabel('Mean Word Confidence Score (WC)', fontsize=16)
+    plt.ylabel('Word Error Rate (WER)', fontsize=16)
+    plt.title('WC vs. WER', fontsize=16)
+    plt.xticks(fontsize=13)
+    plt.yticks(fontsize=13)
+    plt.grid(linestyle='--', alpha=0.8)
+    plt.xlim(-0.01, 1.01)
+    plt.ylim(-0.01, 1.01)
+    plt.tight_layout(pad=1.0)
+    plt.savefig(plot_filename)
+    plt.close()
+    
 def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, 
                     use_top_ppns_word=False, use_bottom_ppns_word=False, num_top_ppns_word=1, num_bottom_ppns_word=1, 
@@ -607,7 +628,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         #plt.show()
         
 def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, error_rates_filename=None,
-                        use_logging=None, conf_df=None, error_rates_df=None, wcwer_filename=None):
+                        use_logging=None, conf_df=None, error_rates_df=None, wcwer_filename=None, wcwer_csv=None, plot_filename=None):
     if use_logging:
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         log_filename = f'log_evaluate_{timestamp}.txt'
@@ -620,4 +641,8 @@ def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=N
         generate_error_rates(parent_dir_error=parent_dir_error, report_dir_error=report_dir_error, error_rates_filename=error_rates_filename)
         
     if conf_df and error_rates_df and wcwer_filename:
-        merge_csv(conf_df=conf_df, error_rates_df=error_rates_df, wcwer_filename=wcwer_filename)    
+        merge_csv(conf_df=conf_df, error_rates_df=error_rates_df, wcwer_filename=wcwer_filename)
+                
+    if wcwer_csv and plot_filename:
+        plot_wer_vs_wc(wcwer_csv=wcwer_csv, plot_filename=plot_filename)
+        

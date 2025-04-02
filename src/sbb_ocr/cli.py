@@ -109,7 +109,8 @@ def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range,
 @click.option('-e', '--error-rates', 'error_rates', nargs=3, type=(str, str, str), help='Generate a CSV (error_rates_df.csv) with error rates created by ocrd-dinglehopper, specify <PARENT_DIRECTORY> <REPORT_DIRECTORY> <ERROR_RATES_CSV> (optional)')
 @click.option('-log', '--use-logging', 'use_logging', is_flag=True, default=False, help="Save all log messages to log_evaluate_{TIMESTAMP}.txt (optional)")
 @click.option('-m', '--merge-csv', 'merge_csv', nargs=3, type=(str, str, str), help='Generate a CSV with confidence scores and error rates by merging <CONF_CSV> and <ERROR_RATES_CSV>, specify <CONF_CSV> <ERROR_RATES_CSV> <MERGED_CSV>')
-def evaluate(dinglehopper, error_rates, use_logging, merge_csv):
+@click.option('-p', '--plot', 'plot', nargs=2, type=(str, str), help='Make a scatter plot of the mean word confidence score (WC) and the word error rate (WER) based on a <MERGED_CSV>, specify <MERGED_CSV> <PLOT_FILE>')
+def evaluate(dinglehopper, error_rates, use_logging, merge_csv, plot):
     """
     Evaluate OCR word confidence scores with word error rates.
     """
@@ -127,10 +128,15 @@ def evaluate(dinglehopper, error_rates, use_logging, merge_csv):
         conf_df, error_rates_df, wcwer_filename = (None, None, None)
     else:
         conf_df, error_rates_df, wcwer_filename = merge_csv
+        
+    if plot is None:
+        wcwer_csv, plot_filename = (None, None)
+    else:
+        wcwer_csv, plot_filename = plot
     
     evaluate_everything(parent_dir=parent_dir, gt_dir=gt_dir, ocr_dir=ocr_dir, report_dir=report_dir,
                         parent_dir_error=parent_dir_error, report_dir_error=report_dir_error, error_rates_filename=error_rates_filename,
-                        use_logging=use_logging, conf_df=conf_df, error_rates_df=error_rates_df, wcwer_filename=wcwer_filename)
+                        use_logging=use_logging, conf_df=conf_df, error_rates_df=error_rates_df, wcwer_filename=wcwer_filename, wcwer_csv=wcwer_csv, plot_filename=plot_filename)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')
