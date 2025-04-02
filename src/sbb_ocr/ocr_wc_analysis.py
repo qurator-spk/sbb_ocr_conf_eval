@@ -201,7 +201,7 @@ def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
     plt.savefig(f"date_range_{min_year}-{max_year}_bar_plot.png")
     plt.close()
     
-def get_ppn_subdirectory_names(parent_dir):
+def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
     ppn_subdirectory_names = []
 
     for item in os.listdir(parent_dir):
@@ -212,10 +212,23 @@ def get_ppn_subdirectory_names(parent_dir):
     ppn_df = pd.DataFrame(ppn_subdirectory_names, columns=['PPN'])
     logging.info("\nPPNs found:\n")
     logging.info(ppn_df)
-    print("\nPPNs found:\n")
+    print("\nPPNs subdirectories found:\n")
     print(ppn_df)
-
-    return ppn_subdirectory_names
+    
+    results_df = results_df[results_df["ppn"].isin(ppn_df["PPN"])]
+    
+    unique_ppns = results_df["ppn"].unique()
+    unique_ppn_df = pd.DataFrame(unique_ppns, columns=["PPN"])
+    logging.info("\nPPNs from subdirectories with confidence scores:\n")
+    logging.info(unique_ppn_df)
+    print("\nPPNs from subdirectories with confidence scores:\n")
+    print(unique_ppn_df)
+    
+    unique_ppn_count = results_df["ppn"].nunique()
+    logging.info(f"\nNumber of unique PPNs: {unique_ppn_count}\n")
+    print(f"\nNumber of unique PPNs: {unique_ppn_count}\n")
+    
+    results_df.to_csv(conf_filename, index=False)
     
 def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
     special_chars = [';', '&', '|', '`', '(', ')', '{', '}', '~', '>', '>>', '<', '\'', '\"', '\\', ' ', '$', '?', '*', '!', ':', '=', '#', '^']
@@ -327,7 +340,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                     use_best_mean_textline_confs_unique=False, use_worst_mean_textline_confs_unique=False, num_best_mean_textline_confs_unique=1, num_worst_mean_textline_confs_unique=1,
                     use_best_mean_word_confs=False, use_worst_mean_word_confs=False, num_best_mean_word_confs=1, num_worst_mean_word_confs=1,
                     use_best_mean_textline_confs=False, use_worst_mean_textline_confs=False, num_best_mean_textline_confs=1, num_worst_mean_textline_confs=1,
-                    ppn_directory=None, use_logging=None):
+                    parent_dir=None, conf_filename=None, use_logging=None):
     if use_logging:
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         log_filename = f'log_plot_{timestamp}.txt'
@@ -457,16 +470,8 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
         results_df = results_df.head(num_worst_mean_textline_confs)
         
-    if ppn_directory:
-        ppn_names = get_ppn_subdirectory_names(ppn_directory)
-        ppn_names_df = pd.DataFrame(ppn_names, columns=["PPN"])
-        
-        results_df = results_df[results_df["ppn"].isin(ppn_names_df["PPN"])]
-        unique_ppn_count = results_df["ppn"].nunique()
-        logging.info(f"\nNumber of unique PPNs: {unique_ppn_count}\n")
-        print(f"\nNumber of unique PPNs: {unique_ppn_count}\n")
-        
-        results_df.to_csv("ppn_page_confs.csv", index=False)
+    if parent_dir and conf_filename:
+        get_ppn_subdirectory_names(results_df=results_df, parent_dir=parent_dir, conf_filename=conf_filename)
         
     results_df_unique = results_df["ppn"].unique()
     logging.info(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
@@ -597,4 +602,5 @@ def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=N
         print("\nResults:\n")
         print(error_rates_df)
         error_rates_df.to_csv("../error_rates_df.csv", index=False)
-   
+        
+    
