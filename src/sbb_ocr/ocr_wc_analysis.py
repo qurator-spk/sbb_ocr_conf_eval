@@ -222,6 +222,7 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
     
     for param in [parent_dir, gt_dir, ocr_dir, report_dir]:
         if any(char in param for char in special_chars):
+            logging.info(f"\nInvalid parameters: special characters {special_chars} are not allowed.\n")
             print(f"\nInvalid parameters: special characters {special_chars} are not allowed.\n")
             return
         
@@ -246,6 +247,7 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
                 try:
                     result = subprocess.run(command_list, check=True, capture_output=True, text=True, shell=False)
                 except subprocess.CalledProcessError as e:
+                    logging.info(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
                     print(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
                 
                 os.chdir(parent_dir)
@@ -584,12 +586,19 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         plt.close()
         #plt.show()
         
-def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None):
+def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, use_logging=None):
+    if use_logging:
+        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        log_filename = f'log_evaluate_{timestamp}.txt'
+        logging.basicConfig(filename=log_filename, level=logging.INFO, format=f'%(asctime)s:\n %(message)s\n', filemode='w')
+        
     if parent_dir and gt_dir and ocr_dir and report_dir:
         use_dinglehopper(parent_dir=parent_dir, gt_dir=gt_dir, ocr_dir=ocr_dir, report_dir=report_dir)
 
     if parent_dir_error and report_dir_error:
         error_rates_df = generate_error_rates(parent_dir_error, report_dir_error)
+        logging.info("\nResults:\n")
+        logging.info(error_rates_df)
         print("\nResults:\n")
         print(error_rates_df)
         error_rates_df.to_csv("../test_error_rates_df.csv", index=False)

@@ -38,7 +38,7 @@ def cli():
 @click.option('-bmt', '--best-mean-textline-confs', type=int, help='Number of PPN_PAGEs with the best mean textline scores, specify <NUMBER_OF> (optional)')
 @click.option('-wmt', '--worst-mean-textline-confs', type=int, help='Number of PPN_PAGEs with the worst mean textline scores, specify <NUMBER_OF> (optional)')
 @click.option('-ppndir', '--ppn-directory', help='Generate a CSV with confidence scores from the names of PPN subdirectories, specify <PARENT_DIRECTORY> (optional)')
-@click.option('-log', '--use-logging', 'use_logging', is_flag=True, default=False, help="Save all log messages to log_{TIMESTAMP}.txt")
+@click.option('-log', '--use-logging', 'use_logging', is_flag=True, default=False, help="Save all log messages to log_plot_{TIMESTAMP}.txt")
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range, 
@@ -102,7 +102,8 @@ def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range,
 @cli.command('evaluate')
 @click.option('-d', '--dinglehopper', 'dinglehopper', nargs=4, type=(str, str, str, str), help='Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)')
 @click.option('-e', '--error-rates', 'error_rates', nargs=2, type=(str, str), help='Generate a CSV with error rates created by Dinglehopper, specify <PARENT_DIRECTORY> <REPORT_DIRECTORY> (optional)')
-def evaluate(dinglehopper, error_rates):
+@click.option('-log', '--use-logging', 'use_logging', is_flag=True, default=False, help="Save all log messages to log_evaluate_{TIMESTAMP}.txt")
+def evaluate(dinglehopper, error_rates, use_logging, ):
     """
     Evaluate OCR word confidence scores with word error rates.
     """
@@ -117,7 +118,7 @@ def evaluate(dinglehopper, error_rates):
         parent_dir_error, report_dir_error = error_rates
     
     evaluate_everything(parent_dir=parent_dir, gt_dir=gt_dir, ocr_dir=ocr_dir, report_dir=report_dir,
-                        parent_dir_error=parent_dir_error, report_dir_error=report_dir_error)
+                        parent_dir_error=parent_dir_error, report_dir_error=report_dir_error, use_logging=use_logging)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')
