@@ -462,16 +462,11 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         ppn_names_df = pd.DataFrame(ppn_names, columns=["PPN"])
         
         results_df = results_df[results_df["ppn"].isin(ppn_names_df["PPN"])]
-        unique_ppns = results_df["ppn"].unique()
         unique_ppn_count = results_df["ppn"].nunique()
-        logging.info(f"Number of unique PPNs: {unique_ppn_count}")
-        logging.info("Unique PPNs are:")
-        logging.info(unique_ppns)
-        print(f"Number of unique PPNs: {unique_ppn_count}")
-        print("Unique PPNs are:")
-        print(unique_ppns)
+        logging.info(f"\nNumber of unique PPNs: {unique_ppn_count}\n")
+        print(f"\nNumber of unique PPNs: {unique_ppn_count}\n")
         
-        results_df.to_csv("ppn_names_confs.csv", index=False)
+        results_df.to_csv("ppn_page_confs.csv", index=False)
         
     results_df_unique = results_df["ppn"].unique()
     logging.info(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
@@ -601,5 +596,5 @@ def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=N
         logging.info(error_rates_df)
         print("\nResults:\n")
         print(error_rates_df)
-        error_rates_df.to_csv("../test_error_rates_df.csv", index=False)
+        error_rates_df.to_csv("../error_rates_df.csv", index=False)
    

@@ -86,7 +86,7 @@ Options:
        -wmwu,   --worst-mean-word-confs-unique      Choose a number of unique PPNs whose PPN_PAGEs have the worst mean word scores, specify <NUMBER_OF> (optional)
        -bmtu,   --best-mean-textline-confs-unique   Choose a number of unique PPNs whose PPN_PAGEs have the best mean textline scores, specify <NUMBER_OF> (optional)
        -wmtu,   --worst-mean-textline-confs-unique  Choose a number of unique PPNs whose PPN_PAGEs have the worst mean textline scores, specify <NUMBER_OF> (optional)
-       -ppndir, --ppn-directory                     Generate a CSV with confidence scores from the names of PPN subdirectories, specify <PARENT_DIRECTORY> (optional)
+       -ppndir, --ppn-directory                     Generate a CSV (ppn_page_confs.csv) with confidence scores from the names of PPN subdirectories, specify <PARENT_DIRECTORY> (optional)
        -log,    --use-logging                       Save all log messages to log_plot_{TIMESTAMP}.txt (optional)
    
     evaluate:
