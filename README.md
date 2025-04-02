@@ -4,7 +4,8 @@
 
 ## METADATA_FILES description
 
-Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
+Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive` 
+          (46506 PPNs = 4632942 PPN_PAGES contained in 10988 CSV_FILES)
 
 `metadata.csv`:
 - Number of rows: ***47716*** (without header row)
@@ -93,7 +94,7 @@ Options:
        -d,      --dinglehopper                      Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)
        -e,      --error-rates                       Generate a CSV with error rates created by ocrd-dinglehopper, specify <PARENT_DIRECTORY> <REPORT_DIRECTORY> <ERROR_RATES_CSV> (optional)
        -m,      --merge-csv                         Generate a CSV with confidence scores and error rates by merging <CONF_CSV> and <ERROR_RATES_CSV>, specify <CONF_CSV> <ERROR_RATES_CSV> <MERGED_CSV> (optional)
-       -p,      --plot                              From the <MERGED_CSV> plot the relationship between the mean word confidence score (WC) and the word error rate (WER) and save it as <PLOT_FILE>, specify <MERGED_CSV> <PLOT_FILE>
+       -p,      --plot                              Make a scatter plot of the mean word confidence score (WC) and the word error rate (WER) based on a <MERGED_CSV>, specify <MERGED_CSV> <PLOT_FILE>
        -log,    --use-logging                       Save all log messages to log_evaluate_{TIMESTAMP}.txt (optional)
  
     ppn2pagexml:

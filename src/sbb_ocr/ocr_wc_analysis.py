@@ -625,7 +625,6 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         plt.tight_layout(pad=1.0)
         plt.savefig(plot_file)
         plt.close()
-        #plt.show()
         
 def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, error_rates_filename=None,
                         use_logging=None, conf_df=None, error_rates_df=None, wcwer_filename=None, wcwer_csv=None, plot_filename=None):
