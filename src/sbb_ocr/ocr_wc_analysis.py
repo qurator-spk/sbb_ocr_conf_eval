@@ -10,6 +10,8 @@ import json
 from rich import print
 import os
 import subprocess
+import logging
+from datetime import datetime
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
 
@@ -60,8 +62,10 @@ def plot_density(ax, data, title, xlabel, ylabel, density_color, legend_loc):
         ax.legend(loc=legend_loc)
         
     except LinAlgError as e:
+        logging.info(f"Cannot plot the data!\nLinAlgError encountered while performing KDE: \n{e}. \nThe data does not have enough variation in its dimensions to accurately estimate a continuous probability density function. \nIncrease the number of PPNs to be filtered!\n")
         print(f"Cannot plot the data!\nLinAlgError encountered while performing KDE: \n{e}. \nThe data does not have enough variation in its dimensions to accurately estimate a continuous probability density function. \nIncrease the number of PPNs to be filtered!\n")
     except ValueError as v:
+        logging.info(f"Cannot plot the data!\nValueError encountered while performing KDE: \n{v}. \nIncrease the number of PPNs to be filtered!\n")
         print(f"Cannot plot the data!\nValueError encountered while performing KDE: \n{v}. \nIncrease the number of PPNs to be filtered!\n")
 
 @contextmanager
@@ -78,6 +82,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
     filtered_genres = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
 
     all_genres_raw = set(filtered_genres["genre-aad"].tolist())
+    logging.info("\nNumber of all genres: ", len(all_genres_raw))
     print("\nNumber of all genres: ", len(all_genres_raw))
     all_genres = []
     for genre_raw in all_genres_raw:
@@ -94,6 +99,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
         all_genres += genres
 
     all_genres_reduced = set(all_genres)
+    logging.info("\nNumber of all genres (without subgenres): ", len(all_genres_reduced))
     print("\nNumber of all genres (without subgenres): ", len(all_genres_reduced))
 
     genre_counts = {}
@@ -105,7 +111,9 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
             
     genre_counts_df = pd.DataFrame(list(genre_counts.items()), columns=['Genre', 'Count'])
     genre_counts_df_sorted = genre_counts_df.sort_values(by='Count', ascending=False)
-
+    
+    logging.info("\nUnique genres and their counts:\n")
+    logging.info(genre_counts_df_sorted.to_string(index=False))
     print("\nUnique genres and their counts:\n")
     print(genre_counts_df_sorted.to_string(index=False))
 
@@ -116,6 +124,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
         highest_genre, highest_count = sorted_genre_counts[0]  # Get the genre with the highest count
         plot_threshold = highest_count * 0.04
     else:
+        logging.info("No genre available to calculate the threshold.")
         print("No genre available to calculate the threshold.")
         plot_threshold = 0
 
@@ -123,6 +132,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
     filtered_genre_counts = [(genre, count) for genre, count in sorted_genre_counts_descending if count > plot_threshold]
 
     if not filtered_genre_counts:
+        logging.info("No genre exceeds the threshold.")
         print("No genre exceeds the threshold.")
     else:
         genres, counts = zip(*filtered_genre_counts)
@@ -136,7 +146,6 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
         plt.yticks(fontsize=65)
         plt.grid(axis='x', linestyle='--', alpha=0.8)
         plt.ylim(-0.5, len(genres) - 0.5)
-        #plt.xlim(0, 600) # For large bar plots
 
         # Adding data labels next to bars
         for bar in bars:
@@ -153,17 +162,22 @@ def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
     
     min_year = metadata_df["originInfo-publication0_dateIssued"].min()
     max_year = metadata_df["originInfo-publication0_dateIssued"].max()
+    logging.info(f"\nEarliest year: {min_year}")
+    logging.info(f"\nLatest year: {max_year}")
     print(f"\nEarliest year: {min_year}")
     print(f"\nLatest year: {max_year}")
     
     unique_years = metadata_df["originInfo-publication0_dateIssued"].unique()
     num_unique_years = len(unique_years)
+    logging.info(f"\nNumber of unique years: {num_unique_years}")
     print(f"\nNumber of unique years: {num_unique_years}")
     
     year_counts = metadata_df["originInfo-publication0_dateIssued"].value_counts().sort_index()
     year_counts_df = year_counts.reset_index() 
     year_counts_df.columns = ['Year', 'Count']
-
+    
+    logging.info("\nUnique years and their counts:\n")
+    logging.info(year_counts_df.to_string(index=False))
     print("\nUnique years and their counts:\n")
     print(year_counts_df.to_string(index=False))
     
@@ -196,6 +210,8 @@ def get_ppn_subdirectory_names(parent_dir):
             ppn_subdirectory_names.append(item)
             
     ppn_df = pd.DataFrame(ppn_subdirectory_names, columns=['PPN'])
+    logging.info("\nPPNs found:\n")
+    logging.info(ppn_df)
     print("\nPPNs found:\n")
     print(ppn_df)
 
@@ -309,9 +325,15 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                     use_best_mean_textline_confs_unique=False, use_worst_mean_textline_confs_unique=False, num_best_mean_textline_confs_unique=1, num_worst_mean_textline_confs_unique=1,
                     use_best_mean_word_confs=False, use_worst_mean_word_confs=False, num_best_mean_word_confs=1, num_worst_mean_word_confs=1,
                     use_best_mean_textline_confs=False, use_worst_mean_textline_confs=False, num_best_mean_textline_confs=1, num_worst_mean_textline_confs=1,
-                    ppn_directory=None):
+                    ppn_directory=None, use_logging=None):
+    if use_logging:
+        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        log_filename = f'log_plot_{timestamp}.txt'
+        logging.basicConfig(filename=log_filename, level=logging.INFO, format=f'%(asctime)s:\n %(message)s\n', filemode='w')
+    
     for file in csv_files:
         if not os.path.exists(file):
+            logging.info(f"File does not exist: {file}")
             print(f"File does not exist: {file}")
             return
         
@@ -338,6 +360,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                         all_results.append([ppn, ppn_page, mean_word, median_word, standard_deviation_word, mean_textline, median_textline, standard_deviation_textline])
                                                
             except csv.Error as e:
+                logging.info(f"CSV error: {e} in file: {csv_file}. \nIncrease the CSV field size limit!")
                 print(f"CSV error: {e} in file: {csv_file}. \nIncrease the CSV field size limit!")
                 return
             progbar.update(1)
@@ -347,6 +370,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
     
     if "metadata" in metadata_csv:
         if not os.path.exists(metadata_csv):
+            logging.info(f"File does not exist: {metadata_csv}")
             print(f"File does not exist: {metadata_csv}")
             return
         else:
@@ -438,6 +462,9 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         results_df = results_df[results_df["ppn"].isin(ppn_names_df["PPN"])]
         unique_ppns = results_df["ppn"].unique()
         unique_ppn_count = results_df["ppn"].nunique()
+        logging.info(f"Number of unique PPNs: {unique_ppn_count}")
+        logging.info("Unique PPNs are:")
+        logging.info(unique_ppns)
         print(f"Number of unique PPNs: {unique_ppn_count}")
         print("Unique PPNs are:")
         print(unique_ppns)
@@ -445,7 +472,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         results_df.to_csv("ppn_names_confs.csv", index=False)
         
     results_df_unique = results_df["ppn"].unique()
-    
+    logging.info(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
     print(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
     
     if show_results:
@@ -454,9 +481,10 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             metadata_filtered = metadata_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
             filtered_results_df = filtered_results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
             filtered_results_df.drop(columns=['PPN'], inplace=True)
-            
+            logging.info(filtered_results_df.to_string(index=False))
             print(filtered_results_df.to_string(index=False))
         else:
+            logging.info("\nNo PPNs found for the applied filters.")
             print("\nNo PPNs found for the applied filters.")
         
     if show_genre_evaluation:
@@ -466,6 +494,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         dates_evaluation(metadata_df, results_df)
     
     if results_df.empty:
+        logging.info("\nThere are no results matching the applied filters.")
         print("\nThere are no results matching the applied filters.")
     else:
         if "metadata" in metadata_csv:
@@ -473,17 +502,23 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             results_df = results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
             results_df.drop(columns=['PPN'], inplace=True)
             results_df_description = results_df.describe(include='all')
+            logging.info("\nResults description: \n")
+            logging.info(results_df_description)
             print("\nResults description: \n")
             print(results_df_description)
         else:
+            logging.info("\nResults description: \n")
+            logging.info(results_df.describe(include='all'))
             print("\nResults description: \n")
             print(results_df.describe(include='all'))
             
         if output:
             results_df.to_csv(output, index=False)
+            logging.info(f"\nSaved results to: {output.name}")
             print(f"\nSaved results to: {output.name}")
             output_desc = output.name.split(".")[0] + "_desc.csv" 
             results_df_description.to_csv(output_desc, index=False)
+            logging.info(f"\nSaved results description to: {output_desc}")
             print(f"\nSaved results description to: {output_desc}")
 
         # Main plotting function  

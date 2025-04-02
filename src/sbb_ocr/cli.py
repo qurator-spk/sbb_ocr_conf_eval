@@ -38,13 +38,14 @@ def cli():
 @click.option('-bmt', '--best-mean-textline-confs', type=int, help='Number of PPN_PAGEs with the best mean textline scores, specify <NUMBER_OF> (optional)')
 @click.option('-wmt', '--worst-mean-textline-confs', type=int, help='Number of PPN_PAGEs with the worst mean textline scores, specify <NUMBER_OF> (optional)')
 @click.option('-ppndir', '--ppn-directory', help='Generate a CSV with confidence scores from the names of PPN subdirectories, specify <PARENT_DIRECTORY> (optional)')
+@click.option('-log', '--use-logging', 'use_logging', is_flag=True, default=False, help="Save all log messages to log_{TIMESTAMP}.txt")
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range, 
              top_ppns_word, bottom_ppns_word, top_ppns_textline, bottom_ppns_textline, 
              mean_word_confs, mean_textline_confs, show_genre_evaluation, output, show_dates_evaluation, show_results,
              best_mean_word_confs_unique, worst_mean_word_confs_unique, best_mean_textline_confs_unique, worst_mean_textline_confs_unique,
-             best_mean_word_confs, worst_mean_word_confs, best_mean_textline_confs, worst_mean_textline_confs, ppn_directory):
+             best_mean_word_confs, worst_mean_word_confs, best_mean_textline_confs, worst_mean_textline_confs, ppn_directory, use_logging):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
@@ -96,7 +97,7 @@ def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range,
                     num_best_mean_word_confs=num_best_mean_word_confs, num_worst_mean_word_confs=num_worst_mean_word_confs,
                     use_best_mean_textline_confs=(best_mean_textline_confs is not None), use_worst_mean_textline_confs=(worst_mean_textline_confs is not None), 
                     num_best_mean_textline_confs=num_best_mean_textline_confs, num_worst_mean_textline_confs=num_worst_mean_textline_confs,
-                    ppn_directory=ppn_directory)
+                    ppn_directory=ppn_directory, use_logging=use_logging)
 
 @cli.command('evaluate')
 @click.option('-d', '--dinglehopper', 'dinglehopper', nargs=4, type=(str, str, str, str), help='Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)')
