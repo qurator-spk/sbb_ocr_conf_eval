@@ -106,7 +106,7 @@ def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range,
 
 @cli.command('evaluate')
 @click.option('-d', '--dinglehopper', 'dinglehopper', nargs=4, type=(str, str, str, str), help='Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)')
-@click.option('-e', '--error-rates', 'error_rates', nargs=2, type=(str, str), help='Generate a CSV (error_rates_df.csv) with error rates created by Dinglehopper, specify <PARENT_DIRECTORY> <REPORT_DIRECTORY> (optional)')
+@click.option('-e', '--error-rates', 'error_rates', nargs=3, type=(str, str, str), help='Generate a CSV (error_rates_df.csv) with error rates created by ocrd-dinglehopper, specify <PARENT_DIRECTORY> <REPORT_DIRECTORY> <ERROR_RATES_CSV> (optional)')
 @click.option('-log', '--use-logging', 'use_logging', is_flag=True, default=False, help="Save all log messages to log_evaluate_{TIMESTAMP}.txt (optional)")
 
 def evaluate(dinglehopper, error_rates, use_logging):
@@ -119,12 +119,13 @@ def evaluate(dinglehopper, error_rates, use_logging):
         parent_dir, gt_dir, ocr_dir, report_dir = dinglehopper
         
     if error_rates is None:
-        parent_dir_error, report_dir_error = (None, None)
+        parent_dir_error, report_dir_error, error_rates_filename = (None, None, None)
     else:
-        parent_dir_error, report_dir_error = error_rates
+        parent_dir_error, report_dir_error, error_rates_filename = error_rates
     
     evaluate_everything(parent_dir=parent_dir, gt_dir=gt_dir, ocr_dir=ocr_dir, report_dir=report_dir,
-                        parent_dir_error=parent_dir_error, report_dir_error=report_dir_error, use_logging=use_logging)
+                        parent_dir_error=parent_dir_error, report_dir_error=report_dir_error, error_rates_filename=error_rates_filename,
+                        use_logging=use_logging)
 
 @cli.command('convert-mods-info')
 @click.argument('MODS_INFO_SQLITE')

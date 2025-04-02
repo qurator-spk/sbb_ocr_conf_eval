@@ -267,7 +267,7 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
                 progbar.update(1)
     progbar.close()
     
-def generate_error_rates(parent_dir_error, report_dir_error):
+def generate_error_rates(parent_dir_error, report_dir_error, error_rates_filename):
     data = []
     valid_directory_count = 0
     os.chdir(parent_dir_error)
@@ -328,7 +328,12 @@ def generate_error_rates(parent_dir_error, report_dir_error):
     progbar.close()
 
     error_rates_df = pd.DataFrame(data)
-    return error_rates_df
+    logging.info("\nResults:\n")
+    logging.info(error_rates_df)
+    print("\nResults:\n")
+    print(error_rates_df)
+    os.chdir(os.pardir)
+    error_rates_df.to_csv(error_rates_filename, index=False)
 
 def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, 
@@ -586,7 +591,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         plt.close()
         #plt.show()
         
-def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, use_logging=None):
+def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, error_rates_filename=None, use_logging=None):
     if use_logging:
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         log_filename = f'log_evaluate_{timestamp}.txt'
@@ -595,12 +600,7 @@ def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=N
     if parent_dir and gt_dir and ocr_dir and report_dir:
         use_dinglehopper(parent_dir=parent_dir, gt_dir=gt_dir, ocr_dir=ocr_dir, report_dir=report_dir)
 
-    if parent_dir_error and report_dir_error:
-        error_rates_df = generate_error_rates(parent_dir_error, report_dir_error)
-        logging.info("\nResults:\n")
-        logging.info(error_rates_df)
-        print("\nResults:\n")
-        print(error_rates_df)
-        error_rates_df.to_csv("../error_rates_df.csv", index=False)
+    if parent_dir_error and report_dir_error and error_rates_filename:
+        generate_error_rates(parent_dir_error=parent_dir_error, report_dir_error=report_dir_error, error_rates_filename=error_rates_filename)
         
-    
+        

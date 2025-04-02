@@ -91,7 +91,7 @@ Options:
    
     evaluate:
        -d,      --dinglehopper                      Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)
-       -e,      --error-rates                       Generate a CSV (error_rates_df.csv) with error rates created by ocrd-dinglehopper, specify <PARENT_DIRECTORY> <REPORT_DIRECTORY> (optional)
+       -e,      --error-rates                       Generate a CSV with error rates created by ocrd-dinglehopper, specify <PARENT_DIRECTORY> <REPORT_DIRECTORY> <ERROR_RATES_CSV> (optional)
        -log,    --use-logging                       Save all log messages to log_evaluate_{TIMESTAMP}.txt (optional)
  
     ppn2pagexml:
