@@ -82,7 +82,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
     filtered_genres = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
 
     all_genres_raw = set(filtered_genres["genre-aad"].tolist())
-    logging.info("\nNumber of all genres: ", len(all_genres_raw))
+    logging.info(f"\nNumber of all genres: {len(all_genres_raw)}")
     print("\nNumber of all genres: ", len(all_genres_raw))
     all_genres = []
     for genre_raw in all_genres_raw:
@@ -99,7 +99,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
         all_genres += genres
 
     all_genres_reduced = set(all_genres)
-    logging.info("\nNumber of all genres (without subgenres): ", len(all_genres_reduced))
+    logging.info(f"\nNumber of all genres (without subgenres): {len(all_genres_reduced)}")
     print("\nNumber of all genres (without subgenres): ", len(all_genres_reduced))
 
     genre_counts = {}
