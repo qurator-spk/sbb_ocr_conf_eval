@@ -12,6 +12,8 @@ import os
 import subprocess
 import logging
 from datetime import datetime
+import plotly.express as px
+import plotly.offline as pyo
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
 
@@ -371,6 +373,23 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
     plt.savefig(plot_filename)
     plt.close()
     
+def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
+    wcwer_df = pd.DataFrame(load_csv_to_list(wcwer_csv_inter)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
+    
+    wcwer_df['mean_word'] = pd.to_numeric(wcwer_df['mean_word'])
+    wcwer_df['wer'] = pd.to_numeric(wcwer_df['wer'])
+    
+    fig = px.scatter(wcwer_df, x="mean_word", y="wer", title="WC vs. WER", labels={'mean_word': 'Mean Word Confidence Score (WC)', 'wer': 'Word Error Rate (WER)'}, template='plotly_white', hover_name="ppn_page")
+
+    fig.update_traces(marker=dict(size=10, color='blue', line=dict(width=2, color='DarkSlateGrey')),
+                      hovertemplate='PPN Page: %{hovertext}<br>Mean Word Confidence: %{x}<br>WER: %{y}<extra></extra>',
+                      hovertext=wcwer_df['ppn_page'])
+
+    fig.update_xaxes(range=[-0.01, 1.01])
+    fig.update_yaxes(range=[-0.01, 1.01])
+    fig.update_layout(title=dict(text='WC vs. WER', x=0.5, xanchor='center'))
+    pyo.plot(fig, filename=plot_filename_inter, auto_open=False)
+    
 def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     year_start=None, year_end=None, 
                     use_top_ppns_word=False, use_bottom_ppns_word=False, num_top_ppns_word=1, num_bottom_ppns_word=1, 
@@ -627,7 +646,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         plt.close()
         
 def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, error_rates_filename=None,
-                        use_logging=None, conf_df=None, error_rates_df=None, wcwer_filename=None, wcwer_csv=None, plot_filename=None):
+                        use_logging=None, conf_df=None, error_rates_df=None, wcwer_filename=None, wcwer_csv=None, plot_filename=None, wcwer_csv_inter=None, plot_filename_inter=None):
     if use_logging:
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         log_filename = f'log_evaluate_{timestamp}.txt'
@@ -644,4 +663,7 @@ def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=N
                 
     if wcwer_csv and plot_filename:
         plot_wer_vs_wc(wcwer_csv=wcwer_csv, plot_filename=plot_filename)
+        
+    if wcwer_csv_inter and plot_filename_inter:
+        plot_wer_vs_wc_interactive(wcwer_csv_inter=wcwer_csv_inter, plot_filename_inter=plot_filename_inter)
         
