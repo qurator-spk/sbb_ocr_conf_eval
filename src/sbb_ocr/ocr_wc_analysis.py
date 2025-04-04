@@ -17,6 +17,11 @@ import plotly.offline as pyo
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
 
+def setup_logging(command):
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    log_filename = f'log_{command}_{timestamp}.txt'
+    logging.basicConfig(filename=log_filename, level=logging.INFO, format=f'%(asctime)s:\n %(message)s\n', filemode='w')
+
 def statistics(confidences):
     confidences_array = np.array(confidences)
     mean = round(np.mean(confidences_array), 3) 
@@ -435,9 +440,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                     use_best_mean_textline_confs=False, use_worst_mean_textline_confs=False, num_best_mean_textline_confs=1, num_worst_mean_textline_confs=1,
                     parent_dir=None, conf_filename=None, use_logging=None):
     if use_logging:
-        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        log_filename = f'log_plot_{timestamp}.txt'
-        logging.basicConfig(filename=log_filename, level=logging.INFO, format=f'%(asctime)s:\n %(message)s\n', filemode='w')
+        setup_logging("plot")
     
     for file in csv_files:
         if not os.path.exists(file):
@@ -685,9 +688,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
 def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, error_rates_filename=None,
                         use_logging=None, conf_df=None, error_rates_df=None, wcwer_filename=None, wcwer_csv=None, plot_filename=None, wcwer_csv_inter=None, plot_filename_inter=None):
     if use_logging:
-        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        log_filename = f'log_evaluate_{timestamp}.txt'
-        logging.basicConfig(filename=log_filename, level=logging.INFO, format=f'%(asctime)s:\n %(message)s\n', filemode='w')
+        setup_logging("evaluate")
         
     if parent_dir and gt_dir and ocr_dir and report_dir:
         use_dinglehopper(parent_dir=parent_dir, gt_dir=gt_dir, ocr_dir=ocr_dir, report_dir=report_dir)
