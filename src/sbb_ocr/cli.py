@@ -162,17 +162,25 @@ def convert_mods_info(mods_info_sqlite, mods_info_csv):
     mods_info_df.to_csv(mods_info_csv, index=False)
     
 @cli.command('create-metadata')
+@click.option('-d', '--drop-ppns', 'drop_ppns', is_flag=True, default=False, help='HELP')
 @click.argument('PPN_LIST')
 @click.argument('METADATA_CSV_OLD')
 @click.argument('METADATA_CSV_NEW')
-def create_metadata(ppn_list, metadata_csv_old, metadata_csv_new):
+def create_metadata(ppn_list, metadata_csv_old, metadata_csv_new, drop_ppns):
     """
     Create a lighter version of the METADATA_FILE (e.g., metadata.csv) based on a list of PPNs (e.g., ppns_pipeline_batch_01_2024.txt) and a MODS_INFO_FILE (e.g., mods_info_df_2024-09-06.csv).
     """
     ppn_list_df = pd.read_csv(ppn_list, header=None, names=['PPN'], dtype=str)
     metadata_csv_df = pd.read_csv(metadata_csv_old)
-    metadata_csv_df = metadata_csv_df[metadata_csv_df['PPN'].isin(ppn_list_df['PPN'])]
-    metadata_csv_df_new = metadata_csv_df[['PPN', 'genre-aad', 'originInfo-publication0_dateIssued']]            
+    if drop_ppns:
+        # Drop rows from metadata_csv_df that have PPNs in ppn_list_df
+        indices_to_drop = metadata_csv_df[metadata_csv_df['PPN'].isin(ppn_list_df['PPN'])].index
+        metadata_csv_df = metadata_csv_df.drop(indices_to_drop)
+    else:
+        # Keep only rows that have PPNs in ppn_list_df
+        metadata_csv_df = metadata_csv_df[metadata_csv_df['PPN'].isin(ppn_list_df['PPN'])]
+        
+    metadata_csv_df_new = metadata_csv_df[['PPN', 'genre-aad', 'originInfo-publication0_dateIssued']]    
     metadata_csv_df_new.to_csv(metadata_csv_new, index=False)
     
 @cli.command('merge-mods-info')
