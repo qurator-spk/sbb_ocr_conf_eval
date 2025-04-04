@@ -163,12 +163,14 @@ def convert_mods_info(mods_info_sqlite, mods_info_csv):
     
 @cli.command('create-metadata')
 @click.argument('PPN_LIST')
-@click.argument('METADATA_CSV')
-def merge_mods_info(ppn_list, metadata_csv):
+@click.argument('METADATA_CSV_OLD')
+@click.argument('METADATA_CSV_NEW')
+def merge_mods_info(ppn_list, metadata_csv_old, metadata_csv_new):
     """
     Create a lighter version of the METADATA_FILE (e.g., metadata.csv) based on a list of PPNs (e.g., ppns_pipeline_batch_01_2024.txt) and a MODS_INFO_FILE (e.g., mods_info_df_2024-09-06.csv).
     """
     ppn_list_df = pd.read_csv(ppn_list, header=None, names=['PPN'], dtype=str)
+    metadata_csv_df = pd.read_csv(metadata_csv_old)
 
     # Initialize new columns in ppn_list_df
     ppn_list_df['genre-aad'] = pd.NA
@@ -177,15 +179,15 @@ def merge_mods_info(ppn_list, metadata_csv):
     # Iterate through each row of ppn_list_df
     for index, row in ppn_list_df.iterrows():
         ppn_value = row['PPN']
-        # Check if the ppn_value exists in mods_info_df 
-        if ppn_value in mods_info_df['PPN'].values:
-            # Get the corresponding row in mods_info_df
-            matched_row = mods_info_df[mods_info_df['PPN'] == ppn_value]
+        # Check if the ppn_value exists in metadata_csv 
+        if ppn_value in metadata_csv_df['PPN'].values:
+            # Get the corresponding row in metadata_csv
+            matched_row = metadata_csv_df[metadata_csv_df['PPN'] == ppn_value]
             # Update the new columns in ppn_list_df
             ppn_list_df.at[index, 'genre-aad'] = matched_row['genre-aad'].values[0]
             ppn_list_df.at[index, 'originInfo-publication0_dateIssued'] = matched_row['originInfo-publication0_dateIssued'].values[0]
             
-    ppn_list_df.to_csv(metadata_csv, index=False)
+    ppn_list_df.to_csv(metadata_csv_new, index=False)
     
 @cli.command('merge-mods-info')
 @click.argument('PPN_LIST')
