@@ -451,7 +451,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         else:
             metadata_df = pd.DataFrame(load_csv_to_list(metadata_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
             
-            # Reduce the results dataframe to include only those PPNs that are in the PPN list
+            # Reduce the results dataframe to include only those PPNs that are in the PPN list ppns_pipeline_batch_01_2024.txt
             results_df = results_df[results_df["ppn"].isin(metadata_df["PPN"])]
             
             # Change all years that are empty strings or 18XX to 2025
@@ -460,21 +460,21 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
     # Count the number of unique PPNs in the results dataframe
     all_ppns = results_df["ppn"].unique()
     
-    if year_start and year_end:
+    if year_start is not None and year_end is not None: # "is not None" enables zero as input
         results_df = results_df[results_df["ppn"].isin(
         metadata_df.loc[
             (metadata_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
             (metadata_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
             "PPN"])]
-        results_df = results_df.sort_values(by='originInfo-publication0_dateIssued', ascending=True)
+        results_df = results_df.sort_values(by='mean_word', ascending=True)
             
-    if mean_word_start and mean_word_end:
+    if mean_word_start is not None and mean_word_end is not None:
         results_df = results_df.sort_values(by='mean_word', ascending=True)
         results_df = results_df[
             (results_df['mean_word'] >= mean_word_start) & 
             (results_df['mean_word'] <= mean_word_end)]
             
-    if mean_textline_start and mean_textline_end:
+    if mean_textline_start is not None and mean_textline_end is not None:
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
         results_df = results_df[
             (results_df['mean_textline'] >= mean_textline_start) & 
