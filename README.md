@@ -5,7 +5,7 @@
 ## METADATA_FILES description
 
 Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive` 
-- Number of PPNS: ***46506***
+- Number of PPNs: ***46506***
 - Number of PPN_PAGES: ***4632942***
 - Number of CSV_FILES: ***10988***
 
@@ -13,8 +13,8 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Number of rows: ***47716*** (without header row)
 - Number of columns: ***3***
 - PPNs in `PPN` column
-- Genres in `genre-aad` column
-- Publication dates in `originInfo-publication0_dateIssued` column ***(with 22 rows, which elements are not 4 digits)***
+- Genres in `genre-aad` column 
+- Publication dates in `originInfo-publication0_dateIssued` column ***(elements that are not 4 digits changed to: 2025)***
 - Projects: ***missing***
 - Titlepages: ***missing***
 - Source: Created from `mods_info_df_2024-09-06.csv` and `ppns_pipeline_batch_01_2024.txt` (rows: 47716)

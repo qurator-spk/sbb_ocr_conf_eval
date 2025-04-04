@@ -229,7 +229,7 @@ def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
     unique_ppn_count = results_df["ppn"].nunique()
     logging.info(f"\nNumber of unique PPNs: {unique_ppn_count}\n")
     print(f"\nNumber of unique PPNs: {unique_ppn_count}\n")
-    
+    results_df = results_df.sort_values(by='mean_word', ascending=True)
     results_df.to_csv(conf_filename, index=False)
     
 def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
@@ -465,20 +465,24 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         metadata_df.loc[
             (metadata_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
             (metadata_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
-            "PPN"])] 
+            "PPN"])]
+        results_df = results_df.sort_values(by='originInfo-publication0_dateIssued', ascending=True)
             
     if mean_word_start and mean_word_end:
+        results_df = results_df.sort_values(by='mean_word', ascending=True)
         results_df = results_df[
             (results_df['mean_word'] >= mean_word_start) & 
             (results_df['mean_word'] <= mean_word_end)]
             
     if mean_textline_start and mean_textline_end:
+        results_df = results_df.sort_values(by='mean_textline', ascending=True)
         results_df = results_df[
             (results_df['mean_textline'] >= mean_textline_start) & 
             (results_df['mean_textline'] <= mean_textline_end)]
             
     if search_genre:
         results_df = results_df[results_df["ppn"].isin(metadata_df.loc[metadata_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+        results_df = results_df.sort_values(by='mean_word', ascending=True)
         
     if use_top_ppns_word:
         results_df = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0))]
