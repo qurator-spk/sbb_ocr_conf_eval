@@ -162,7 +162,7 @@ def convert_mods_info(mods_info_sqlite, mods_info_csv):
     mods_info_df.to_csv(mods_info_csv, index=False)
     
 @cli.command('create-metadata')
-@click.option('-d', '--drop-ppns', 'drop_ppns', is_flag=True, default=False, help='HELP')
+@click.option('-d', '--drop-ppns', 'drop_ppns', is_flag=True, default=False, help='Drop rows from METADATA_FILE with PPNs that are in PPN_LIST (optional)')
 @click.argument('PPN_LIST')
 @click.argument('METADATA_CSV_OLD')
 @click.argument('METADATA_CSV_NEW')

@@ -10,14 +10,14 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Number of CSV_FILES: ***10988***
 
 `metadata.csv`:
-- Number of rows: ***47716*** (without header row)
+- Number of rows: ***46506*** (without header row)
 - Number of columns: ***3***
 - PPNs in `PPN` column
 - Genres in `genre-aad` column 
 - Publication dates in `originInfo-publication0_dateIssued` column ***(elements that are not 4 digits changed to: 2025)***
 - Projects: ***missing***
 - Titlepages: ***missing***
-- Source: Created from `mods_info_df_2024-09-06.csv` and `ppns_pipeline_batch_01_2024.txt` (rows: 47716)
+- Source: Created from `metadata.csv` (47716 rows) by dropping 1210 PPNs that are NOT in CSV_FILES (rows: 46506)
 
 
 ## Installation
@@ -99,7 +99,10 @@ Options:
        -p,      --plot                              Make a scatter plot of the mean word confidence score (WC) and the word error rate (WER) based on a <MERGED_CSV>, specify <MERGED_CSV> <PLOT_FILE>
        -pi      --plot-interactive                  Make an interactive scatter plot (<HTML_FILE>) of the mean word confidence score (WC) and the word error rate (WER) based on a <MERGED_CSV>, specify <MERGED_CSV> <HTML_FILE>
        -log,    --use-logging                       Save all log messages to log_evaluate_{TIMESTAMP}.txt (optional)
- 
+
+    create-metadata:
+       -d, --drop-ppns                              Drop rows from METADATA_FILE with PPNs that are in PPN_LIST, specify <PPN_LIST> <METADATA_CSV_OLD> <METADATA_CSV_NEW> (optional)
+
     ppn2pagexml:
        --format                                     Whether to output csv or json
        --output                                     Print to this file
