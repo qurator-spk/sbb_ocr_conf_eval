@@ -204,6 +204,11 @@ def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
     plt.close()
     
 def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
+    if not os.path.exists(parent_dir):
+            logging.info(f"Directory does not exist: {parent_dir}")
+            print(f"Directory does not exist: {parent_dir}")
+            return
+
     ppn_subdirectory_names = []
 
     for item in os.listdir(parent_dir):
@@ -233,6 +238,12 @@ def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
     results_df.to_csv(conf_filename, index=False)
     
 def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
+    for directory in [parent_dir, gt_dir, ocr_dir]:
+        if not os.path.exists(directory):
+            logging.info(f"Directory does not exist: {directory}")
+            print(f"Directory does not exist: {directory}")
+            return
+    
     special_chars = [';', '&', '|', '`', '(', ')', '{', '}', '~', '>', '>>', '<', '\'', '\"', '\\', ' ', '$', '?', '*', '!', ':', '=', '#', '^']
     
     for param in [parent_dir, gt_dir, ocr_dir, report_dir]:
@@ -270,6 +281,12 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
     progbar.close()
     
 def generate_error_rates(parent_dir_error, report_dir_error, error_rates_filename):
+    for directory in [parent_dir_error, report_dir_error]:
+        if not os.path.exists(directory):
+            logging.info(f"Directory does not exist: {directory}")
+            print(f"Directory does not exist: {directory}")
+            return
+    
     data = []
     valid_directory_count = 0
     os.chdir(parent_dir_error)
@@ -339,6 +356,12 @@ def generate_error_rates(parent_dir_error, report_dir_error, error_rates_filenam
     error_rates_df.to_csv(error_rates_filename, index=False)
     
 def merge_csv(conf_df, error_rates_df, wcwer_filename):
+    for filename in [conf_df, error_rates_df]:
+        if not os.path.exists(filename):
+            logging.info(f"File does not exist: {filename}")
+            print(f"File does not exist: {filename}")
+            return
+    
     ppn_conf_df = pd.DataFrame(load_csv_to_list(conf_df)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])
     ppn_error_rates_df = pd.DataFrame(load_csv_to_list(error_rates_df)[1:], columns=["ppn", "ppn_page", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
     ppn_error_rates_df.drop(columns=["ppn"], inplace=True)
@@ -352,6 +375,11 @@ def merge_csv(conf_df, error_rates_df, wcwer_filename):
     wcwer_df.to_csv(wcwer_filename, index=False)
     
 def plot_wer_vs_wc(wcwer_csv, plot_filename):
+    if not os.path.exists(wcwer_csv):
+            logging.info(f"File does not exist: {wcwer_csv}")
+            print(f"File does not exist: {wcwer_csv}")
+            return
+            
     wcwer_df = pd.DataFrame(load_csv_to_list(wcwer_csv)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
     
     wcwer_df['mean_word'] = pd.to_numeric(wcwer_df['mean_word'])
@@ -374,6 +402,11 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
     plt.close()
     
 def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
+    if not os.path.exists(wcwer_csv_inter):
+            logging.info(f"File does not exist: {wcwer_csv_inter}")
+            print(f"File does not exist: {wcwer_csv_inter}")
+            return
+            
     wcwer_df = pd.DataFrame(load_csv_to_list(wcwer_csv_inter)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
     
     wcwer_df['mean_word'] = pd.to_numeric(wcwer_df['mean_word'])
