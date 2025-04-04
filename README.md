@@ -17,7 +17,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Publication dates in `originInfo-publication0_dateIssued` column ***(elements that are not 4 digits changed to: 2025)***
 - Projects: ***missing***
 - Titlepages: ***missing***
-- Source: Created from `metadata.csv` (47716 rows) by dropping 1210 PPNs that are NOT in CSV_FILES (rows: 46506)
+- Source: Created from `metadata.csv` (47716 rows) by dropping 1210 PPNs that are NOT in CSV_FILES (46506 rows)
 
 
 ## Installation
@@ -101,7 +101,7 @@ Options:
        -log,    --use-logging                       Save all log messages to log_evaluate_{TIMESTAMP}.txt (optional)
 
     create-metadata:
-       -d, --drop-ppns                              Drop rows from METADATA_FILE with PPNs that are in PPN_LIST, specify <PPN_LIST> <METADATA_CSV_OLD> <METADATA_CSV_NEW> (optional)
+       -d,      --drop-ppns                         Drop rows from METADATA_FILE with PPNs that are in PPN_LIST, specify <PPN_LIST> <METADATA_CSV_OLD> <METADATA_CSV_NEW> (optional)
 
     ppn2pagexml:
        --format                                     Whether to output csv or json
