@@ -119,7 +119,20 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
                 
                 genre_counts[genre] = genre_counts.get(genre, 0) + 1
                 counted_genres.add(genre)
-        
+    
+    logging.info(f"\nNumber of PPNs: {len(matching_ppn_mods)}")
+    print(f"\nNumber of PPNs: {len(matching_ppn_mods)}")
+    
+    logging.info(f"Number of PPNs with one genre: {count_single_genres}")
+    print(f"Number of PPNs with one genre: {count_single_genres}")
+    
+    logging.info(f"Number of PPNs with more than one genre: {count_multiple_genres}")
+    print(f"Number of PPNs with more than one genre: {count_multiple_genres}")
+    
+    all_genres_reduced = set(genre_counts.keys())
+    logging.info(f"\nNumber of all unique genres (without subgenres): {len(all_genres_reduced)}")
+    print("\nNumber of all unique genres (without subgenres): ", len(all_genres_reduced))
+    
     genre_counts_df = pd.DataFrame(list(genre_counts.items()), columns=['Genre', 'Count'])
     genre_counts_df_sorted = genre_counts_df.sort_values(by='Count', ascending=False)
     
