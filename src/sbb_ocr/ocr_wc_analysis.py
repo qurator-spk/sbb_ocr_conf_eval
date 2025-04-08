@@ -493,6 +493,9 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             # Change all years that are empty strings or 18XX to 2025
             metadata_df.loc[metadata_df["originInfo-publication0_dateIssued"].isin(["", "18XX"]), "originInfo-publication0_dateIssued"] = "2025"
             
+            # Change all genres that are empty strings to "Unbekannt"
+            metadata_df.loc[metadata_df["genre-aad"].isin([""]), "genre-aad"] = "{'Unbekannt'}"
+            
     # Count the number of unique PPNs in the results dataframe
     all_ppns = results_df["ppn"].unique()
     
