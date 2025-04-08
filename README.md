@@ -13,11 +13,16 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Number of rows: ***46506*** (without header row)
 - Number of columns: ***3***
 - PPNs in `PPN` column
-- Genres in `genre-aad` column 
+- Genres in `genre-aad` column ***(empty strings changed to: "Unbekannt", slashes changed to commas)***
 - Publication dates in `originInfo-publication0_dateIssued` column ***(elements that are not 4 digits changed to: 2025)***
 - Projects: ***missing***
 - Titlepages: ***missing***
 - Source: Created from `metadata.csv` (47716 rows) by dropping 1210 PPNs that are NOT in CSV_FILES (46506 rows)
+
+
+## Analysis results
+
+Location: `T:\QURATOR\OCR_Auswertung`
 
 
 ## Installation
