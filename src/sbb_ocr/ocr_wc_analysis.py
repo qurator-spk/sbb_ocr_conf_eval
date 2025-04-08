@@ -621,6 +621,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             print(results_df.describe(include='all'))
             
         if output:
+            results_df = results_df.sort_values(by='genre-aad', ascending=True)
             results_df.to_csv(output, index=False)
             logging.info(f"\nSaved results to: {output.name}")
             print(f"\nSaved results to: {output.name}")
