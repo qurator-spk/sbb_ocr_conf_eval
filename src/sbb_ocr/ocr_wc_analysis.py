@@ -396,7 +396,7 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
     plt.scatter(wcwer_df["mean_word"], wcwer_df["wer"], color='blue', marker='x', s=100)
     plt.xlabel('Mean Word Confidence Score (WC)', fontsize=16)
     plt.ylabel('Word Error Rate (WER)', fontsize=16)
-    plt.title('WC vs. WER', fontsize=16)
+    plt.title('WER(WC)', fontsize=16)
     plt.xticks(fontsize=13)
     plt.yticks(fontsize=13)
     plt.grid(linestyle='--', alpha=0.8)
@@ -417,7 +417,7 @@ def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
     wcwer_df['mean_word'] = pd.to_numeric(wcwer_df['mean_word'])
     wcwer_df['wer'] = pd.to_numeric(wcwer_df['wer'])
     
-    fig = px.scatter(wcwer_df, x="mean_word", y="wer", title="WC vs. WER", labels={'mean_word': 'Mean Word Confidence Score (WC)', 'wer': 'Word Error Rate (WER)'}, template='plotly_white', hover_name="ppn_page")
+    fig = px.scatter(wcwer_df, x="mean_word", y="wer", title="WER(WC)", labels={'mean_word': 'Mean Word Confidence Score (WC)', 'wer': 'Word Error Rate (WER)'}, template='plotly_white', hover_name="ppn_page")
 
     fig.update_traces(marker=dict(size=10, color='blue', line=dict(width=2, color='DarkSlateGrey')),
                       hovertemplate='PPN Page: %{hovertext}<br>Mean Word Confidence: %{x}<br>WER: %{y}<extra></extra>',
@@ -425,7 +425,7 @@ def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
 
     fig.update_xaxes(range=[-0.01, 1.01])
     fig.update_yaxes(range=[-0.01, 1.01])
-    fig.update_layout(title=dict(text='WC vs. WER', x=0.5, xanchor='center'))
+    fig.update_layout(title=dict(text='WER(WC)', x=0.5, xanchor='center'))
     pyo.plot(fig, filename=plot_filename_inter, auto_open=False)
     
 def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
