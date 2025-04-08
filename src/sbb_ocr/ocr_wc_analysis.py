@@ -14,6 +14,7 @@ import logging
 from datetime import datetime
 import plotly.express as px
 import plotly.offline as pyo
+import re
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
 
@@ -523,7 +524,10 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             (results_df['mean_textline'] <= mean_textline_end)]
             
     if search_genre:
-        results_df = results_df[results_df["ppn"].isin(metadata_df.loc[metadata_df["genre-aad"].str.contains(search_genre, na=False), "PPN"])]
+        # Escape special characters in the search_genre string
+        escaped_genre = re.escape(search_genre)
+        pattern = r"\{\s*[^}]*?\b" + escaped_genre + r"\b[^}]*?\}"
+        results_df = results_df[results_df["ppn"].isin(metadata_df.loc[metadata_df["genre-aad"].str.match(pattern, na=False), "PPN"])]
         results_df = results_df.sort_values(by='mean_word', ascending=True)
         
     if use_top_ppns_word:
