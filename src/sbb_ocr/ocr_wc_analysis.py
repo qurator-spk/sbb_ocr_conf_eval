@@ -88,32 +88,38 @@ def load_csv_to_list(csv_file):
 def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
     matching_ppn_mods = results_df["ppn"].unique()
     filtered_genres = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
-
     all_genres_raw = set(filtered_genres["genre-aad"].tolist())
     
-    all_genres = []
-    for genre_raw in all_genres_raw:
-        genres_json = genre_raw.replace('{', '[').replace('}', ']').replace("'", '"')
-        if not genres_json:
-            continue
-        genres = json.loads(genres_json)
-        if replace_subgenres:
-            genres = [x.split(':')[0] if ':' in x else x.split('.')[0] for x in genres]
-
-
-        all_genres += genres
-
-    all_genres_reduced = set(all_genres)
-    logging.info(f"\nNumber of all genres (without subgenres): {len(all_genres_reduced)}")
-    print("\nNumber of all genres (without subgenres): ", len(all_genres_reduced))
-
     genre_counts = {}
-    for genre in all_genres:
-        if genre in genre_counts:
-            genre_counts[genre] += 1
-        else:
-            genre_counts[genre] = 1
+    count_multiple_genres = 0
+    count_single_genres = 0
+    for ppn in matching_ppn_mods:
+        current_genres_raw = filtered_genres[filtered_genres["PPN"] == ppn]["genre-aad"]
+        counted_genres = set()
+        
+        for genre_raw in current_genres_raw:
+            genres_json = genre_raw.replace('{', '[').replace('}', ']').replace("'", '"')
+            if not genres_json:
+                continue
             
+            genres = json.loads(genres_json)
+
+            if replace_subgenres:
+                genres = [x.split(':')[0] if ':' in x else x.split('.')[0] for x in genres]
+            
+            # Count each genre for this PPN
+            if len(genres) > 1:
+                count_multiple_genres += 1
+            elif len(genres) == 1:
+                count_single_genres += 1
+                
+            for genre in set(genres):  # Avoid duplicates
+                if genre in counted_genres:
+                    continue 
+                
+                genre_counts[genre] = genre_counts.get(genre, 0) + 1
+                counted_genres.add(genre)
+        
     genre_counts_df = pd.DataFrame(list(genre_counts.items()), columns=['Genre', 'Count'])
     genre_counts_df_sorted = genre_counts_df.sort_values(by='Count', ascending=False)
     
