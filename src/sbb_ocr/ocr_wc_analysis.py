@@ -496,6 +496,9 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             # Change all genres that are empty strings to "Unbekannt"
             metadata_df.loc[metadata_df["genre-aad"].isin([""]), "genre-aad"] = "{'Unbekannt'}"
             
+            # Change the genre separation from slashes to commas
+            metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: "{" + genre.strip().strip("{ }").replace("  / ", "', '").replace(" / ", "', '") + "}")
+            
     # Count the number of unique PPNs in the results dataframe
     all_ppns = results_df["ppn"].unique()
     
