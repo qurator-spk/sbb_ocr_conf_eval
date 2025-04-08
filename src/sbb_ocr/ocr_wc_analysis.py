@@ -131,7 +131,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
     
     all_genres_reduced = set(genre_counts.keys())
     logging.info(f"\nNumber of all unique genres (without subgenres): {len(all_genres_reduced)}")
-    print("\nNumber of all unique genres (without subgenres): ", len(all_genres_reduced))
+    print(f"\nNumber of all unique genres (without subgenres): {len(all_genres_reduced)})
     
     genre_counts_df = pd.DataFrame(list(genre_counts.items()), columns=['Genre', 'Count'])
     genre_counts_df_sorted = genre_counts_df.sort_values(by='Count', ascending=False)
@@ -265,7 +265,7 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
             logging.info(f"Directory does not exist: {directory}")
             print(f"Directory does not exist: {directory}")
             return
-    
+    # Special characters excluded for safety reasons
     special_chars = [';', '&', '|', '`', '(', ')', '{', '}', '~', '>', '>>', '<', '\'', '\"', '\\', ' ', '$', '?', '*', '!', ':', '=', '#', '^']
     
     for param in [parent_dir, gt_dir, ocr_dir, report_dir]:
@@ -297,7 +297,7 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
                 except subprocess.CalledProcessError as e:
                     logging.info(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
                     print(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
-                
+                # Change to the parent directory
                 os.chdir(parent_dir)
                 progbar.update(1)
     progbar.close()
@@ -507,7 +507,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             # Reduce the results dataframe to include only those PPNs that are in the PPN list ppns_pipeline_batch_01_2024.txt
             results_df = results_df[results_df["ppn"].isin(metadata_df["PPN"])]
             
-            # Change all years that are empty strings or 18XX to 2025
+            # Change all years that are empty strings or "18XX" to "2025"
             metadata_df.loc[metadata_df["originInfo-publication0_dateIssued"].isin(["", "18XX"]), "originInfo-publication0_dateIssued"] = "2025"
             
             # Change all genres that are empty strings to "Unbekannt"
