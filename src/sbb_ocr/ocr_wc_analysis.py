@@ -146,18 +146,18 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
 
         plt.figure(figsize=(100, 150))
         bars = plt.barh(genres, counts, color=plt.cm.tab10.colors)
-        plt.ylabel('Genres', fontsize=100)
-        plt.xlabel('Counts', fontsize=100)
-        plt.title('Counts of Unique Genres', fontsize=120)
-        plt.xticks(fontsize=65)
-        plt.yticks(fontsize=65)
-        plt.grid(axis='x', linestyle='--', alpha=0.8)
+        plt.ylabel('Genres', fontsize=130)
+        plt.xlabel('Counts', fontsize=130)
+        plt.title('Counts of Unique Genres', fontsize=150)
+        plt.xticks(fontsize=100)
+        plt.yticks(fontsize=100)
+        plt.grid(axis='x', linestyle='--', alpha=1.0)
         plt.ylim(-0.5, len(genres) - 0.5)
 
         # Adding data labels next to bars
         for bar in bars:
             xval = bar.get_width()
-            plt.text(xval, bar.get_y() + bar.get_height()/2, int(xval), ha='left', va='center', fontsize=65)  # Display counts next to bars
+            plt.text(xval, bar.get_y() + bar.get_height()/2, int(xval), ha='left', va='center', fontsize=100)  # Display counts next to bars
         
         plt.tight_layout(pad=2.0)
         plt.savefig("bar_plot_of_all_genres.png")
