@@ -455,7 +455,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                     use_best_mean_textline_confs_unique=False, use_worst_mean_textline_confs_unique=False, num_best_mean_textline_confs_unique=1, num_worst_mean_textline_confs_unique=1,
                     use_best_mean_word_confs=False, use_worst_mean_word_confs=False, num_best_mean_word_confs=1, num_worst_mean_word_confs=1,
                     use_best_mean_textline_confs=False, use_worst_mean_textline_confs=False, num_best_mean_textline_confs=1, num_worst_mean_textline_confs=1,
-                    parent_dir=None, conf_filename=None, use_logging=None, check_value_errors=False, check_duplicates=False):
+                    parent_dir=None, conf_filename=None, use_logging=None, check_value_errors=False, check_duplicates=False, check_raw_genres=False):
     if use_logging:
         setup_logging("plot")
     
@@ -531,6 +531,15 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             
             # Change the genre separation from slashes to commas
             metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: "{" + genre.strip().strip("{ }").replace("  / ", "', '").replace(" / ", "', '") + "}")
+            
+            if check_raw_genres:
+                metadata_df_unique = metadata_df["genre-aad"].unique()
+                metadata_df_unique_df = pd.DataFrame(metadata_df_unique, columns=["genre-aad"])
+                logging.info("\nAll raw genres in {metadata_csv}: \n")
+                print("\nAll raw genres in {metadata_csv}: \n")
+                logging.info(metadata_df_unique_df.to_string(index=False))
+                print(metadata_df_unique_df.to_string(index=False))
+                metadata_df_unique_df.to_csv("genres_raw.csv", index=False)
             
             if check_duplicates:
                 ppn_page_counts = results_df['ppn_page'].value_counts()

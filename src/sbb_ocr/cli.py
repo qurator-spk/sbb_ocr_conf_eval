@@ -41,6 +41,7 @@ def cli():
 @click.option('-log', '--use-logging', 'use_logging', is_flag=True, default=False, help="Save all log messages to log_plot_{TIMESTAMP}.txt (optional)")
 @click.option('-cve', '--check-value-errors', 'check_value_errors', is_flag=True, default=False, help="Check the CSV_FILES for ValueErrors and save them to value_error_pages.csv (optional)")
 @click.option('-cd', '--check-duplicates', 'check_duplicates', is_flag=True, default=False, help="Check the CSV_FILES for duplicates and save them to duplicates.csv (optional)")
+@click.option('-crg', '--check-raw-genres', 'check_raw_genres', is_flag=True, default=False, help="Check the METADATA_FILE for all raw genres and save them to genres_raw.csv (optional)")
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range, 
@@ -48,7 +49,7 @@ def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range,
              mean_word_confs, mean_textline_confs, show_genre_evaluation, output, show_dates_evaluation, show_results,
              best_mean_word_confs_unique, worst_mean_word_confs_unique, best_mean_textline_confs_unique, worst_mean_textline_confs_unique,
              best_mean_word_confs, worst_mean_word_confs, best_mean_textline_confs, worst_mean_textline_confs, ppn_from_directory, 
-             use_logging, check_value_errors, check_duplicates):
+             use_logging, check_value_errors, check_duplicates, check_raw_genres):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
@@ -105,7 +106,7 @@ def plot_cli(search_genre, metadata_csv, csv_files, plot_file, date_range,
                     num_best_mean_word_confs=num_best_mean_word_confs, num_worst_mean_word_confs=num_worst_mean_word_confs,
                     use_best_mean_textline_confs=(best_mean_textline_confs is not None), use_worst_mean_textline_confs=(worst_mean_textline_confs is not None), 
                     num_best_mean_textline_confs=num_best_mean_textline_confs, num_worst_mean_textline_confs=num_worst_mean_textline_confs,
-                    parent_dir=parent_dir, conf_filename=conf_filename, use_logging=use_logging, check_value_errors=check_value_errors, check_duplicates=check_duplicates)
+                    parent_dir=parent_dir, conf_filename=conf_filename, use_logging=use_logging, check_value_errors=check_value_errors, check_duplicates=check_duplicates, check_raw_genres=check_raw_genres)
 
 @cli.command('evaluate')
 @click.option('-d', '--dinglehopper', 'dinglehopper', nargs=4, type=(str, str, str, str), help='Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)')
