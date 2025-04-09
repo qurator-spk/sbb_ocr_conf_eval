@@ -131,7 +131,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
     
     all_genres_reduced = set(genre_counts.keys())
     logging.info(f"\nNumber of all unique genres (without subgenres): {len(all_genres_reduced)}")
-    print(f"\nNumber of all unique genres (without subgenres): {len(all_genres_reduced)})
+    print(f"\nNumber of all unique genres (without subgenres): {len(all_genres_reduced)}")
     
     genre_counts_df = pd.DataFrame(list(genre_counts.items()), columns=['Genre', 'Count'])
     genre_counts_df_sorted = genre_counts_df.sort_values(by='Count', ascending=False)
@@ -455,7 +455,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                     use_best_mean_textline_confs_unique=False, use_worst_mean_textline_confs_unique=False, num_best_mean_textline_confs_unique=1, num_worst_mean_textline_confs_unique=1,
                     use_best_mean_word_confs=False, use_worst_mean_word_confs=False, num_best_mean_word_confs=1, num_worst_mean_word_confs=1,
                     use_best_mean_textline_confs=False, use_worst_mean_textline_confs=False, num_best_mean_textline_confs=1, num_worst_mean_textline_confs=1,
-                    parent_dir=None, conf_filename=None, use_logging=None):
+                    parent_dir=None, conf_filename=None, use_logging=None, check_value_errors=False):
     if use_logging:
         setup_logging("plot")
     
@@ -466,6 +466,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             return
         
     all_results = []
+    value_error_pages = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):
             progbar.set_description(f"Processing file: {csv_file}")
@@ -474,17 +475,20 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                     for i, row in enumerate(rows):
                         if i == 0:
                             continue
+                            
+                        ppn = f'{row[0]}'
+                        ppn_page = f'{row[0]}_{row[1]}'
+                        
                         try:
                             textline_confs = list(map(float, row[3].split(' ')))
                             word_confs = list(map(float, row[4].split(' ')))
-                                                        
                         except ValueError:
-                            # TODO properly catch errors in the data
+                            if check_value_errors:
+                                value_error_pages.append([ppn, ppn_page])
                             continue
+                            
                         mean_textline, median_textline, standard_deviation_textline = statistics(textline_confs)
                         mean_word, median_word, standard_deviation_word = statistics(word_confs)
-                        ppn_page = f'{row[0]}_{row[1]}'
-                        ppn = f'{row[0]}'
                         all_results.append([ppn, ppn_page, mean_word, median_word, standard_deviation_word, mean_textline, median_textline, standard_deviation_textline])
                                                
             except csv.Error as e:
@@ -494,7 +498,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             progbar.update(1)
     progbar.close()
     
-    results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])
+    results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])        
     
     if "metadata" in metadata_csv:
         if not os.path.exists(metadata_csv):
@@ -503,6 +507,18 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             return
         else:
             metadata_df = pd.DataFrame(load_csv_to_list(metadata_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
+            
+            if check_value_errors:
+                value_error_df = pd.DataFrame(value_error_pages, columns=["ppn", "ppn_page"])
+                value_error_df = value_error_df[value_error_df["ppn"].isin(metadata_df["PPN"])]
+                value_error_df = value_error_df.sort_values(by='ppn_page', ascending=True)
+                ppn_counts = value_error_df['ppn'].nunique()
+                logging.info(f"\nNumber of PPNs excluded because of a ValueError: {ppn_counts}")
+                print(f"\nNumber of PPNs excluded because of a ValueError: {ppn_counts}")
+                ppn_page_counts = value_error_df['ppn_page'].value_counts()
+                logging.info(f"Number of PPN_PAGEs excluded because of a ValueError: {ppn_page_counts.sum()}")
+                print(f"Number of PPN_PAGEs excluded because of a ValueError: {ppn_page_counts.sum()}")
+                value_error_df.to_csv("value_error_pages.csv", index=False)
             
             # Reduce the results dataframe to include only those PPNs that are in the PPN list ppns_pipeline_batch_01_2024.txt
             results_df = results_df[results_df["ppn"].isin(metadata_df["PPN"])]
