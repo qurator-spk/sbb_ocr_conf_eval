@@ -6,8 +6,8 @@
 
 Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive` 
 - Number of PPNs: ***46506***
-- Number of PPN_PAGES: ***4632942***
-- Number of CSV_FILES: ***10988***
+- Number of PPN_PAGEs: ***4632942***
+- Number of CSV_FILEs: ***10988***
 
 `metadata.csv`:
 - Number of rows: ***46506*** (without header row)
@@ -17,7 +17,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Publication dates in `originInfo-publication0_dateIssued` column ***(elements that are not 4 digits changed to: 2025)***
 - Projects: ***missing***
 - Titlepages: ***missing***
-- Source: Created from `metadata.csv` (47716 rows) by dropping 1210 PPNs that are NOT in CSV_FILES (46506 rows)
+- Source: Created from `metadata.csv` (47716 rows) by dropping 1210 PPNs that are NOT in CSV_FILEs (46506 rows)
 
 
 ## Analysis results
@@ -41,7 +41,7 @@ Usage:
     
     sbb_ocr COMMAND [ARGS] [OPTIONS]...
   
-    CSV_FILES: One or more CSV files containing confidence scores data.
+    CSV_FILEs: One or more CSV files containing confidence scores data.
     
     PLOT_FILE: Output file name for the generated plot (e.g., PNG or JPG).
 
@@ -77,9 +77,9 @@ Options:
        -r,      --show-results                      Show the light version of the results [ppn, ppn_page, mean_word, originInfo-publication0_dateIssued, genre-aad] (optional)
        -o,      --output                            Save the results and the description of the results to an OUTPUT_CSV_FILE (optional)
        -g,      --genre                             Choose a GENRE (optional)
-       -ge,     --show-genre-evaluation             Evaluate the number of genres in the CSV_FILES and save the corresponding bar plot (optional)
+       -ge,     --show-genre-evaluation             Evaluate the number of genres in the CSV_FILEs and save the corresponding bar plot (optional)
        -d,      --date-range                        Choose a date range for filtering the data, specify <YEAR_START> <YEAR_END> (optional)
-       -de,     --show-dates-evaluation             Evaluate the number of years in the CSV_FILES and save the corresponding bar plot (optional)
+       -de,     --show-dates-evaluation             Evaluate the number of years in the CSV_FILEs and save the corresponding bar plot (optional)
        -wc,     --mean-word-confs                   Choose a mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)
        -tc,     --mean-textline-confs               Choose a mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)
        -bmw,    --best-mean-word-confs              Choose a number of PPN_PAGEs with the best mean word scores, specify <NUMBER_OF> (optional)
@@ -96,6 +96,9 @@ Options:
        -wmtu,   --worst-mean-textline-confs-unique  Choose a number of unique PPNs whose PPN_PAGEs have the worst mean textline scores, specify <NUMBER_OF> (optional)
        -ppndir, --ppn-directory                     Generate a CSV with confidence scores from the names of PPN subdirectories in a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <CONF_CSV> (optional)
        -log,    --use-logging                       Save all log messages to log_plot_{TIMESTAMP}.txt (optional)
+       -cve     --check-value-errors                Check the CSV_FILEs for ValueErrors and save them to value_error_pages.csv (optional)
+       -cd      --check-duplicates                  Check the CSV_FILEs for duplicates and save them to duplicates.csv (optional)
+       -crg     --check-raw-genres                  Check the METADATA_FILE for all raw genres and save them to genres_raw.csv (optional)
    
     evaluate:
        -d,      --dinglehopper                      Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)

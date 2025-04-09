@@ -535,8 +535,8 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             if check_raw_genres:
                 metadata_df_unique = metadata_df["genre-aad"].unique()
                 metadata_df_unique_df = pd.DataFrame(metadata_df_unique, columns=["genre-aad"])
-                logging.info("\nAll raw genres in {metadata_csv}: \n")
-                print("\nAll raw genres in {metadata_csv}: \n")
+                logging.info(f"\nAll raw genres in {metadata_csv}: \n")
+                print(f"\nAll raw genres in {metadata_csv}: \n")
                 logging.info(metadata_df_unique_df.to_string(index=False))
                 print(metadata_df_unique_df.to_string(index=False))
                 metadata_df_unique_df.to_csv("genres_raw.csv", index=False)
