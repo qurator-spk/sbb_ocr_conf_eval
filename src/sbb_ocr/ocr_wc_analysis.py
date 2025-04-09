@@ -455,7 +455,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                     use_best_mean_textline_confs_unique=False, use_worst_mean_textline_confs_unique=False, num_best_mean_textline_confs_unique=1, num_worst_mean_textline_confs_unique=1,
                     use_best_mean_word_confs=False, use_worst_mean_word_confs=False, num_best_mean_word_confs=1, num_worst_mean_word_confs=1,
                     use_best_mean_textline_confs=False, use_worst_mean_textline_confs=False, num_best_mean_textline_confs=1, num_worst_mean_textline_confs=1,
-                    parent_dir=None, conf_filename=None, use_logging=None, check_value_errors=False):
+                    parent_dir=None, conf_filename=None, use_logging=None, check_value_errors=False, check_duplicates=False):
     if use_logging:
         setup_logging("plot")
     
@@ -531,6 +531,29 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             
             # Change the genre separation from slashes to commas
             metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: "{" + genre.strip().strip("{ }").replace("  / ", "', '").replace(" / ", "', '") + "}")
+            
+            if check_duplicates:
+                ppn_page_counts = results_df['ppn_page'].value_counts()
+                logging.info(f"\nNumber of PPN_PAGEs: {ppn_page_counts.sum()}")
+                print(f"\nNumber of PPN_PAGEs: {ppn_page_counts.sum()}")
+                
+                singles_summary = ppn_page_counts[ppn_page_counts == 1]
+                logging.info(f"Number of PPN_PAGEs with a single occurrence: {singles_summary.sum()}")
+                print(f"Number of PPN_PAGEs with a single occurrence: {singles_summary.sum()}")
+
+                duplicates_summary = ppn_page_counts[ppn_page_counts > 1]
+                num_unique_duplicates = len(duplicates_summary)
+                logging.info(f"Number of PPN_PAGEs with multiple occurrences: {num_unique_duplicates}")
+                print(f"Number of PPN_PAGEs with multiple occurrences: {num_unique_duplicates}")
+                non_duplicated_ppn_pages = ppn_page_counts[ppn_page_counts == 1].index
+
+                # Exclude PPN_PAGEs that are not duplicated
+                filtered_df = results_df[~results_df['ppn_page'].isin(non_duplicated_ppn_pages)]
+                metadata_filtered = metadata_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
+                filtered_df = filtered_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
+                filtered_df.drop(columns=['PPN'], inplace=True)
+                filtered_df = filtered_df.sort_values(by='ppn_page', ascending=True)
+                filtered_df.to_csv("duplicates.csv", index=False)
             
     # Count the number of unique PPNs in the results dataframe
     all_ppns = results_df["ppn"].unique()

@@ -24,4 +24,5 @@ statistics_results.jpg
 /err*
 /merged*
 /plot*
-/value_error_page*
+value_error_pages.csv
+duplicates.csv
