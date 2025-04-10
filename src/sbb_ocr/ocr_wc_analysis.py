@@ -716,7 +716,9 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             }
         }
         
-        plot_histogram(axs[0, 0], results_df["mean_word"], np.arange(0, 1.1, 0.05), 
+        bins = np.arange(0, 1.05, 0.05)
+        
+        plot_histogram(axs[0, 0], results_df["mean_word"], bins, 
                                     "Mean Word Confidence Scores", 
                                     "Mean Word Confidence", "Frequency", 
                                     plot_colors["word"]["mean"])
@@ -726,7 +728,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                                     "Mean Word Confidence", "Density", 
                                     plot_colors["word"]["mean_density"], legend_loc="upper left")      
         
-        plot_histogram(axs[0, 2], results_df["standard_deviation_word"], np.arange(0, 1.1, 0.05), 
+        plot_histogram(axs[0, 2], results_df["standard_deviation_word"], bins, 
                                     "Standard Deviation Word Confidence Scores", 
                                     "Standard Deviation Word Confidence", "Frequency", 
                                     plot_colors["word"]["std"])
@@ -736,7 +738,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                                     "Standard Deviation Word Confidence", "Density", 
                                     plot_colors["word"]["std_density"], legend_loc="upper right")
                                     
-        plot_histogram(axs[1, 0], results_df["mean_textline"], np.arange(0, 1.1, 0.05), 
+        plot_histogram(axs[1, 0], results_df["mean_textline"], bins, 
                                     "Mean Textline Confidence Scores", 
                                     "Mean Textline Confidence", "Frequency", 
                                     plot_colors["textline"]["mean"])
@@ -746,7 +748,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                                     "Mean Textline Confidence", "Density", 
                                     plot_colors["textline"]["mean_density"], legend_loc="upper left")      
         
-        plot_histogram(axs[1, 2], results_df["standard_deviation_textline"], np.arange(0, 1.1, 0.05), 
+        plot_histogram(axs[1, 2], results_df["standard_deviation_textline"], bins, 
                                     "Standard Deviation Textline Confidence Scores", 
                                     "Standard Deviation Textline Confidence", "Frequency", 
                                     plot_colors["textline"]["std"])
