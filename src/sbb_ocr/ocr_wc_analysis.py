@@ -576,10 +576,16 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         results_df = results_df.sort_values(by='mean_word', ascending=True)
             
     if mean_word_start is not None and mean_word_end is not None:
-        results_df = results_df.sort_values(by='mean_word', ascending=True)
-        results_df = results_df[
-            (results_df['mean_word'] >= mean_word_start) & 
-            (results_df['mean_word'] <= mean_word_end)]
+        if mean_word_start == 0:
+            results_df = results_df[
+                (results_df['mean_word'] >= mean_word_start) &  # Include 0
+                (results_df['mean_word'] <= mean_word_end)
+            ]
+        else:
+            results_df = results_df[
+                (results_df['mean_word'] > mean_word_start) &
+                (results_df['mean_word'] <= mean_word_end)
+            ]
             
     if mean_textline_start is not None and mean_textline_end is not None:
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
