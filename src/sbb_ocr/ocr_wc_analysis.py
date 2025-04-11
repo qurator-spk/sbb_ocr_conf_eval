@@ -446,10 +446,10 @@ def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
     pyo.plot(fig, filename=plot_filename_inter, auto_open=False)
     
 def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
-                    year_start=None, year_end=None, 
+                    date_range_start=None, date_range_end=None, 
                     use_top_ppns_word=False, use_bottom_ppns_word=False, num_top_ppns_word=1, num_bottom_ppns_word=1, 
                     use_top_ppns_textline=False, use_bottom_ppns_textline=False, num_top_ppns_textline=1, num_bottom_ppns_textline=1,
-                    mean_word_start=None, mean_word_end=None, mean_textline_start=None, mean_textline_end=None, show_genre_evaluation=False, 
+                    mean_word_range_start=None, mean_word_range_end=None, mean_textline_range_start=None, mean_textline_range_end=None, show_genre_evaluation=False, 
                     output=False, show_dates_evaluation=False, show_results=False,
                     use_best_mean_word_confs_unique=False, use_worst_mean_word_confs_unique=False, num_best_mean_word_confs_unique=1, num_worst_mean_word_confs_unique=1,
                     use_best_mean_textline_confs_unique=False, use_worst_mean_textline_confs_unique=False, num_best_mean_textline_confs_unique=1, num_worst_mean_textline_confs_unique=1,
@@ -567,35 +567,35 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
     # Count the number of unique PPNs in the results dataframe
     all_ppns = results_df["ppn"].unique()
     
-    if year_start is not None and year_end is not None: # "is not None" enables zero as input
+    if date_range_start is not None and date_range_end is not None: # "is not None" enables zero as input
+        results_df = results_df.sort_values(by='mean_word', ascending=True)
         results_df = results_df[results_df["ppn"].isin(
         metadata_df.loc[
-            (metadata_df["originInfo-publication0_dateIssued"].astype(int) >= year_start) &
-            (metadata_df["originInfo-publication0_dateIssued"].astype(int) <= year_end),
+            (metadata_df["originInfo-publication0_dateIssued"].astype(int) >= date_range_start) &
+            (metadata_df["originInfo-publication0_dateIssued"].astype(int) <= date_range_end),
             "PPN"])]
-        results_df = results_df.sort_values(by='mean_word', ascending=True)
             
-    if mean_word_start is not None and mean_word_end is not None:
+    if mean_word_range_start is not None and mean_word_range_end is not None:
         results_df = results_df.sort_values(by='mean_word', ascending=True)
-        if mean_word_start == 0:
+        if mean_word_range_start == 0:
             results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) &
-                (results_df['mean_word'] <= mean_word_end)]
+                (results_df['mean_word'] >= mean_word_range_start) &
+                (results_df['mean_word'] <= mean_word_range_end)]
         else:
             results_df = results_df[
-                (results_df['mean_word'] > mean_word_start) &
-                (results_df['mean_word'] <= mean_word_end)]
+                (results_df['mean_word'] > mean_word_range_start) &
+                (results_df['mean_word'] <= mean_word_range_end)]
             
-    if mean_textline_start is not None and mean_textline_end is not None:
+    if mean_textline_range_start is not None and mean_textline_range_end is not None:
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
-        if mean_textline_start == 0:
+        if mean_textline_range_start == 0:
             results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_start) &
-                (results_df['mean_textline'] <= mean_textline_end)]
+                (results_df['mean_textline'] >= mean_textline_range_start) &
+                (results_df['mean_textline'] <= mean_textline_range_end)]
         else:
             results_df = results_df[
-                (results_df['mean_textline'] > mean_textline_start) &
-                (results_df['mean_textline'] <= mean_textline_end)]
+                (results_df['mean_textline'] > mean_textline_range_start) &
+                (results_df['mean_textline'] <= mean_textline_range_end)]
             
     if search_genre:
         # Escape special characters in the search_genre string
