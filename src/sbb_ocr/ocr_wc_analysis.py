@@ -579,20 +579,23 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         results_df = results_df.sort_values(by='mean_word', ascending=True)
         if mean_word_start == 0:
             results_df = results_df[
-                (results_df['mean_word'] >= mean_word_start) &  # Include 0
-                (results_df['mean_word'] <= mean_word_end)
-            ]
+                (results_df['mean_word'] >= mean_word_start) &
+                (results_df['mean_word'] <= mean_word_end)]
         else:
             results_df = results_df[
                 (results_df['mean_word'] > mean_word_start) &
-                (results_df['mean_word'] <= mean_word_end)
-            ]
+                (results_df['mean_word'] <= mean_word_end)]
             
     if mean_textline_start is not None and mean_textline_end is not None:
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
-        results_df = results_df[
-            (results_df['mean_textline'] >= mean_textline_start) & 
-            (results_df['mean_textline'] <= mean_textline_end)]
+        if mean_textline_start == 0:
+            results_df = results_df[
+                (results_df['mean_textline'] >= mean_textline_start) &
+                (results_df['mean_textline'] <= mean_textline_end)]
+        else:
+            results_df = results_df[
+                (results_df['mean_textline'] > mean_textline_start) &
+                (results_df['mean_textline'] <= mean_textline_end)]
             
     if search_genre:
         # Escape special characters in the search_genre string
@@ -696,7 +699,6 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             print(results_df.describe(include='all'))
             
         if output:
-            results_df = results_df.sort_values(by='genre-aad', ascending=True)
             results_df.to_csv(output, index=False)
             logging.info(f"\nSaved results to: {output.name}")
             print(f"\nSaved results to: {output.name}")
