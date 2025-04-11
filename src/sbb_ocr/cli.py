@@ -25,7 +25,7 @@ def cli():
 @click.option('-topt', '--top-ppns-textline', type=int, help='Number of top PPN_PAGESs with mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)')
 @click.option('-bott', '--bottom-ppns-textline', type=int, help='Number of bottom PPN_PAGEs with mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)')
 @click.option('-wc', '--mean-word-conf', 'mean_word_conf', type=float, help='Filter the data for a specific mean word confidence score, specify <MEAN_WORD> (optional)')
-@click.option('-tc', '--mean-textline-conf', 'mean_textline_conf', type=float, help='Filter the data for a specific mean word confidence score, specify <MEAN_TEXTLINE> (optional)')
+@click.option('-tc', '--mean-textline-conf', 'mean_textline_conf', type=float, help='Filter the data for a specific mean textline confidence score, specify <MEAN_TEXTLINE> (optional)')
 @click.option('-wcr', '--mean-word-confs-range', 'mean_word_confs_range', nargs=2, type=(float, float), help='Mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)')
 @click.option('-tcr', '--mean-textline-confs-range', 'mean_textline_confs_range', nargs=2, type=(float, float), help='Mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)')
 @click.option('-ge', '--show-genre-evaluation', 'show_genre_evaluation', is_flag=True, default=False, help="Evaluate the number of genres in the CSV_FILES (optional)")
