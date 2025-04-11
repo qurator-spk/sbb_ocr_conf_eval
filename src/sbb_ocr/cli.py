@@ -25,6 +25,7 @@ def cli():
 @click.option('-topt', '--top-ppns-textline', type=int, help='Number of top PPN_PAGESs with mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)')
 @click.option('-bott', '--bottom-ppns-textline', type=int, help='Number of bottom PPN_PAGEs with mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)')
 @click.option('-wc', '--mean-word-conf', 'mean_word_conf', type=float, help='Filter the data for a specific mean word confidence score, specify <MEAN_WORD> (optional)')
+@click.option('-tc', '--mean-textline-conf', 'mean_textline_conf', type=float, help='Filter the data for a specific mean word confidence score, specify <MEAN_TEXTLINE> (optional)')
 @click.option('-wcr', '--mean-word-confs-range', 'mean_word_confs_range', nargs=2, type=(float, float), help='Mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)')
 @click.option('-tcr', '--mean-textline-confs-range', 'mean_textline_confs_range', nargs=2, type=(float, float), help='Mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)')
 @click.option('-ge', '--show-genre-evaluation', 'show_genre_evaluation', is_flag=True, default=False, help="Evaluate the number of genres in the CSV_FILES (optional)")
@@ -47,7 +48,7 @@ def cli():
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(search_genre, metadata_csv, csv_files, plot_file, search_date, date_range, 
-             top_ppns_word, bottom_ppns_word, top_ppns_textline, bottom_ppns_textline, mean_word_conf, 
+             top_ppns_word, bottom_ppns_word, top_ppns_textline, bottom_ppns_textline, mean_word_conf, mean_textline_conf, 
              mean_word_confs_range, mean_textline_confs_range, show_genre_evaluation, output, show_dates_evaluation, show_results,
              best_mean_word_confs_unique, worst_mean_word_confs_unique, best_mean_textline_confs_unique, worst_mean_textline_confs_unique,
              best_mean_word_confs, worst_mean_word_confs, best_mean_textline_confs, worst_mean_textline_confs, ppn_from_directory, 
@@ -97,7 +98,7 @@ def plot_cli(search_genre, metadata_csv, csv_files, plot_file, search_date, date
     plot_everything(csv_files=csv_files, metadata_csv=metadata_csv, search_genre=search_genre,
                     plot_file=plot_file, date_range_start=date_range_start, search_date=search_date, date_range_end=date_range_end,
                     use_top_ppns_word=(top_ppns_word is not None), use_bottom_ppns_word=(bottom_ppns_word is not None), num_top_ppns_word=num_top_ppns_word, num_bottom_ppns_word=num_bottom_ppns_word,
-                    use_top_ppns_textline=(top_ppns_textline is not None), use_bottom_ppns_textline=(bottom_ppns_textline is not None), num_top_ppns_textline=num_top_ppns_textline, num_bottom_ppns_textline=num_bottom_ppns_textline, mean_word_conf=mean_word_conf, 
+                    use_top_ppns_textline=(top_ppns_textline is not None), use_bottom_ppns_textline=(bottom_ppns_textline is not None), num_top_ppns_textline=num_top_ppns_textline, num_bottom_ppns_textline=num_bottom_ppns_textline, mean_word_conf=mean_word_conf, mean_textline_conf=mean_textline_conf, 
                     mean_word_range_start=mean_word_range_start, mean_word_range_end=mean_word_range_end, mean_textline_range_start=mean_textline_range_start, mean_textline_range_end=mean_textline_range_end, 
                     show_genre_evaluation=show_genre_evaluation, output=output, show_dates_evaluation=show_dates_evaluation, show_results=show_results,
                     use_best_mean_word_confs_unique=(best_mean_word_confs_unique is not None), use_worst_mean_word_confs_unique=(worst_mean_word_confs_unique is not None), 
