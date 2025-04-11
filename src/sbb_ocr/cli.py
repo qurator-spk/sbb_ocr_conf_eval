@@ -31,7 +31,7 @@ def cli():
 @click.option('-ge', '--show-genre-evaluation', 'show_genre_evaluation', is_flag=True, default=False, help="Evaluate the number of genres in the CSV_FILES (optional)")
 @click.option('-o', '--output', 'output', type=click.File('w'), help='Save the results to an OUTPUT_CSV_FILE (optional)')
 @click.option('-de', '--show-dates-evaluation', 'show_dates_evaluation', is_flag=True, default=False, help="Evaluate the number of years in the CSV_FILES (optional)")
-@click.option('-r', '--show-results', 'show_results', is_flag=True, default=False, help="Show the light version of the results [ppn, ppn_page, mean_word, originInfo-publication0_dateIssued, genre-aad] (optional)")
+@click.option('-r', '--show-results', 'show_results', is_flag=True, default=False, help="Show the light version of the results [ppn, ppn_page, mean_word, publication_date, genre-aad] (optional)")
 @click.option('-bmwu', '--best-mean-word-confs-unique', type=int, help='Number of unique PPNs whose PPN_PAGEs have the best mean word scores, specify <NUMBER_OF> (optional)')
 @click.option('-wmwu', '--worst-mean-word-confs-unique', type=int, help='Number of unique PPNs whose PPN_PAGEs have the worst mean word scores, specify <NUMBER_OF> (optional)')
 @click.option('-bmtu', '--best-mean-textline-confs-unique', type=int, help='Number of unique PPNs whose PPN_PAGEs have the best mean textline scores, specify <NUMBER_OF> (optional)')
@@ -190,7 +190,7 @@ def create_metadata(ppn_list, metadata_csv_old, metadata_csv_new, drop_ppns):
         # Keep only rows that have PPNs in ppn_list_df
         metadata_csv_df = metadata_csv_df[metadata_csv_df['PPN'].isin(ppn_list_df['PPN'])]
         
-    metadata_csv_df_new = metadata_csv_df[['PPN', 'genre-aad', 'originInfo-publication0_dateIssued']]    
+    metadata_csv_df_new = metadata_csv_df[['PPN', 'genre-aad', 'publication_date']]    
     metadata_csv_df_new.to_csv(metadata_csv_new, index=False)
     
 @cli.command('merge-mods-info')

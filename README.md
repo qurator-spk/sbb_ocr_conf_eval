@@ -15,7 +15,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Number of columns: ***3***
 - PPNs in `PPN` column
 - Genres in `genre-aad` column ***(empty strings changed to: "Unbekannt", slashes changed to commas)***
-- Publication dates in `originInfo-publication0_dateIssued` column ***(elements that are not 4 digits changed to: 2025)***
+- Publication dates in `publication_date` column (original name: `originInfo-publication0_dateIssued`) ***(elements that are not 4 digits changed to: 2025)***
 - Projects: ***missing***
 - Titlepages: ***missing***
 - Source: Created from `metadata.csv` (47716 rows) by dropping 1210 PPNs that are NOT in CSV_FILEs (46506 rows)

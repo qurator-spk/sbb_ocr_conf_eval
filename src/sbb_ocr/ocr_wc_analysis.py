@@ -195,19 +195,19 @@ def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
     matching_ppn_mods = results_df["ppn"].unique()
     metadata_df = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
     
-    min_year = metadata_df["originInfo-publication0_dateIssued"].min()
-    max_year = metadata_df["originInfo-publication0_dateIssued"].max()
+    min_year = metadata_df["publication_date"].min()
+    max_year = metadata_df["publication_date"].max()
     logging.info(f"\nEarliest year: {min_year}")
     logging.info(f"\nLatest year: {max_year}")
     print(f"\nEarliest year: {min_year}")
     print(f"\nLatest year: {max_year}")
     
-    unique_years = metadata_df["originInfo-publication0_dateIssued"].unique()
+    unique_years = metadata_df["publication_date"].unique()
     num_unique_years = len(unique_years)
     logging.info(f"\nNumber of unique years: {num_unique_years}")
     print(f"\nNumber of unique years: {num_unique_years}")
     
-    year_counts = metadata_df["originInfo-publication0_dateIssued"].value_counts().sort_index()
+    year_counts = metadata_df["publication_date"].value_counts().sort_index()
     year_counts_df = year_counts.reset_index() 
     year_counts_df.columns = ['Year', 'Count']
     
@@ -521,7 +521,8 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             print(f"File does not exist: {metadata_csv}")
             return
         else:
-            metadata_df = pd.DataFrame(load_csv_to_list(metadata_csv)[1:], columns=["PPN", "genre-aad", "originInfo-publication0_dateIssued"])
+            # "originInfo-publication0_dateIssued" changed to "publication_date"
+            metadata_df = pd.DataFrame(load_csv_to_list(metadata_csv)[1:], columns=["PPN", "genre-aad", "publication_date"])
             
             if check_value_errors:
                 value_error_df = pd.DataFrame(value_error_pages, columns=["ppn", "ppn_page"])
@@ -539,7 +540,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             results_df = results_df[results_df["ppn"].isin(metadata_df["PPN"])]
             
             # Change all years that are empty strings or "18XX" to "2025"
-            metadata_df.loc[metadata_df["originInfo-publication0_dateIssued"].isin(["", "18XX"]), "originInfo-publication0_dateIssued"] = "2025"
+            metadata_df.loc[metadata_df["publication_date"].isin(["", "18XX"]), "publication_date"] = "2025"
             
             # Change all genres that are empty strings to "Unbekannt"
             metadata_df.loc[metadata_df["genre-aad"].isin([""]), "genre-aad"] = "{'Unbekannt'}"
@@ -573,7 +574,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
 
                 # Exclude PPN_PAGEs that are not duplicated
                 filtered_df = results_df[~results_df['ppn_page'].isin(non_duplicated_ppn_pages)]
-                metadata_filtered = metadata_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
+                metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre-aad']]
                 filtered_df = filtered_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
                 filtered_df.drop(columns=['PPN'], inplace=True)
                 filtered_df = filtered_df.sort_values(by='ppn_page', ascending=True)
@@ -589,13 +590,13 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
     
     if search_date is not None: # "is not None" enables zero as input
         results_df = results_df[results_df["ppn"].isin(
-        metadata_df.loc[(metadata_df["originInfo-publication0_dateIssued"].astype(int) == search_date), "PPN"])]
+        metadata_df.loc[(metadata_df["publication_date"].astype(int) == search_date), "PPN"])]
     
     if date_range_start is not None and date_range_end is not None:
         results_df = results_df[results_df["ppn"].isin(
         metadata_df.loc[
-            (metadata_df["originInfo-publication0_dateIssued"].astype(int) >= date_range_start) &
-            (metadata_df["originInfo-publication0_dateIssued"].astype(int) <= date_range_end),
+            (metadata_df["publication_date"].astype(int) >= date_range_start) &
+            (metadata_df["publication_date"].astype(int) <= date_range_end),
             "PPN"])]
             
     if mean_word_conf is not None:
@@ -688,18 +689,17 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
     results_df_unique = results_df["ppn"].unique()
     logging.info(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
     print(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
+    sum_weight_word = results_df["weight_word"].sum()
+    sum_weight_textline = results_df["weight_textline"].sum()
+    logging.info(f"\nNumber of all words: {sum_weight_word}")
+    print(f"\nNumber of all words: {sum_weight_word}")
+    logging.info(f"Number of all textlines: {sum_weight_textline}\n")
+    print(f"Number of all textlines: {sum_weight_textline}\n")
     
     if show_results:
         if len(results_df_unique) > 0:
-            sum_weight_word = results_df["weight_word"].sum()
-            sum_weight_textline = results_df["weight_textline"].sum()
-            logging.info(f"\nNumber of all words: {sum_weight_word}")
-            print(f"\nNumber of all words: {sum_weight_word}")
-            logging.info(f"Number of all textlines: {sum_weight_textline}")
-            print(f"Number of all textlines: {sum_weight_textline}")
-            
             filtered_results_df = results_df[['ppn', 'ppn_page', 'mean_word', 'mean_textline']]
-            metadata_filtered = metadata_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
+            metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre-aad']]
             filtered_results_df = filtered_results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
             filtered_results_df.drop(columns=['PPN'], inplace=True)
             logging.info(filtered_results_df.to_string(index=False))
@@ -719,7 +719,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         print("\nThere are no results matching the applied filters.")
     else:
         if "metadata" in metadata_csv:
-            metadata_filtered = metadata_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
+            metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre-aad']]
             results_df = results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
             results_df.drop(columns=['PPN'], inplace=True)
             results_df_description = results_df.describe(include='all')
