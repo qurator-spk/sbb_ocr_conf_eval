@@ -49,7 +49,7 @@ def plot_histogram(ax, data, bins, title, xlabel, ylabel, color, histogram_info)
     ax.set_xticks(x_ticks)
     ax.grid(axis="y", alpha=0.75)
     
-def plot_density(ax, data, title, xlabel, ylabel, density_color, legend_loc):
+def plot_density(ax, data, title, xlabel, ylabel, density_color):
     ax.set_title(title)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
@@ -754,7 +754,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         plot_density(axs[0, 1], results_df["mean_word"], 
                                     "Mean Word Confidence Scores", 
                                     "Mean Word Confidence", "Density", 
-                                    plot_colors["word"]["mean_density"], legend_loc="upper left")      
+                                    plot_colors["word"]["mean_density"])      
         
         plot_histogram(axs[0, 2], results_df["standard_deviation_word"], bins, 
                                     "Standard Deviation Word Confidence Scores", 
@@ -764,7 +764,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         plot_density(axs[0, 3], results_df["standard_deviation_word"], 
                                     "Standard Deviation Word Confidence Scores", 
                                     "Standard Deviation Word Confidence", "Density", 
-                                    plot_colors["word"]["std_density"], legend_loc="upper right")
+                                    plot_colors["word"]["std_density"])
                                     
         plot_histogram(axs[1, 0], results_df["mean_textline"], bins, 
                                     "Mean Textline Confidence Scores", 
@@ -774,7 +774,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         plot_density(axs[1, 1], results_df["mean_textline"], 
                                     "Mean Textline Confidence Scores", 
                                     "Mean Textline Confidence", "Density", 
-                                    plot_colors["textline"]["mean_density"], legend_loc="upper left")      
+                                    plot_colors["textline"]["mean_density"])      
         
         plot_histogram(axs[1, 2], results_df["standard_deviation_textline"], bins, 
                                     "Standard Deviation Textline Confidence Scores", 
@@ -784,7 +784,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         plot_density(axs[1, 3], results_df["standard_deviation_textline"], 
                                     "Standard Deviation Textline Confidence Scores", 
                                     "Standard Deviation Textline Confidence", "Density", 
-                                    plot_colors["textline"]["std_density"], legend_loc="upper right")
+                                    plot_colors["textline"]["std_density"])
         
         plt.tight_layout(pad=1.0)
         plt.savefig(plot_file)
