@@ -102,6 +102,7 @@ Options:
        -cve     --check-value-errors                Check the CSV_FILEs for ValueErrors and save them to value_error_pages.csv (optional)
        -cd      --check-duplicates                  Check the CSV_FILEs for duplicates and save them to duplicates.csv (optional)
        -crg     --check-raw-genres                  Check the METADATA_FILE for all raw genres and save them to genres_raw.csv (optional)
+       -hi      --histogram-info                    Show additional information about the histogram (optional)
    
     evaluate:
        -d,      --dinglehopper                      Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)
