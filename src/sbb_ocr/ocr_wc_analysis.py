@@ -691,6 +691,13 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
     
     if show_results:
         if len(results_df_unique) > 0:
+            sum_weight_word = results_df["weight_word"].sum()
+            sum_weight_textline = results_df["weight_textline"].sum()
+            logging.info(f"\nNumber of all words: {sum_weight_word}")
+            print(f"\nNumber of all words: {sum_weight_word}")
+            logging.info(f"Number of all textlines: {sum_weight_textline}")
+            print(f"Number of all textlines: {sum_weight_textline}")
+            
             filtered_results_df = results_df[['ppn', 'ppn_page', 'mean_word', 'mean_textline']]
             metadata_filtered = metadata_df[['PPN', 'originInfo-publication0_dateIssued', 'genre-aad']]
             filtered_results_df = filtered_results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
