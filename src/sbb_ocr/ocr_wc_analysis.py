@@ -34,8 +34,10 @@ def statistics(confidences):
 def plot_histogram(ax, data, bins, title, xlabel, ylabel, color, histogram_info):
     if histogram_info:
         counts, bin_edges = np.histogram(data, bins=bins, density=False)
+        logging.info("\nHistogram: ")
         print("\nHistogram: ")
         for count, edge in zip(counts, bin_edges[:-1]):
+            logging.info(f'Bin [{edge:.2f}, {bin_edges[bin_edges.tolist().index(edge) + 1]:.2f}): {count}')
             print(f'Bin [{edge:.2f}, {bin_edges[bin_edges.tolist().index(edge) + 1]:.2f}): {count}')
     
     ax.hist(data, bins=bins, color=color, edgecolor="black", alpha=0.6, density=False)
@@ -476,6 +478,8 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
         
     all_results = []
     value_error_pages = []
+    weights_word = []
+    weights_textline = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):
             progbar.set_description(f"Processing file: {csv_file}")
@@ -495,10 +499,12 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                             if check_value_errors:
                                 value_error_pages.append([ppn, ppn_page])
                             continue
-                            
+                        
+                        weight_word = len(word_confs)
+                        weight_textline = len(textline_confs)
                         mean_textline, median_textline, standard_deviation_textline = statistics(textline_confs)
                         mean_word, median_word, standard_deviation_word = statistics(word_confs)
-                        all_results.append([ppn, ppn_page, mean_word, median_word, standard_deviation_word, mean_textline, median_textline, standard_deviation_textline])
+                        all_results.append([ppn, ppn_page, mean_word, median_word, standard_deviation_word, mean_textline, median_textline, standard_deviation_textline, weight_word, weight_textline])
                                                
             except csv.Error as e:
                 logging.info(f"CSV error: {e} in file: {csv_file}. \nIncrease the CSV field size limit!")
@@ -507,7 +513,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             progbar.update(1)
     progbar.close()
     
-    results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])        
+    results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "weight_word", "weight_textline"])        
     
     if "metadata" in metadata_csv:
         if not os.path.exists(metadata_csv):

@@ -8,6 +8,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Number of PPNs: ***46506***
 - Number of PPN_PAGEs: ***4632942***
 - Number of CSV_FILEs: ***10988***
+- Number of words: ***979948836***
 
 `metadata.csv`:
 - Number of rows: ***46506*** (without header row)
