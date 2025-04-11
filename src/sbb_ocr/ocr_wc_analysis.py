@@ -63,6 +63,11 @@ def plot_density(ax, data, title, xlabel, ylabel, density_color, legend_loc):
         ax.axvline(quantiles[1], color="black", linestyle="dashdot", linewidth=1, label="Q3: 75%")
 
         ax.plot(x_range, density_values, color=density_color, lw=2)
+        max_density_index = np.argmax(density_values)
+        max_density_x = x_range[max_density_index]
+
+        # Set legend location based on the maximum position
+        legend_loc = 'upper right' if max_density_x < 0.5 else 'upper left'
         ax.legend(loc=legend_loc)
         
     except LinAlgError as e:
