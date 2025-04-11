@@ -40,7 +40,7 @@ def plot_histogram(ax, data, weights, bins, title, xlabel, ylabel, color, histog
             logging.info(f'Bin [{edge:.2f}, {bin_edges[bin_edges.tolist().index(edge) + 1]:.2f}): {count}')
             print(f'Bin [{edge:.2f}, {bin_edges[bin_edges.tolist().index(edge) + 1]:.2f}): {count}')
     
-    ax.hist(data, bins=bins, color=color, edgecolor="black", alpha=0.6, density=False)
+    ax.hist(data, bins=bins, weights=weights, color=color, edgecolor="black", alpha=0.6, density=False)
     ax.set_title(title)
     ax.ticklabel_format(style="plain")
     ax.set_xlabel(xlabel)
@@ -575,6 +575,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
     
     results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "weight_word", "weight_textline"])        
     
+
     if "metadata" in metadata_csv:
         if not os.path.exists(metadata_csv):
             logging.info(f"File does not exist: {metadata_csv}")
@@ -803,8 +804,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             print(f"\nSaved results description to: {output_desc}")
 
         create_plots(results_df, None, None, plot_file=plot_file)
-        
-        
+        create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file="weighted_" + plot_file)
         
 def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, error_rates_filename=None,
                         use_logging=None, conf_df=None, error_rates_df=None, wcwer_filename=None, wcwer_csv=None, plot_filename=None, wcwer_csv_inter=None, plot_filename_inter=None):
