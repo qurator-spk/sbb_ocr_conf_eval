@@ -80,6 +80,7 @@ Options:
        -ge,     --show-genre-evaluation             Evaluate the number of genres in the CSV_FILEs and save the corresponding bar plot (optional)
        -d       --search-date                       Filter the data for a specific year, specify <YEAR> (optional)
        -dr,     --date-range                        Choose a date range for filtering the data, specify <YEAR_START> <YEAR_END> (optional)
+       -ppn     --search-ppn                        Filter the data for a specific PPN, specify <PPN> (optional)
        -de,     --show-dates-evaluation             Evaluate the number of years in the CSV_FILEs and save the corresponding bar plot (optional)
        -wc      --mean-word-conf                    Filter the data for a specific mean word confidence score, specify <MEAN_WORD> (optional)
        -tc      --mean-textline-conf                Filter the data for a specific mean textline confidence score, specify <MEAN_TEXTLINE> (optional)
