@@ -37,8 +37,9 @@ def plot_histogram(ax, data, bins, title, xlabel, ylabel, color):
     ax.ticklabel_format(style="plain")
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.set_xlim(0, 1.0)
-    ax.set_xticks(np.arange(0, 1.1, 0.1))
+    ax.set_xlim(bins[0], bins[-1])
+    x_ticks = np.arange(0.0, 1.1, 0.1)
+    ax.set_xticks(x_ticks)
     ax.grid(axis="y", alpha=0.75)
     
 def plot_density(ax, data, title, xlabel, ylabel, density_color, legend_loc):
@@ -52,6 +53,7 @@ def plot_density(ax, data, title, xlabel, ylabel, density_color, legend_loc):
         kde = gaussian_kde(data)
         x_range = np.linspace(0, 1, 100)
         density_values = kde(x_range)
+        ax.set_ylim(bottom=0, top=np.max(density_values) * 1.1)
 
         mean_value = np.mean(data)
         median_value = np.median(data)
@@ -735,7 +737,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             }
         }
         
-        bins = np.arange(0, 1.05, 0.05)
+        bins = [0.0, 0.05] + list(np.arange(0.1, 1.0, 0.05)) + [1.0]
         
         plot_histogram(axs[0, 0], results_df["mean_word"], bins, 
                                     "Mean Word Confidence Scores", 
