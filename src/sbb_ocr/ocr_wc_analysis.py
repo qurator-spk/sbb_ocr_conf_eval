@@ -448,7 +448,7 @@ def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
 def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
                     search_date=None, date_range_start=None, date_range_end=None, 
                     use_top_ppns_word=False, use_bottom_ppns_word=False, num_top_ppns_word=1, num_bottom_ppns_word=1, 
-                    use_top_ppns_textline=False, use_bottom_ppns_textline=False, num_top_ppns_textline=1, num_bottom_ppns_textline=1,
+                    use_top_ppns_textline=False, use_bottom_ppns_textline=False, num_top_ppns_textline=1, num_bottom_ppns_textline=1, mean_word_conf=None, 
                     mean_word_range_start=None, mean_word_range_end=None, mean_textline_range_start=None, mean_textline_range_end=None, show_genre_evaluation=False, 
                     output=False, show_dates_evaluation=False, show_results=False,
                     use_best_mean_word_confs_unique=False, use_worst_mean_word_confs_unique=False, num_best_mean_word_confs_unique=1, num_worst_mean_word_confs_unique=1,
@@ -579,6 +579,10 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             (metadata_df["originInfo-publication0_dateIssued"].astype(int) >= date_range_start) &
             (metadata_df["originInfo-publication0_dateIssued"].astype(int) <= date_range_end),
             "PPN"])]
+            
+    if mean_word_conf is not None:
+        results_df = results_df.sort_values(by='mean_word', ascending=True)
+        results_df = results_df[(results_df['mean_word'] == mean_word_conf)]
             
     if mean_word_range_start is not None and mean_word_range_end is not None:
         results_df = results_df.sort_values(by='mean_word', ascending=True)
