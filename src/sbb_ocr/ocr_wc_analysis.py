@@ -52,10 +52,6 @@ def plot_density(ax, data, title, xlabel, ylabel, density_color, legend_loc):
         kde = gaussian_kde(data)
         x_range = np.linspace(0, 1, 100)
         density_values = kde(x_range)
-        max_kde_density = np.max(density_values) 
-        round_up_half_integer = (int(max_kde_density * 2) + (max_kde_density * 2 % 1 > 0)) / 2  
-        ax.set_ylim(0, round_up_half_integer)
-        ax.set_yticks(np.arange(0, round_up_half_integer + 0.01, 0.5))
 
         mean_value = np.mean(data)
         median_value = np.median(data)
