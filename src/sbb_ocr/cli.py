@@ -46,9 +46,10 @@ def cli():
 @click.option('-cd', '--check-duplicates', 'check_duplicates', is_flag=True, default=False, help="Check the CSV_FILES for duplicates and save them to duplicates.csv (optional)")
 @click.option('-crg', '--check-raw-genres', 'check_raw_genres', is_flag=True, default=False, help="Check the METADATA_FILE for all raw genres and save them to genres_raw.csv (optional)")
 @click.option('-hi', '--histogram-info', 'histogram_info', is_flag=True, default=False, help="Show additional information about the histogram (optional)")
+@click.option('-ppn', '--search-ppn', 'search_ppn', type=str, help='Filter the data for a specific PPN, specify <PPN> (optional)')
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
-def plot_cli(search_genre, metadata_csv, csv_files, plot_file, search_date, date_range, 
+def plot_cli(search_genre, metadata_csv, csv_files, plot_file, search_ppn, search_date, date_range, 
              top_ppns_word, bottom_ppns_word, top_ppns_textline, bottom_ppns_textline, mean_word_conf, mean_textline_conf, 
              mean_word_confs_range, mean_textline_confs_range, show_genre_evaluation, output, show_dates_evaluation, show_results,
              best_mean_word_confs_unique, worst_mean_word_confs_unique, best_mean_textline_confs_unique, worst_mean_textline_confs_unique,
@@ -97,7 +98,7 @@ def plot_cli(search_genre, metadata_csv, csv_files, plot_file, search_date, date
     num_worst_mean_textline_confs_unique = worst_mean_textline_confs_unique if worst_mean_textline_confs_unique is not None else 50
         
     plot_everything(csv_files=csv_files, metadata_csv=metadata_csv, search_genre=search_genre,
-                    plot_file=plot_file, date_range_start=date_range_start, search_date=search_date, date_range_end=date_range_end,
+                    plot_file=plot_file, search_ppn=search_ppn, search_date=search_date, date_range_start=date_range_start, date_range_end=date_range_end,
                     use_top_ppns_word=(top_ppns_word is not None), use_bottom_ppns_word=(bottom_ppns_word is not None), num_top_ppns_word=num_top_ppns_word, num_bottom_ppns_word=num_bottom_ppns_word,
                     use_top_ppns_textline=(top_ppns_textline is not None), use_bottom_ppns_textline=(bottom_ppns_textline is not None), num_top_ppns_textline=num_top_ppns_textline, num_bottom_ppns_textline=num_bottom_ppns_textline, mean_word_conf=mean_word_conf, mean_textline_conf=mean_textline_conf, 
                     mean_word_range_start=mean_word_range_start, mean_word_range_end=mean_word_range_end, mean_textline_range_start=mean_textline_range_start, mean_textline_range_end=mean_textline_range_end, 

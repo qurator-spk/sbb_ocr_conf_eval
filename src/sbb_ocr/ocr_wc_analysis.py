@@ -34,7 +34,6 @@ def statistics(confidences):
 def plot_histogram(ax, data, bins, title, xlabel, ylabel, color, histogram_info):
     if histogram_info:
         counts, bin_edges = np.histogram(data, bins=bins, density=False)
-
         print("\nHistogram: ")
         for count, edge in zip(counts, bin_edges[:-1]):
             print(f'Bin [{edge:.2f}, {bin_edges[bin_edges.tolist().index(edge) + 1]:.2f}): {count}')
@@ -456,7 +455,7 @@ def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
     pyo.plot(fig, filename=plot_filename_inter, auto_open=False)
     
 def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
-                    search_date=None, date_range_start=None, date_range_end=None, 
+                    search_ppn=None, search_date=None, date_range_start=None, date_range_end=None, 
                     use_top_ppns_word=False, use_bottom_ppns_word=False, num_top_ppns_word=1, num_bottom_ppns_word=1, 
                     use_top_ppns_textline=False, use_bottom_ppns_textline=False, num_top_ppns_textline=1, num_bottom_ppns_textline=1, mean_word_conf=None, mean_textline_conf=None, 
                     mean_word_range_start=None, mean_word_range_end=None, mean_textline_range_start=None, mean_textline_range_end=None, show_genre_evaluation=False, 
@@ -578,11 +577,15 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
     all_ppns = results_df["ppn"].unique()
     results_df = results_df.sort_values(by='mean_word', ascending=True)
     
-    if search_date is not None:
+    if search_ppn:
+        results_df = results_df[results_df["ppn"].isin(
+        metadata_df.loc[(metadata_df["PPN"].astype(str) == search_ppn), "PPN"])]
+    
+    if search_date is not None: # "is not None" enables zero as input
         results_df = results_df[results_df["ppn"].isin(
         metadata_df.loc[(metadata_df["originInfo-publication0_dateIssued"].astype(int) == search_date), "PPN"])]
     
-    if date_range_start is not None and date_range_end is not None: # "is not None" enables zero as input
+    if date_range_start is not None and date_range_end is not None:
         results_df = results_df[results_df["ppn"].isin(
         metadata_df.loc[
             (metadata_df["originInfo-publication0_dateIssued"].astype(int) >= date_range_start) &
