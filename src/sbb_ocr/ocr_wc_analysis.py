@@ -50,7 +50,21 @@ def plot_histogram(ax, data, weights, bins, title, xlabel, ylabel, color, histog
     ax.set_xticks(x_ticks)
     ax.grid(axis="y", alpha=0.75)
     
-def plot_density(ax, data, title, xlabel, ylabel, density_color):
+def weighted_percentile(data, weights, percentiles):
+    data = np.array(data)
+    if weights is None:
+        return np.percentile(data, percentiles)
+    
+    weights = np.array(weights)
+    sorter = np.argsort(data)
+    data, weights = data[sorter], weights[sorter]
+
+    cumulative_weights = np.cumsum(weights)
+    normalized_cumsum = 100 * cumulative_weights / cumulative_weights[-1]
+
+    return np.interp(percentiles, normalized_cumsum, data)
+    
+def plot_density(ax, data, weights, title, xlabel, ylabel, density_color):
     ax.set_title(title)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
@@ -58,19 +72,18 @@ def plot_density(ax, data, title, xlabel, ylabel, density_color):
     ax.set_xticks(np.arange(0, 1.1, 0.1))
     
     try:
-        kde = gaussian_kde(data)
+        kde = gaussian_kde(data, weights=weights)
         x_range = np.linspace(0, 1, 100)
         density_values = kde(x_range)
         ax.set_ylim(bottom=0, top=np.max(density_values) * 1.1)
 
-        mean_value = np.mean(data)
-        median_value = np.median(data)
-        quantiles = np.quantile(data, [0.25, 0.75])
+        mean = np.average(data, weights=weights) if weights is not None else np.mean(data)
+        q25, q50, q75 = weighted_percentile(data, weights, [25, 50, 75])
 
-        ax.axvline(mean_value, color="black", linestyle="solid", linewidth=1, label="Mean")
-        ax.axvline(quantiles[0], color="black", linestyle="dashed", linewidth=1, label="Q1: 25%")
-        ax.axvline(median_value, color="black", linestyle="dotted", linewidth=1, label="Q2: 50% (Median)")
-        ax.axvline(quantiles[1], color="black", linestyle="dashdot", linewidth=1, label="Q3: 75%")
+        ax.axvline(mean, color="black", linestyle="solid", linewidth=1, label="Mean")
+        ax.axvline(q25, color="black", linestyle="dashed", linewidth=1, label="Q1: 25%")
+        ax.axvline(q50, color="black", linestyle="dotted", linewidth=1, label="Q2: 50% (Median)")
+        ax.axvline(q75, color="black", linestyle="dashdot", linewidth=1, label="Q3: 75%")
 
         ax.plot(x_range, density_values, color=density_color, lw=2)
         max_density_index = np.argmax(density_values)
@@ -111,7 +124,7 @@ def create_plots(results_df, weights_word, weights_textline, plot_file):
                    "Mean Word Confidence Scores", 
                    "Mean Word Confidence", "Frequency", 
                    plot_colors["word"]["mean"], histogram_info=None)
-    plot_density(axs[0, 1], results_df["mean_word"], 
+    plot_density(axs[0, 1], results_df["mean_word"], weights_word, 
                  "Mean Word Confidence Scores", 
                  "Mean Word Confidence", "Density", 
                  plot_colors["word"]["mean_density"])      
@@ -120,7 +133,7 @@ def create_plots(results_df, weights_word, weights_textline, plot_file):
                    "Standard Deviation Word Confidence Scores", 
                    "Standard Deviation Word Confidence", "Frequency", 
                    plot_colors["word"]["std"], histogram_info=None)
-    plot_density(axs[0, 3], results_df["standard_deviation_word"], 
+    plot_density(axs[0, 3], results_df["standard_deviation_word"], weights_word, 
                  "Standard Deviation Word Confidence Scores", 
                  "Standard Deviation Word Confidence", "Density", 
                  plot_colors["word"]["std_density"])
@@ -129,7 +142,7 @@ def create_plots(results_df, weights_word, weights_textline, plot_file):
                    "Mean Textline Confidence Scores", 
                    "Mean Textline Confidence", "Frequency", 
                    plot_colors["textline"]["mean"], histogram_info=None)
-    plot_density(axs[1, 1], results_df["mean_textline"], 
+    plot_density(axs[1, 1], results_df["mean_textline"], weights_textline, 
                  "Mean Textline Confidence Scores", 
                  "Mean Textline Confidence", "Density", 
                  plot_colors["textline"]["mean_density"])      
@@ -138,7 +151,7 @@ def create_plots(results_df, weights_word, weights_textline, plot_file):
                    "Standard Deviation Textline Confidence Scores", 
                    "Standard Deviation Textline Confidence", "Frequency", 
                    plot_colors["textline"]["std"], histogram_info=None)
-    plot_density(axs[1, 3], results_df["standard_deviation_textline"], 
+    plot_density(axs[1, 3], results_df["standard_deviation_textline"], weights_textline, 
                  "Standard Deviation Textline Confidence Scores", 
                  "Standard Deviation Textline Confidence", "Density", 
                  plot_colors["textline"]["std_density"])
