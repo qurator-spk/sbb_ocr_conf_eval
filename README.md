@@ -9,6 +9,14 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Number of PPN_PAGEs: ***4632942***
 - Number of CSV_FILEs: ***10988***
 - Number of words: ***979948836***
+- Number of textlines: ***140950695***
+- Number of raw genres: ***2130***
+- Number of unique genres (without subgenres): ***221***
+- Number of unique years: ***507***
+- Earliest year: ***1456***
+- Latest year: ***2025***
+- Number od duplicates: ***1194***
+- Number of pages without confidence scores: ***308839***
 
 `metadata.csv`:
 - Number of rows: ***46506*** (without header row)
