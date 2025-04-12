@@ -100,7 +100,7 @@ def plot_density(ax, data, weights, title, xlabel, ylabel, density_color):
         logging.info(f"Cannot plot the data!\nValueError encountered while performing KDE: \n{v}. \nIncrease the number of PPNs to be filtered!\n")
         print(f"Cannot plot the data!\nValueError encountered while performing KDE: \n{v}. \nIncrease the number of PPNs to be filtered!\n")
         
-def create_plots(results_df, weights_word, weights_textline, plot_file):
+def create_plots(results_df, weights_word, weights_textline, plot_file, histogram_info):
     fig, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
     
     plot_colors = {
@@ -123,7 +123,7 @@ def create_plots(results_df, weights_word, weights_textline, plot_file):
     plot_histogram(axs[0, 0], results_df["mean_word"], weights_word, bins, 
                    "Mean Word Confidence Scores", 
                    "Mean Word Confidence", "Frequency", 
-                   plot_colors["word"]["mean"], histogram_info=None)
+                   plot_colors["word"]["mean"], histogram_info=histogram_info)
     plot_density(axs[0, 1], results_df["mean_word"], weights_word, 
                  "Mean Word Confidence Scores", 
                  "Mean Word Confidence", "Density", 
@@ -132,7 +132,7 @@ def create_plots(results_df, weights_word, weights_textline, plot_file):
     plot_histogram(axs[0, 2], results_df["standard_deviation_word"], weights_word, bins, 
                    "Standard Deviation Word Confidence Scores", 
                    "Standard Deviation Word Confidence", "Frequency", 
-                   plot_colors["word"]["std"], histogram_info=None)
+                   plot_colors["word"]["std"], histogram_info=histogram_info)
     plot_density(axs[0, 3], results_df["standard_deviation_word"], weights_word, 
                  "Standard Deviation Word Confidence Scores", 
                  "Standard Deviation Word Confidence", "Density", 
@@ -141,7 +141,7 @@ def create_plots(results_df, weights_word, weights_textline, plot_file):
     plot_histogram(axs[1, 0], results_df["mean_textline"], weights_textline, bins, 
                    "Mean Textline Confidence Scores", 
                    "Mean Textline Confidence", "Frequency", 
-                   plot_colors["textline"]["mean"], histogram_info=None)
+                   plot_colors["textline"]["mean"], histogram_info=histogram_info)
     plot_density(axs[1, 1], results_df["mean_textline"], weights_textline, 
                  "Mean Textline Confidence Scores", 
                  "Mean Textline Confidence", "Density", 
@@ -150,7 +150,7 @@ def create_plots(results_df, weights_word, weights_textline, plot_file):
     plot_histogram(axs[1, 2], results_df["standard_deviation_textline"], weights_textline, bins, 
                    "Standard Deviation Textline Confidence Scores", 
                    "Standard Deviation Textline Confidence", "Frequency", 
-                   plot_colors["textline"]["std"], histogram_info=None)
+                   plot_colors["textline"]["std"], histogram_info=histogram_info)
     plot_density(axs[1, 3], results_df["standard_deviation_textline"], weights_textline, 
                  "Standard Deviation Textline Confidence Scores", 
                  "Standard Deviation Textline Confidence", "Density", 
@@ -816,8 +816,8 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             logging.info(f"\nSaved results description to: {output_desc}")
             print(f"\nSaved results description to: {output_desc}")
 
-        create_plots(results_df, None, None, plot_file=plot_file)
-        create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file="weighted_" + plot_file)
+        create_plots(results_df, None, None, plot_file=plot_file, histogram_info=histogram_info)
+        create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file="weighted_" + plot_file, histogram_info=histogram_info)
         
 def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, error_rates_filename=None,
                         use_logging=None, conf_df=None, error_rates_df=None, wcwer_filename=None, wcwer_csv=None, plot_filename=None, wcwer_csv_inter=None, plot_filename_inter=None):
