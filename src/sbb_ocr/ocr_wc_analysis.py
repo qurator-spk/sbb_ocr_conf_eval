@@ -817,9 +817,11 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             results_df_description.to_csv(output_desc, index=False)
             logging.info(f"\nSaved results description to: {output_desc}")
             print(f"\nSaved results description to: {output_desc}")
+            
+        plot_file_weighted = plot_file.split(".")[0] + "_weighted." + plot_file.split(".")[1]
 
         create_plots(results_df, None, None, plot_file=plot_file, histogram_info=histogram_info)
-        create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file="weighted_" + plot_file, histogram_info=histogram_info)
+        create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file=plot_file_weighted, histogram_info=histogram_info)
         
 def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, error_rates_filename=None,
                         use_logging=None, conf_df=None, error_rates_df=None, wcwer_filename=None, wcwer_csv=None, plot_filename=None, wcwer_csv_inter=None, plot_filename_inter=None):
