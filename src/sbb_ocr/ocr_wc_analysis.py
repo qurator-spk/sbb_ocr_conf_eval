@@ -283,6 +283,8 @@ def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
     year_counts = metadata_df["publication_date"].value_counts().sort_index()
     year_counts_df = year_counts.reset_index() 
     year_counts_df.columns = ['Year', 'Count']
+    year_counts_df['Year'] = year_counts_df['Year'].astype(int)
+    year_counts_df['Count'] = year_counts_df['Count'].astype(int)
     
     logging.info("\nUnique years and their counts:\n")
     logging.info(year_counts_df.to_string(index=False))
@@ -290,7 +292,7 @@ def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
     print(year_counts_df.to_string(index=False))
     
     plt.figure(figsize=(max(30, num_unique_years * 0.25), 15))
-    plt.bar(year_counts_df['Year'].astype(str), year_counts_df['Count'], color=plt.cm.tab10.colors, width=0.5)
+    plt.bar(year_counts_df['Year'], year_counts_df['Count'], color=plt.cm.tab10.colors, width=0.5)
     plt.title('Publication Counts per Year', fontsize=18)
     plt.xticks(fontsize=12, rotation=45)
     plt.yticks(fontsize=13)
