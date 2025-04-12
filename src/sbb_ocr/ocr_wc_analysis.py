@@ -265,39 +265,45 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
         
 def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
     matching_ppn_mods = results_df["ppn"].unique()
-    metadata_df = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
-    
+    metadata_df = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)].copy()
+    metadata_df.loc[:, 'publication_date'] = pd.to_numeric(metadata_df['publication_date'], errors='coerce')
     min_year = metadata_df["publication_date"].min()
     max_year = metadata_df["publication_date"].max()
     logging.info(f"\nEarliest year: {min_year}")
-    logging.info(f"\nLatest year: {max_year}")
+    logging.info(f"Latest year: {max_year}")
     print(f"\nEarliest year: {min_year}")
-    print(f"\nLatest year: {max_year}")
+    print(f"Latest year: {max_year}")
     
     unique_years = metadata_df["publication_date"].unique()
     num_unique_years = len(unique_years)
     logging.info(f"\nNumber of unique years: {num_unique_years}")
     print(f"\nNumber of unique years: {num_unique_years}")
     
-    year_counts = metadata_df["publication_date"].value_counts().sort_index()
+    full_year_range = pd.Series(np.arange(min_year, max_year + 1))
+    
+    year_counts = metadata_df["publication_date"].value_counts().reindex(full_year_range, fill_value=0)
     year_counts_df = year_counts.reset_index() 
     year_counts_df.columns = ['Year', 'Count']
     year_counts_df['Year'] = year_counts_df['Year'].astype(int)
     year_counts_df['Count'] = year_counts_df['Count'].astype(int)
+    
+    num_years_with_zero = (year_counts_df['Count'] == 0).sum()
+    logging.info(f"Number of years with no publications: {num_years_with_zero}")
+    print(f"Number of years with no publications: {num_years_with_zero}")
     
     logging.info("\nUnique years and their counts:\n")
     logging.info(year_counts_df.to_string(index=False))
     print("\nUnique years and their counts:\n")
     print(year_counts_df.to_string(index=False))
     
-    plt.figure(figsize=(max(30, num_unique_years * 0.25), 15))
-    plt.bar(year_counts_df['Year'], year_counts_df['Count'], color=plt.cm.tab10.colors, width=0.5)
+    plt.figure(figsize=(max(30, len(full_year_range) * 0.25), 15))
+    plt.bar(year_counts_df['Year'], year_counts_df['Count'], color=plt.cm.tab10.colors, width=0.6)
     plt.title('Publication Counts per Year', fontsize=18)
-    plt.xticks(fontsize=12, rotation=45)
+    plt.xticks(full_year_range, fontsize=12, rotation=45)
     plt.yticks(fontsize=13)
     plt.xlabel('Year', fontsize=16)
     plt.ylabel('Count', fontsize=16)
-    plt.xlim(-0.5, len(year_counts_df['Year']) - 0.5)
+    plt.xlim(min_year - 0.5, max_year + 0.5)
     plt.ylim(0.0, max(year_counts_df['Count']) + 0.01)
     if 800 > max(year_counts_df['Count']) >= 400:
         plt.yticks(np.arange(0, max(year_counts_df['Count']) + 1, 50))
