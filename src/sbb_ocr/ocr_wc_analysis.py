@@ -219,10 +219,11 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
     genre_counts_df = pd.DataFrame(list(genre_counts.items()), columns=['Genre', 'Count'])
     genre_counts_df_sorted = genre_counts_df.sort_values(by='Count', ascending=False)
     
-    logging.info("\nUnique genres and their counts:\n")
-    logging.info(genre_counts_df_sorted.to_string(index=False))
-    print("\nUnique genres and their counts:\n")
-    print(genre_counts_df_sorted.to_string(index=False))
+    if not genre_counts_df.empty:
+        logging.info("\nUnique genres and their counts:\n")
+        logging.info(genre_counts_df_sorted.to_string(index=False))
+        print("\nUnique genres and their counts:\n")
+        print(genre_counts_df_sorted.to_string(index=False))
 
     sorted_genre_counts = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)
     sorted_genre_counts_descending = sorted(genre_counts.items(), key=lambda x: x[1], reverse=False)
