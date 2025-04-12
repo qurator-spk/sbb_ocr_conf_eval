@@ -31,7 +31,7 @@ def statistics(confidences):
     
     return mean, median, standard_deviation  
 
-def plot_histogram(ax, data, weights, bins, title, xlabel, ylabel, color, histogram_info):
+def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_info):
     if histogram_info:
         counts, bin_edges = np.histogram(data, bins=bins, density=False)
         logging.info("\nHistogram: ")
@@ -41,10 +41,9 @@ def plot_histogram(ax, data, weights, bins, title, xlabel, ylabel, color, histog
             print(f'Bin [{edge:.2f}, {bin_edges[bin_edges.tolist().index(edge) + 1]:.2f}): {count}')
     
     ax.hist(data, bins=bins, weights=weights, color=color, edgecolor="black", alpha=0.6, density=False)
-    ax.set_title(title)
     ax.ticklabel_format(style="plain")
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
+    ax.set_xlabel(xlabel, fontsize=11)
+    ax.set_ylabel(ylabel, fontsize=11)
     ax.set_xlim(bins[0], bins[-1])
     x_ticks = np.arange(0.0, 1.1, 0.1)
     ax.set_xticks(x_ticks)
@@ -64,10 +63,9 @@ def weighted_percentile(data, weights, percentiles):
 
     return np.interp(percentiles, normalized_cumsum, data)
     
-def plot_density(ax, data, weights, title, xlabel, ylabel, density_color):
-    ax.set_title(title)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
+def plot_density(ax, data, weights, xlabel, ylabel, density_color):
+    ax.set_xlabel(xlabel, fontsize=11)
+    ax.set_ylabel(ylabel, fontsize=11)
     ax.set_xlim(0, 1.0)
     ax.set_xticks(np.arange(0, 1.1, 0.1))
     
@@ -100,9 +98,9 @@ def plot_density(ax, data, weights, title, xlabel, ylabel, density_color):
         logging.info(f"Cannot plot the data!\nValueError encountered while performing KDE: \n{v}. \nIncrease the number of PPNs to be filtered!\n")
         print(f"Cannot plot the data!\nValueError encountered while performing KDE: \n{v}. \nIncrease the number of PPNs to be filtered!\n")
         
-def create_plots(results_df, weights_word, weights_textline, plot_file, histogram_info):
+def create_plots(results_df, weights_word, weights_textline, plot_file, histogram_info, general_title):
     fig, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
-    
+    plt.suptitle(general_title, fontsize=16, fontweight='bold')
     plot_colors = {
         "word": {
             "mean": "lightblue",
@@ -121,42 +119,43 @@ def create_plots(results_df, weights_word, weights_textline, plot_file, histogra
     bins = [0.0, 0.05] + list(np.arange(0.1, 1.0, 0.05)) + [1.0]
 
     plot_histogram(axs[0, 0], results_df["mean_word"], weights_word, bins, 
-                   "Mean Word Confidence Scores", 
-                   "Mean Word Confidence", "Frequency", 
+                   "Mean of Word Confidence Scores", 
+                   "Frequency", 
                    plot_colors["word"]["mean"], histogram_info=histogram_info)
     plot_density(axs[0, 1], results_df["mean_word"], weights_word, 
-                 "Mean Word Confidence Scores", 
-                 "Mean Word Confidence", "Density", 
+                 "Mean of Word Confidence Scores", 
+                 "Density", 
                  plot_colors["word"]["mean_density"])      
 
     plot_histogram(axs[0, 2], results_df["standard_deviation_word"], weights_word, bins, 
-                   "Standard Deviation Word Confidence Scores", 
-                   "Standard Deviation Word Confidence", "Frequency", 
+                   "Standard Deviation of Word Confidence Scores", 
+                   "Frequency", 
                    plot_colors["word"]["std"], histogram_info=histogram_info)
     plot_density(axs[0, 3], results_df["standard_deviation_word"], weights_word, 
-                 "Standard Deviation Word Confidence Scores", 
-                 "Standard Deviation Word Confidence", "Density", 
+                 "Standard Deviation of Word Confidence Scores", 
+                 "Density", 
                  plot_colors["word"]["std_density"])
 
     plot_histogram(axs[1, 0], results_df["mean_textline"], weights_textline, bins, 
-                   "Mean Textline Confidence Scores", 
-                   "Mean Textline Confidence", "Frequency", 
+                   "Mean of Textline Confidence Scores", 
+                   "Frequency", 
                    plot_colors["textline"]["mean"], histogram_info=histogram_info)
     plot_density(axs[1, 1], results_df["mean_textline"], weights_textline, 
-                 "Mean Textline Confidence Scores", 
-                 "Mean Textline Confidence", "Density", 
+                 "Mean of Textline Confidence Scores", 
+                 "Density", 
                  plot_colors["textline"]["mean_density"])      
 
     plot_histogram(axs[1, 2], results_df["standard_deviation_textline"], weights_textline, bins, 
-                   "Standard Deviation Textline Confidence Scores", 
-                   "Standard Deviation Textline Confidence", "Frequency", 
+                   "Standard Deviation of Textline Confidence Scores", 
+                   "Frequency", 
                    plot_colors["textline"]["std"], histogram_info=histogram_info)
     plot_density(axs[1, 3], results_df["standard_deviation_textline"], weights_textline, 
-                 "Standard Deviation Textline Confidence Scores", 
-                 "Standard Deviation Textline Confidence", "Density", 
+                 "Standard Deviation of Textline Confidence Scores", 
+                 "Density", 
                  plot_colors["textline"]["std_density"])
 
     plt.tight_layout(pad=1.0)
+    plt.subplots_adjust(top=0.945, hspace=0.17)
     plt.savefig(plot_file)
     plt.close()
 
@@ -820,8 +819,8 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             
         plot_file_weighted = plot_file.split(".")[0] + "_weighted." + plot_file.split(".")[1]
 
-        create_plots(results_df, None, None, plot_file=plot_file, histogram_info=histogram_info)
-        create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file=plot_file_weighted, histogram_info=histogram_info)
+        create_plots(results_df, None, None, plot_file=plot_file, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per Page")
+        create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file=plot_file_weighted, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per Page (Weighted)")
         
 def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, error_rates_filename=None,
                         use_logging=None, conf_df=None, error_rates_df=None, wcwer_filename=None, wcwer_csv=None, plot_filename=None, wcwer_csv_inter=None, plot_filename_inter=None):
