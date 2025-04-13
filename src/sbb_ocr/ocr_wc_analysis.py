@@ -638,6 +638,12 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             # Change the genre separation from slashes to commas
             metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: "{" + genre.strip().strip("{ }").replace("  / ", "', '").replace(" / ", "', '") + "}")
             
+            #mask_to_change = metadata_df['genre-aad'].str.contains("'Ars'") & metadata_df['genre-aad'].str.contains("'moriendi'") & ~metadata_df['genre-aad'].str.contains("'Ars moriendi'")
+            #metadata_df.loc[mask_to_change, 'genre-aad'] = metadata_df.loc[mask_to_change, 'genre-aad'].apply(lambda genre: genre.replace("'Ars'", "'Ars moriendi'").replace("'moriendi'", "").strip())
+            #metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: genre.replace("'Ars'", "'Ars moriendi'").replace("'moriendi'", "").strip() if "'Ars'" in genre and "'moriendi'" in genre and "'Ars moriendi'" not in genre else genre)
+            metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: genre.replace("'Ars'", "'Ars moriendi'").replace("'moriendi'", "'Ars moriendi'").strip()
+)
+            
             if check_raw_genres:
                 metadata_df_unique = metadata_df["genre-aad"].unique()
                 metadata_df_unique_df = pd.DataFrame(metadata_df_unique, columns=["genre-aad"])
