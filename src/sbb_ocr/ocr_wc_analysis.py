@@ -185,7 +185,12 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
             if not genres_json:
                 continue
             
-            genres = json.loads(genres_json)
+            try:
+                genres = json.loads(genres_json)
+            except json.JSONDecodeError as e:
+                logging.error(f"JSON decode error for PPN {ppn}: {e}")
+                print(f"JSON decode error for PPN {ppn}: {e}")
+                continue
 
             if replace_subgenres:
                 genres = [x.split(':')[0] if ':' in x else x.split('.')[0] for x in genres]
