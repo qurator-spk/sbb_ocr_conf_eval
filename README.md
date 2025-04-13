@@ -11,7 +11,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Number of words: ***979948836***
 - Number of textlines: ***140950695***
 - Number of raw genres: ***2130***
-- Number of unique genres (without subgenres): ***221***
+- Number of unique genres (without subgenres): ***215***
 - Number of unique years: ***507***
 - Earliest year: ***1456***
 - Latest year: ***2025***
@@ -22,8 +22,14 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Number of rows: ***46506*** (without header row)
 - Number of columns: ***3***
 - PPNs in `PPN` column
-- Genres in `genre-aad` column ***(empty strings changed to: "Unbekannt", slashes changed to commas)***
-- Publication dates in `publication_date` column (original name: `originInfo-publication0_dateIssued`) ***(elements that are not 4 digits changed to: 2025)***
+- Genres in `genre-aad` column 
+  - Empty strings changed to `Unbekannt`
+  - Slashes changed to commas
+  - Incomplete genres `Ars` and `moriendi` changed to `Ars moriendi`
+  - Loose subgenres `jur.`, `lit.`, `hist.` and `theol.` merged with their `Kommentar` genre
+- Publication dates in `publication_date` column
+  - Original name: `originInfo-publication0_dateIssued`
+  - Elements that are not 4 digits changed to `2025`
 - Projects: ***missing***
 - Titlepages: ***missing***
 - Source: Created from `metadata.csv` (47716 rows) by dropping 1210 PPNs that are NOT in CSV_FILEs (46506 rows)
