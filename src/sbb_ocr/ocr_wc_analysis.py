@@ -484,7 +484,7 @@ def merge_csv(conf_df, error_rates_df, wcwer_filename):
             print(f"File does not exist: {filename}")
             return
     
-    ppn_conf_df = pd.DataFrame(load_csv_to_list(conf_df)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline"])
+    ppn_conf_df = pd.DataFrame(load_csv_to_list(conf_df)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "weight_word", "weight_textline"])
     ppn_error_rates_df = pd.DataFrame(load_csv_to_list(error_rates_df)[1:], columns=["ppn", "ppn_page", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
     ppn_error_rates_df.drop(columns=["ppn"], inplace=True)
     ppn_conf_df = ppn_conf_df[ppn_conf_df['ppn_page'].isin(ppn_error_rates_df['ppn_page'])]
@@ -502,7 +502,7 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
             print(f"File does not exist: {wcwer_csv}")
             return
             
-    wcwer_df = pd.DataFrame(load_csv_to_list(wcwer_csv)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
+    wcwer_df = pd.DataFrame(load_csv_to_list(wcwer_csv)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "weight_word", "weight_textline", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
     
     wcwer_df['mean_word'] = pd.to_numeric(wcwer_df['mean_word'])
     wcwer_df['wer'] = pd.to_numeric(wcwer_df['wer'])
@@ -529,7 +529,7 @@ def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
             print(f"File does not exist: {wcwer_csv_inter}")
             return
             
-    wcwer_df = pd.DataFrame(load_csv_to_list(wcwer_csv_inter)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
+    wcwer_df = pd.DataFrame(load_csv_to_list(wcwer_csv_inter)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "weight_word", "weight_textline", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
     
     wcwer_df['mean_word'] = pd.to_numeric(wcwer_df['mean_word'])
     wcwer_df['wer'] = pd.to_numeric(wcwer_df['wer'])
