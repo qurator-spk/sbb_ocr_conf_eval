@@ -60,12 +60,20 @@ def weighted_percentile(data, weights, percentiles):
         return np.percentile(data, percentiles)
     
     weights = np.array(weights)
+    
+    # Get the indices that sort the data array
     sorter = np.argsort(data)
+    
+    # Sort the data and weights according to the indices
     data, weights = data[sorter], weights[sorter]
-
+    
+    # Calculate the cumulative sum of the weights
     cumulative_weights = np.cumsum(weights)
+    
+    # Normalize the cumulative weights to a scale of 0 to 100
     normalized_cumsum = 100 * cumulative_weights / cumulative_weights[-1]
-
+    
+    # Interpolate the data at the percentile positions based on the normalized cumulative weights
     return np.interp(percentiles, normalized_cumsum, data)
     
 def plot_density(ax, data, weights, xlabel, ylabel, density_color):
@@ -449,7 +457,8 @@ def generate_error_rates(parent_dir_error, report_dir_error, error_rates_filenam
                             n_words = json_data.get('n_words', None)
                             cer = json_data.get('cer', None)
                             wer = json_data.get('wer', None)
-
+                            
+                            # Set invalid error rates to 1
                             if cer is None or cer == "inf" or cer == "infinity" or float(cer) > 1:
                                 cer = 1.0
                             else:
@@ -498,6 +507,8 @@ def merge_csv(conf_df, error_rates_df, wcwer_filename):
     ppn_error_rates_df = pd.DataFrame(load_csv_to_list(error_rates_df)[1:], columns=["ppn", "ppn_page", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
     ppn_error_rates_df.drop(columns=["ppn"], inplace=True)
     ppn_conf_df = ppn_conf_df[ppn_conf_df['ppn_page'].isin(ppn_error_rates_df['ppn_page'])]
+    
+    # Merge confidence scores data with the error rates data
     wcwer_df = pd.merge(ppn_conf_df, ppn_error_rates_df, on='ppn_page', how='inner')
     wcwer_df.sort_values(by='ppn_page', ascending=True, inplace=True)
     logging.info("\nResults:\n")
@@ -545,7 +556,8 @@ def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
     wcwer_df['wer'] = pd.to_numeric(wcwer_df['wer'])
     
     fig = px.scatter(wcwer_df, x="mean_word", y="wer", title="WER(WC)", labels={'mean_word': 'Mean Word Confidence Score (WC)', 'wer': 'Word Error Rate (WER)'}, template='plotly_white', hover_name="ppn_page")
-
+    
+    # Show information about the PPN_PAGE on hover
     fig.update_traces(marker=dict(size=10, color='blue', line=dict(width=2, color='DarkSlateGrey')),
                       hovertemplate='PPN Page: %{hovertext}<br>Mean Word Confidence: %{x}<br>WER: %{y}<extra></extra>',
                       hovertext=wcwer_df['ppn_page'])
@@ -599,8 +611,10 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                                 value_error_pages.append([ppn, ppn_page])
                             continue
                         
+                        # Set the number of words and text lines as the weights for a PPN_PAGE
                         weight_word = len(word_confs)
                         weight_textline = len(textline_confs)
+                        
                         mean_textline, median_textline, standard_deviation_textline = statistics(textline_confs)
                         mean_word, median_word, standard_deviation_word = statistics(word_confs)
                         all_results.append([ppn, ppn_page, mean_word, median_word, standard_deviation_word, mean_textline, median_textline, standard_deviation_textline, weight_word, weight_textline])
