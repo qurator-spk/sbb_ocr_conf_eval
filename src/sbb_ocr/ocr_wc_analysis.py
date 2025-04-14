@@ -15,6 +15,7 @@ from datetime import datetime
 import plotly.express as px
 import plotly.offline as pyo
 import re
+from matplotlib.ticker import MaxNLocator
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
 
@@ -59,6 +60,9 @@ def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_inf
     ax.set_xticks(np.arange(0.0, 1.1, 0.1))
     ax.grid(axis="y", alpha=0.75)
     ax.ticklabel_format(style="plain")
+    
+    # Set y-ticks to only include integer values
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
     if histogram_info:
         header = f"{'Weighted ' if weights is not None else ''}Histogram: {ylabel}( {xlabel} )"
@@ -155,8 +159,6 @@ def create_plots(results_df, weights_word, weights_textline, plot_file, histogra
         }
     }
     
-    #bins = [0.0, 0.05] + list(np.arange(0.05, 1.0, 0.05)) + [1.0]
-    #bins = [0.0] + [round(x, 2) for x in np.arange(0.05, 1.01, 0.05)]
     bins = [0.0, 0.05] + list(np.arange(0.1, 1.0, 0.05)) + [1.0]
 
 
