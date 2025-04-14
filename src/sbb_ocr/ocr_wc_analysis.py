@@ -32,27 +32,53 @@ def statistics(confidences):
     return mean, median, standard_deviation  
 
 def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_info):
-    if histogram_info:
-        counts, bin_edges = np.histogram(data, bins=bins, density=False)
-        if weights is not None:
-            logging.info(f"\nWeighted Histogram: {ylabel}( {xlabel} )")
-            print(f"\nWeighted Histogram: {ylabel}( {xlabel} )")
-        else:
-            logging.info(f"\nHistogram: {ylabel}( {xlabel} )")
-            print(f"\nHistogram: {ylabel}( {xlabel} )")
-            
-        for count, edge in zip(counts, bin_edges[:-1]):
-            logging.info(f'Bin [{edge:.2f}, {bin_edges[bin_edges.tolist().index(edge) + 1]:.2f}): {count}')
-            print(f'Bin [{edge:.2f}, {bin_edges[bin_edges.tolist().index(edge) + 1]:.2f}): {count}')
-    
-    ax.hist(data, bins=bins, weights=weights, color=color, edgecolor="black", alpha=0.6, density=False)
-    ax.ticklabel_format(style="plain")
+    bins = np.array(bins)
+
+    # Categorize the data into discrete bins and use right-closed intervals
+    categories = pd.cut(data, bins=bins, right=True, include_lowest=True) # include_lowest ensures 0.0 is captured
+
+    # Extract bin labels as intervals
+    all_intervals = categories.cat.categories
+
+    # Count values or sum weights per bin
+    if weights is not None:
+        df = pd.DataFrame({'bin': categories, 'weight': weights})
+        bin_counts = df.groupby('bin', observed=False)['weight'].sum()
+    else:
+        bin_counts = categories.value_counts().sort_index()
+
+    # Reindex to ensure all bins appear even if count is 0
+    bin_counts = bin_counts.reindex(all_intervals, fill_value=0)
+    bin_lefts = [interval.left for interval in bin_counts.index]
+    bin_widths = [interval.right - interval.left for interval in bin_counts.index]
+
+    ax.bar(bin_lefts, bin_counts.values, width=bin_widths, align='edge', color=color, edgecolor='black', alpha=0.6)
     ax.set_xlabel(xlabel, fontsize=11)
     ax.set_ylabel(ylabel, fontsize=11)
     ax.set_xlim(bins[0], bins[-1])
-    x_ticks = np.arange(0.0, 1.1, 0.1)
-    ax.set_xticks(x_ticks)
+    ax.set_xticks(np.arange(0.0, 1.1, 0.1))
     ax.grid(axis="y", alpha=0.75)
+    ax.ticklabel_format(style="plain")
+
+    if histogram_info:
+        header = f"{'Weighted ' if weights is not None else ''}Histogram: {ylabel}( {xlabel} )"
+        print(f"\n{header}")
+        logging.info(f"\n{header}")
+
+        for i, interval in enumerate(bin_counts.index):
+            # Avoid "-0.00" in bin edge display
+            left = max(0.0, interval.left)
+            right = interval.right
+
+            # First bin is left-closed, others are left-open
+            if i == 0:
+                bracket = "["
+            else:
+                bracket = "("
+
+            bin_label = f"Bin {bracket}{left:.2f}, {right:.2f}]: {bin_counts[interval]}"
+            print(bin_label)
+            logging.info(bin_label)
     
 def weighted_percentile(data, weights, percentiles):
     data = np.array(data)
@@ -129,7 +155,10 @@ def create_plots(results_df, weights_word, weights_textline, plot_file, histogra
         }
     }
     
+    #bins = [0.0, 0.05] + list(np.arange(0.05, 1.0, 0.05)) + [1.0]
+    #bins = [0.0] + [round(x, 2) for x in np.arange(0.05, 1.01, 0.05)]
     bins = [0.0, 0.05] + list(np.arange(0.1, 1.0, 0.05)) + [1.0]
+
 
     plot_histogram(axs[0, 0], results_df["mean_word"], weights_word, bins, 
                    "Mean of Word Confidence Scores", 
