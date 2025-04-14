@@ -34,8 +34,13 @@ def statistics(confidences):
 def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_info):
     if histogram_info:
         counts, bin_edges = np.histogram(data, bins=bins, density=False)
-        logging.info("\nHistogram: ")
-        print("\nHistogram: ")
+        if weights is not None:
+            logging.info(f"\nWeighted Histogram: {ylabel}( {xlabel} )")
+            print(f"\nWeighted Histogram: {ylabel}( {xlabel} )")
+        else:
+            logging.info(f"\nHistogram: {ylabel}( {xlabel} )")
+            print(f"\nHistogram: {ylabel}( {xlabel} )")
+            
         for count, edge in zip(counts, bin_edges[:-1]):
             logging.info(f'Bin [{edge:.2f}, {bin_edges[bin_edges.tolist().index(edge) + 1]:.2f}): {count}')
             print(f'Bin [{edge:.2f}, {bin_edges[bin_edges.tolist().index(edge) + 1]:.2f}): {count}')
