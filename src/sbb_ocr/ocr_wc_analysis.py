@@ -36,17 +36,17 @@ def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_inf
     bins = np.array(bins)
 
     # Categorize the data into discrete bins and use right-closed intervals
-    categories = pd.cut(data, bins=bins, right=True, include_lowest=True) # include_lowest ensures 0.0 is captured
+    binned_data = pd.cut(data, bins=bins, right=True, include_lowest=True) # include_lowest ensures 0.0 is captured
 
     # Extract bin labels as intervals
-    all_intervals = categories.cat.categories
+    all_intervals = binned_data.cat.categories
 
     # Count values or sum weights per bin
     if weights is not None:
-        df = pd.DataFrame({'bin': categories, 'weight': weights})
+        df = pd.DataFrame({'bin': binned_data, 'weight': weights})
         bin_counts = df.groupby('bin', observed=False)['weight'].sum()
     else:
-        bin_counts = categories.value_counts().sort_index()
+        bin_counts = binned_data.value_counts().sort_index()
 
     # Reindex to ensure all bins appear even if count is 0
     bin_counts = bin_counts.reindex(all_intervals, fill_value=0)
@@ -113,8 +113,11 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color):
     ax.set_xticks(np.arange(0, 1.1, 0.1))
     
     try:
+        # Create a kernel density estimation (KDE) using the provided data and weights
         kde = gaussian_kde(data, weights=weights)
         x_range = np.linspace(0, 1, 100)
+        
+        # Evaluate the density values
         density_values = kde(x_range)
         ax.set_ylim(bottom=0, top=np.max(density_values) * 1.1)
 
@@ -144,6 +147,7 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color):
 def create_plots(results_df, weights_word, weights_textline, plot_file, histogram_info, general_title):
     fig, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
     plt.suptitle(general_title, fontsize=16, fontweight='bold')
+    
     plot_colors = {
         "word": {
             "mean": "lightblue",
@@ -160,7 +164,6 @@ def create_plots(results_df, weights_word, weights_textline, plot_file, histogra
     }
     
     bins = [0.0, 0.05] + list(np.arange(0.1, 1.0, 0.05)) + [1.0]
-
 
     plot_histogram(axs[0, 0], results_df["mean_word"], weights_word, bins, 
                    "Mean of Word Confidence Scores", 
@@ -359,16 +362,19 @@ def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
         plt.ylabel('Count', fontsize=16)
         plt.xlim(min_year - 0.5, max_year + 0.5)
         plt.ylim(0.0, max(year_counts_df['Count']) + 0.01)
+        
         if 800 > max(year_counts_df['Count']) >= 400:
             plt.yticks(np.arange(0, max(year_counts_df['Count']) + 1, 50))
         elif 400 > max(year_counts_df['Count']) > 30:
             plt.yticks(np.arange(0, max(year_counts_df['Count']) + 1, 10))
         else:
             plt.yticks(np.arange(0, max(year_counts_df['Count']) + 1, 1))
+            
         plt.grid(axis='y', linestyle='--', alpha=0.8)
         plt.tight_layout(pad=1.0)
         plt.savefig(f"date_range_{min_year}-{max_year}_bar_plot.png")
         plt.close()
+        
     except ValueError as e:
         logging.info("\nInvalid publication dates.")
         print("\nInvalid publication dates.")
@@ -414,6 +420,7 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
             logging.info(f"Directory does not exist: {directory}")
             print(f"Directory does not exist: {directory}")
             return
+            
     # Special characters excluded for safety reasons
     special_chars = [';', '&', '|', '`', '(', ')', '{', '}', '~', '>', '>>', '<', '\'', '\"', '\\', ' ', '$', '?', '*', '!', ':', '=', '#', '^']
     
@@ -659,7 +666,6 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
     
     results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "weight_word", "weight_textline"])        
     
-
     if "metadata" in metadata_csv:
         if not os.path.exists(metadata_csv):
             logging.info(f"File does not exist: {metadata_csv}")
