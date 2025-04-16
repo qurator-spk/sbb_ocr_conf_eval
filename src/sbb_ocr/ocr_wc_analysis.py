@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 import csv
+from typing import IO, Optional, Tuple
 import pandas as pd  
 import numpy as np 
 from numpy.linalg import LinAlgError
@@ -316,7 +317,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
         plt.savefig("bar_plot_of_all_genres.png")
         plt.close()
         
-def dates_evaluation(metadata_df, results_df, replace_subgenres=True):
+def dates_evaluation(metadata_df, results_df):
     matching_ppn_mods = results_df["ppn"].unique()
     metadata_df = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)].copy()
     metadata_df.loc[:, 'publication_date'] = pd.to_numeric(metadata_df['publication_date'], errors='coerce')
@@ -604,31 +605,29 @@ def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
     fig.update_yaxes(range=[-0.01, 1.01])
     fig.update_layout(title=dict(text='WER(WC)', x=0.5, xanchor='center'))
     pyo.plot(fig, filename=plot_filename_inter, auto_open=False)
-    
-def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file="statistics_results.jpg", replace_subgenres : bool = True,
-                    search_ppn=None, search_date=None, date_range_start=None, date_range_end=None, 
-                    use_top_ppns_word=False, use_bottom_ppns_word=False, num_top_ppns_word=1, num_bottom_ppns_word=1, 
-                    use_top_ppns_textline=False, use_bottom_ppns_textline=False, num_top_ppns_textline=1, num_bottom_ppns_textline=1, mean_word_conf=None, mean_textline_conf=None, 
-                    mean_word_range_start=None, mean_word_range_end=None, mean_textline_range_start=None, mean_textline_range_end=None, show_genre_evaluation=False, 
-                    output=False, show_dates_evaluation=False, show_results=False,
-                    use_best_mean_word_confs_unique=False, use_worst_mean_word_confs_unique=False, num_best_mean_word_confs_unique=1, num_worst_mean_word_confs_unique=1,
-                    use_best_mean_textline_confs_unique=False, use_worst_mean_textline_confs_unique=False, num_best_mean_textline_confs_unique=1, num_worst_mean_textline_confs_unique=1,
-                    use_best_mean_word_confs=False, use_worst_mean_word_confs=False, num_best_mean_word_confs=1, num_worst_mean_word_confs=1,
-                    use_best_mean_textline_confs=False, use_worst_mean_textline_confs=False, num_best_mean_textline_confs=1, num_worst_mean_textline_confs=1,
-                    parent_dir=None, conf_filename=None, use_logging=None, check_value_errors=False, check_duplicates=False, check_raw_genres=False, histogram_info=False):
-    if use_logging:
-        setup_logging("plot")
-    
+
+
+def generate_dataframes(
+    csv_files: list[str],
+    metadata_csv: str,
+    check_value_errors: bool = False,
+    check_duplicates: bool = False,
+    check_raw_genres: bool = False,
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+
     for file in csv_files:
         if not os.path.exists(file):
-            logging.info(f"File does not exist: {file}")
-            print(f"File does not exist: {file}")
-            return
+            exc = FileNotFoundError(file)
+            logging.exception(exc)
+            raise exc
+
+    if not os.path.exists(metadata_csv):
+        exc = FileNotFoundError(metadata_csv)
+        logging.exception(exc)
+        raise exc
         
     all_results = []
     value_error_pages = []
-    weights_word = []
-    weights_textline = []
     with tqdm(total=len(csv_files)) as progbar:
         for ind, csv_file in enumerate(csv_files):
             progbar.set_description(f"Processing file: {csv_file}")
@@ -658,84 +657,156 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
                         all_results.append([ppn, ppn_page, mean_word, median_word, standard_deviation_word, mean_textline, median_textline, standard_deviation_textline, weight_word, weight_textline])
                                                
             except csv.Error as e:
-                logging.info(f"CSV error: {e} in file: {csv_file}. \nIncrease the CSV field size limit!")
-                print(f"CSV error: {e} in file: {csv_file}. \nIncrease the CSV field size limit!")
-                return
+                exc = ValueError(f"CSV error: {e} in file: {csv_file}. \nIncrease the CSV field size limit!")
+                logging.exception(exc)
+                raise exc
             progbar.update(1)
     progbar.close()
     
-    results_df = pd.DataFrame(all_results, columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "weight_word", "weight_textline"])        
+    results_df = pd.DataFrame(all_results, columns=[
+        "ppn",
+        "ppn_page",
+        "mean_word",
+        "median_word",
+        "standard_deviation_word",
+        "mean_textline",
+        "median_textline",
+        "standard_deviation_textline",
+        "weight_word",
+        "weight_textline"
+    ])        
     
-    if "metadata" in metadata_csv:
-        if not os.path.exists(metadata_csv):
-            logging.info(f"File does not exist: {metadata_csv}")
-            print(f"File does not exist: {metadata_csv}")
-            return
-        else:
-            # "originInfo-publication0_dateIssued" changed to "publication_date"
-            metadata_df = pd.DataFrame(load_csv_to_list(metadata_csv)[1:], columns=["PPN", "genre-aad", "publication_date"])
-            
-            if check_value_errors:
-                value_error_df = pd.DataFrame(value_error_pages, columns=["ppn", "ppn_page"])
-                value_error_df = value_error_df[value_error_df["ppn"].isin(metadata_df["PPN"])]
-                value_error_df = value_error_df.sort_values(by='ppn_page', ascending=True)
-                ppn_counts = value_error_df['ppn'].nunique()
-                logging.info(f"\nNumber of PPNs excluded because of a ValueError: {ppn_counts}")
-                print(f"\nNumber of PPNs excluded because of a ValueError: {ppn_counts}")
-                ppn_page_counts = value_error_df['ppn_page'].value_counts()
-                logging.info(f"Number of PPN_PAGEs excluded because of a ValueError: {ppn_page_counts.sum()}")
-                print(f"Number of PPN_PAGEs excluded because of a ValueError: {ppn_page_counts.sum()}")
-                value_error_df.to_csv("value_error_pages.csv", index=False)
-            
-            # Reduce the results dataframe to include only those PPNs that are in the PPN list ppns_pipeline_batch_01_2024.txt
-            results_df = results_df[results_df["ppn"].isin(metadata_df["PPN"])]
-            
-            # Change all years that are empty strings or "18XX" to "2025"
-            metadata_df.loc[metadata_df["publication_date"].isin(["", "18XX"]), "publication_date"] = "2025"
-            
-            # Change all genres that are empty strings to "Unbekannt"
-            metadata_df.loc[metadata_df["genre-aad"].isin([""]), "genre-aad"] = "{'Unbekannt'}"
-            
-            # Change the genre separation from slashes to commas
-            metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: "{" + genre.strip().strip("{ }").replace("  / ", "', '").replace(" / ", "', '") + "}")
-            
-            # Fill incomplete genre names
-            metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: genre.replace("'Ars'", "'Ars moriendi'").replace("'moriendi'", "'Ars moriendi'").strip())
-            
-            # Merge loose subgenres with their genre
-            metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: genre.replace("'jur.'", "'Kommentar:jur.'").replace("'hist.'", "'Kommentar:hist.'").replace("'theol.'", "'Kommentar:theol.'").replace("'lit.'", "'Kommentar:lit.'").strip())
-            
-            if check_raw_genres:
-                metadata_df_unique = metadata_df["genre-aad"].unique()
-                metadata_df_unique_df = pd.DataFrame(metadata_df_unique, columns=["genre-aad"])
-                logging.info(f"\nAll raw genres in {metadata_csv}: \n")
-                print(f"\nAll raw genres in {metadata_csv}: \n")
-                logging.info(metadata_df_unique_df.to_string(index=False))
-                print(metadata_df_unique_df.to_string(index=False))
-                metadata_df_unique_df.to_csv("genres_raw.csv", index=False)
-            
-            if check_duplicates:
-                ppn_page_counts = results_df['ppn_page'].value_counts()
-                logging.info(f"\nNumber of PPN_PAGEs: {ppn_page_counts.sum()}")
-                print(f"\nNumber of PPN_PAGEs: {ppn_page_counts.sum()}")
-                
-                singles_summary = ppn_page_counts[ppn_page_counts == 1]
-                logging.info(f"Number of PPN_PAGEs with a single occurrence: {singles_summary.sum()}")
-                print(f"Number of PPN_PAGEs with a single occurrence: {singles_summary.sum()}")
+    # TODO this checked whether the string `metadata` is in the filename
+    # `metadata_csv` - Intention?
+    # if "metadata" in metadata_csv:
+    # "originInfo-publication0_dateIssued" changed to "publication_date"
+    metadata_df = pd.DataFrame(load_csv_to_list(metadata_csv)[1:], columns=["PPN", "genre-aad", "publication_date"])
+    
+    if check_value_errors:
+        value_error_df = pd.DataFrame(value_error_pages, columns=["ppn", "ppn_page"])
+        value_error_df = value_error_df[value_error_df["ppn"].isin(metadata_df["PPN"])]
+        value_error_df = value_error_df.sort_values(by='ppn_page', ascending=True)
+        ppn_counts = value_error_df['ppn'].nunique()
+        logging.info(f"\nNumber of PPNs excluded because of a ValueError: {ppn_counts}")
+        print(f"\nNumber of PPNs excluded because of a ValueError: {ppn_counts}")
+        ppn_page_counts = value_error_df['ppn_page'].value_counts()
+        logging.info(f"Number of PPN_PAGEs excluded because of a ValueError: {ppn_page_counts.sum()}")
+        print(f"Number of PPN_PAGEs excluded because of a ValueError: {ppn_page_counts.sum()}")
+        value_error_df.to_csv("value_error_pages.csv", index=False)
+    
+    # Reduce the results dataframe to include only those PPNs that are in the PPN list ppns_pipeline_batch_01_2024.txt
+    results_df = results_df[results_df["ppn"].isin(metadata_df["PPN"])]
+    
+    # Change all years that are empty strings or "18XX" to "2025"
+    metadata_df.loc[metadata_df["publication_date"].isin(["", "18XX"]), "publication_date"] = "2025"
+    
+    # Change all genres that are empty strings to "Unbekannt"
+    metadata_df.loc[metadata_df["genre-aad"].isin([""]), "genre-aad"] = "{'Unbekannt'}"
+    
+    # Change the genre separation from slashes to commas
+    metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: "{" + genre.strip().strip("{ }").replace("  / ", "', '").replace(" / ", "', '") + "}")
+    
+    # Fill incomplete genre names
+    metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: genre.replace("'Ars'", "'Ars moriendi'").replace("'moriendi'", "'Ars moriendi'").strip())
+    
+    # Merge loose subgenres with their genre
+    metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: genre.replace("'jur.'", "'Kommentar:jur.'").replace("'hist.'", "'Kommentar:hist.'").replace("'theol.'", "'Kommentar:theol.'").replace("'lit.'", "'Kommentar:lit.'").strip())
+    
+    if check_raw_genres:
+        metadata_df_unique = metadata_df["genre-aad"].unique()
+        metadata_df_unique_df = pd.DataFrame(metadata_df_unique, columns=["genre-aad"])
+        logging.info(f"\nAll raw genres in {metadata_csv}: \n")
+        print(f"\nAll raw genres in {metadata_csv}: \n")
+        logging.info(metadata_df_unique_df.to_string(index=False))
+        print(metadata_df_unique_df.to_string(index=False))
+        metadata_df_unique_df.to_csv("genres_raw.csv", index=False)
+    
+    if check_duplicates:
+        ppn_page_counts = results_df['ppn_page'].value_counts()
+        logging.info(f"\nNumber of PPN_PAGEs: {ppn_page_counts.sum()}")
+        print(f"\nNumber of PPN_PAGEs: {ppn_page_counts.sum()}")
+        
+        singles_summary = ppn_page_counts[ppn_page_counts == 1]
+        logging.info(f"Number of PPN_PAGEs with a single occurrence: {singles_summary.sum()}")
+        print(f"Number of PPN_PAGEs with a single occurrence: {singles_summary.sum()}")
 
-                duplicates_summary = ppn_page_counts[ppn_page_counts > 1]
-                num_unique_duplicates = len(duplicates_summary)
-                logging.info(f"Number of PPN_PAGEs with multiple occurrences: {num_unique_duplicates}")
-                print(f"Number of PPN_PAGEs with multiple occurrences: {num_unique_duplicates}")
-                non_duplicated_ppn_pages = ppn_page_counts[ppn_page_counts == 1].index
+        duplicates_summary = ppn_page_counts[ppn_page_counts > 1]
+        num_unique_duplicates = len(duplicates_summary)
+        logging.info(f"Number of PPN_PAGEs with multiple occurrences: {num_unique_duplicates}")
+        print(f"Number of PPN_PAGEs with multiple occurrences: {num_unique_duplicates}")
+        non_duplicated_ppn_pages = ppn_page_counts[ppn_page_counts == 1].index
 
-                # Exclude PPN_PAGEs that are not duplicated
-                filtered_df = results_df[~results_df['ppn_page'].isin(non_duplicated_ppn_pages)]
-                metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre-aad']]
-                filtered_df = filtered_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
-                filtered_df.drop(columns=['PPN'], inplace=True)
-                filtered_df = filtered_df.sort_values(by='ppn_page', ascending=True)
-                filtered_df.to_csv("duplicates.csv", index=False)
+        # Exclude PPN_PAGEs that are not duplicated
+        filtered_df = results_df[~results_df['ppn_page'].isin(non_duplicated_ppn_pages)]
+        metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre-aad']]
+        filtered_df = filtered_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
+        filtered_df.drop(columns=['PPN'], inplace=True)
+        filtered_df = filtered_df.sort_values(by='ppn_page', ascending=True)
+        filtered_df.to_csv("duplicates.csv", index=False)
+
+    return results_df, metadata_df
+    
+def plot_everything(
+    csv_files: list[str],
+    metadata_csv: str,
+    search_genre,
+    plot_file="statistics_results.jpg",
+    search_ppn=None,
+    search_date=None,
+    date_range_start=None,
+    date_range_end=None,
+    use_top_ppns_word=False,
+    use_bottom_ppns_word=False,
+    num_top_ppns_word=1,
+    num_bottom_ppns_word=1,
+    use_top_ppns_textline=False,
+    use_bottom_ppns_textline=False,
+    num_top_ppns_textline=1,
+    num_bottom_ppns_textline=1,
+    mean_word_conf=None,
+    mean_textline_conf=None,
+    mean_word_range_start=None,
+    mean_word_range_end=None,
+    mean_textline_range_start=None,
+    mean_textline_range_end=None,
+    show_genre_evaluation=False,
+    output: Optional[IO] = None,
+    show_dates_evaluation=False,
+    show_results=False,
+    use_best_mean_word_confs_unique=False,
+    use_worst_mean_word_confs_unique=False,
+    num_best_mean_word_confs_unique=1,
+    num_worst_mean_word_confs_unique=1,
+    use_best_mean_textline_confs_unique=False,
+    use_worst_mean_textline_confs_unique=False,
+    num_best_mean_textline_confs_unique=1,
+    num_worst_mean_textline_confs_unique=1,
+    use_best_mean_word_confs=False,
+    use_worst_mean_word_confs=False,
+    num_best_mean_word_confs=1,
+    num_worst_mean_word_confs=1,
+    use_best_mean_textline_confs=False,
+    use_worst_mean_textline_confs=False,
+    num_best_mean_textline_confs=1,
+    num_worst_mean_textline_confs=1,
+    parent_dir=None,
+    conf_filename=None,
+    use_logging=None,
+    histogram_info: bool =False,
+    check_value_errors: bool = False,
+    check_duplicates: bool = False,
+    check_raw_genres: bool = False,
+):
+    if use_logging:
+        setup_logging("plot")
+
+    results_df, metadata_df = generate_dataframes(
+        csv_files,
+        metadata_csv,
+        check_value_errors=check_value_errors,
+        check_duplicates=check_duplicates,
+        check_raw_genres=check_raw_genres
+    )
             
     # Count the number of unique PPNs in the results dataframe
     all_ppns = results_df["ppn"].unique()
@@ -885,6 +956,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             print("\nResults description: \n")
             print(results_df_description)
         else:
+            # TODO Unreachable, metadata_csv is always set!
             logging.info("\nResults description: \n")
             logging.info(results_df.describe(include='all'))
             print("\nResults description: \n")
@@ -895,6 +967,7 @@ def plot_everything(csv_files : list[str], metadata_csv, search_genre, plot_file
             logging.info(f"\nSaved results to: {output.name}")
             print(f"\nSaved results to: {output.name}")
             output_desc = output.name.split(".")[0] + "_desc.csv" 
+            # TODO will fail if `metadata` not in `metadata_csv`
             results_df_description.to_csv(output_desc, index=False)
             logging.info(f"\nSaved results description to: {output_desc}")
             print(f"\nSaved results description to: {output_desc}")
