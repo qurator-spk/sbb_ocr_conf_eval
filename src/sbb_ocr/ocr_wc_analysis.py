@@ -753,8 +753,7 @@ def plot_everything(
     plot_file="statistics_results.jpg",
     search_ppn=None,
     search_date=None,
-    date_range_start=None,
-    date_range_end=None,
+    date_range: Optional[Tuple[int, int]] = None,
     use_top_ppns_word=False,
     use_bottom_ppns_word=False,
     num_top_ppns_word=1,
@@ -765,10 +764,8 @@ def plot_everything(
     num_bottom_ppns_textline=1,
     mean_word_conf=None,
     mean_textline_conf=None,
-    mean_word_range_start=None,
-    mean_word_range_end=None,
-    mean_textline_range_start=None,
-    mean_textline_range_end=None,
+    mean_word_range: Optional[Tuple[float, float]] = None,
+    mean_textline_range: Optional[Tuple[float, float]] = None,
     show_genre_evaluation=False,
     output: Optional[IO] = None,
     show_dates_evaluation=False,
@@ -820,11 +817,11 @@ def plot_everything(
         results_df = results_df[results_df["ppn"].isin(
         metadata_df.loc[(metadata_df["publication_date"].astype(int) == search_date), "PPN"])] # type: ignore
     
-    if date_range_start is not None and date_range_end is not None:
+    if date_range:
         results_df = results_df[results_df["ppn"].isin(
         metadata_df.loc[
-            (metadata_df["publication_date"].astype(int) >= date_range_start) &
-            (metadata_df["publication_date"].astype(int) <= date_range_end),
+            (metadata_df["publication_date"].astype(int) >= date_range[0]) &
+            (metadata_df["publication_date"].astype(int) <= date_range[1]),
             "PPN"])]
             
     if mean_word_conf is not None:
@@ -834,26 +831,28 @@ def plot_everything(
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
         results_df = results_df[(results_df['mean_textline'] == mean_textline_conf)]
             
-    if mean_word_range_start is not None and mean_word_range_end is not None:
-        if mean_word_range_start == 0:
+    if mean_word_range:
+        # TODO why >= 0 but > n?
+        if mean_word_range[0] == 0:
             results_df = results_df[
-                (results_df['mean_word'] >= mean_word_range_start) &
-                (results_df['mean_word'] <= mean_word_range_end)]
+                (results_df['mean_word'] >= mean_word_range[0]) &
+                (results_df['mean_word'] <= mean_word_range[1])]
         else:
             results_df = results_df[
-                (results_df['mean_word'] > mean_word_range_start) &
-                (results_df['mean_word'] <= mean_word_range_end)]
+                (results_df['mean_word'] > mean_word_range[0]) &
+                (results_df['mean_word'] <= mean_word_range[1])]
             
-    if mean_textline_range_start is not None and mean_textline_range_end is not None:
+    if mean_textline_range:
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
-        if mean_textline_range_start == 0:
+        # TODO why >= 0 but > n?
+        if mean_textline_range[0] == 0:
             results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_range_start) &
-                (results_df['mean_textline'] <= mean_textline_range_end)]
+                (results_df['mean_textline'] >= mean_textline_range[0]) &
+                (results_df['mean_textline'] <= mean_textline_range[1])]
         else:
             results_df = results_df[
-                (results_df['mean_textline'] > mean_textline_range_start) &
-                (results_df['mean_textline'] <= mean_textline_range_end)]
+                (results_df['mean_textline'] > mean_textline_range[0]) &
+                (results_df['mean_textline'] <= mean_textline_range[1])]
             
     if search_genre:
         # Escape special characters in the search_genre string

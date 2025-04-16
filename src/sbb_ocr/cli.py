@@ -19,15 +19,15 @@ def cli():
 @click.option('-g', '--genre', 'search_genre', help='Genre to be evaluated (optional)')
 @click.option('-m', '--metadata', 'metadata_csv', default="metadata.csv", help='METADATA_FILE with the PPN metadata (optional)')
 @click.option('-d', '--search-date', 'search_date', type=int, help='Filter the data for a specific year, specify <YEAR> (optional)')
-@click.option('-dr', '--date-range', 'date_range', nargs=2, type=(int, int), help='Year range for filtering data, specify <YEAR_START> <YEAR_END> (optional)')
+@click.option('-dr', '--date-range', nargs=2, type=(int, int), help='Year range for filtering data, specify <YEAR_START> <YEAR_END> (optional)')
 @click.option('-topw', '--top-ppns-word', type=int, help='Number of top PPN_PAGESs with mean word scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)')
 @click.option('-botw', '--bottom-ppns-word', type=int, help='Number of bottom PPN_PAGEs with mean word scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)')
 @click.option('-topt', '--top-ppns-textline', type=int, help='Number of top PPN_PAGESs with mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)')
 @click.option('-bott', '--bottom-ppns-textline', type=int, help='Number of bottom PPN_PAGEs with mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)')
 @click.option('-wc', '--mean-word-conf', 'mean_word_conf', type=float, help='Filter the data for a specific mean word confidence score, specify <MEAN_WORD> (optional)')
 @click.option('-tc', '--mean-textline-conf', 'mean_textline_conf', type=float, help='Filter the data for a specific mean textline confidence score, specify <MEAN_TEXTLINE> (optional)')
-@click.option('-wcr', '--mean-word-confs-range', 'mean_word_confs_range', nargs=2, type=(float, float), help='Mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)')
-@click.option('-tcr', '--mean-textline-confs-range', 'mean_textline_confs_range', nargs=2, type=(float, float), help='Mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)')
+@click.option('-wcr', '--mean-word-confs-range', nargs=2, type=(float, float), help='Mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)')
+@click.option('-tcr', '--mean-textline-confs-range', nargs=2, type=(float, float), help='Mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)')
 @click.option('-ge', '--show-genre-evaluation', 'show_genre_evaluation', is_flag=True, default=False, help="Evaluate the number of genres in the CSV_FILES (optional)")
 @click.option('-o', '--output', 'output', type=click.File('w'), help='Save the results to an OUTPUT_CSV_FILE (optional)')
 @click.option('-de', '--show-dates-evaluation', 'show_dates_evaluation', is_flag=True, default=False, help="Evaluate the number of years in the CSV_FILES (optional)")
@@ -88,21 +88,6 @@ def plot_cli(
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
     """
     
-    if date_range is None:
-        date_range_start, date_range_end = (None, None)
-    else:
-        date_range_start, date_range_end = date_range
-        
-    if mean_word_confs_range is None:
-        mean_word_range_start, mean_word_range_end = (None, None)
-    else:
-        mean_word_range_start, mean_word_range_end = mean_word_confs_range
-        
-    if mean_textline_confs_range is None:
-        mean_textline_range_start, mean_textline_range_end = (None, None)
-    else:
-        mean_textline_range_start, mean_textline_range_end = mean_textline_confs_range
-        
     if ppn_from_directory is None:
         parent_dir, conf_filename = (None, None)
     else:
@@ -133,8 +118,7 @@ def plot_cli(
         plot_file=plot_file,
         search_ppn=search_ppn,
         search_date=search_date,
-        date_range_start=date_range_start,
-        date_range_end=date_range_end,
+        date_range=date_range,
         use_top_ppns_word=(top_ppns_word is not None),
         use_bottom_ppns_word=(bottom_ppns_word is not None),
         num_top_ppns_word=num_top_ppns_word,
@@ -145,10 +129,10 @@ def plot_cli(
         num_bottom_ppns_textline=num_bottom_ppns_textline,
         mean_word_conf=mean_word_conf,
         mean_textline_conf=mean_textline_conf,
-        mean_word_range_start=mean_word_range_start,
-        mean_word_range_end=mean_word_range_end,
-        mean_textline_range_start=mean_textline_range_start,
-        mean_textline_range_end=mean_textline_range_end,
+        # Why pass it on without the `_confs`?
+        mean_word_range=mean_word_confs_range,
+        # Why pass it on without the `_confs`?
+        mean_textline_range=mean_textline_confs_range,
         show_genre_evaluation=show_genre_evaluation,
         output=output,
         show_dates_evaluation=show_dates_evaluation,
