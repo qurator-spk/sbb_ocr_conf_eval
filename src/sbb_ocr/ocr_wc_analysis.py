@@ -37,7 +37,7 @@ def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_inf
     bins = np.array(bins)
 
     # Categorize the data into discrete bins and use right-closed intervals
-    binned_data = pd.cut(data, bins=bins, right=True, include_lowest=True) # include_lowest ensures 0.0 is captured
+    binned_data = pd.cut(data, bins=bins, right=True, include_lowest=True) # include_lowest ensures 0.0 is captured # type: ignore
 
     # Extract bin labels as intervals
     all_intervals = binned_data.cat.categories
@@ -146,7 +146,7 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color):
         print(f"Cannot plot the data!\nValueError encountered while performing KDE: \n{v}. \nIncrease the number of PPNs to be filtered!\n")
         
 def create_plots(results_df, weights_word, weights_textline, plot_file, histogram_info, general_title):
-    fig, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
+    _, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
     plt.suptitle(general_title, fontsize=16, fontweight='bold')
     
     plot_colors = {
@@ -219,7 +219,6 @@ def load_csv_to_list(csv_file):
 def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
     matching_ppn_mods = results_df["ppn"].unique()
     filtered_genres = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
-    all_genres_raw = set(filtered_genres["genre-aad"].tolist())
     
     genre_counts = {}
     count_multiple_genres = 0
@@ -282,7 +281,8 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
     sorted_genre_counts_descending = sorted(genre_counts.items(), key=lambda x: x[1], reverse=False)
 
     if sorted_genre_counts:
-        highest_genre, highest_count = sorted_genre_counts[0]  # Get the genre with the highest count
+        # Get the genre with the highest count
+        _, highest_count = sorted_genre_counts[0]
         plot_threshold = highest_count * 0.04
     else:
         logging.info("No genre available to calculate the threshold.")
@@ -299,7 +299,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
         genres, counts = zip(*filtered_genre_counts)
 
         plt.figure(figsize=(100, 150))
-        bars = plt.barh(genres, counts, color=plt.cm.tab10.colors)
+        bars = plt.barh(genres, counts, color=plt.cm.tab10.colors) # type: ignore
         plt.ylabel('Genres', fontsize=130)
         plt.xlabel('Counts', fontsize=130)
         plt.title('Counts of Unique Genres', fontsize=150)
@@ -311,7 +311,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
         # Adding data labels next to bars
         for bar in bars:
             xval = bar.get_width()
-            plt.text(xval, bar.get_y() + bar.get_height()/2, int(xval), ha='left', va='center', fontsize=100)  # Display counts next to bars
+            plt.text(xval, bar.get_y() + bar.get_height()/2, str(int(xval)), ha='left', va='center', fontsize=100)  # Display counts next to bars
         
         plt.tight_layout(pad=2.0)
         plt.savefig("bar_plot_of_all_genres.png")
@@ -354,7 +354,7 @@ def dates_evaluation(metadata_df, results_df):
         print(year_counts_df.to_string(index=False))
         
         plt.figure(figsize=(max(30, len(full_year_range) * 0.25), 15))
-        plt.bar(year_counts_df['Year'], year_counts_df['Count'], color=plt.cm.tab10.colors, width=0.6)
+        plt.bar(year_counts_df['Year'], year_counts_df['Count'], color=plt.cm.tab10.colors, width=0.6) # type: ignore
         plt.title('Publication Counts per Year', fontsize=18)
         plt.tick_params(axis='x', length=10)
         plt.xticks(full_year_range, fontsize=12, rotation=45)
@@ -377,8 +377,8 @@ def dates_evaluation(metadata_df, results_df):
         plt.close()
         
     except ValueError as e:
-        logging.info("\nInvalid publication dates.")
-        print("\nInvalid publication dates.")
+        logging.info(f"Invalid publication dates: {e}")
+        print(f"Invalid publication dates.")
         return
     
 def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
@@ -450,7 +450,7 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
                 command_string = f"ocrd-dinglehopper -I {gt_dir},{ocr_dir} -O {report_dir}"
                 command_list = command_string.split()
                 try:
-                    result = subprocess.run(command_list, check=True, capture_output=True, text=True, shell=False)
+                    subprocess.run(command_list, check=True, capture_output=True, text=True, shell=False)
                 except subprocess.CalledProcessError as e:
                     logging.info(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
                     print(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
@@ -629,7 +629,7 @@ def generate_dataframes(
     all_results = []
     value_error_pages = []
     with tqdm(total=len(csv_files)) as progbar:
-        for ind, csv_file in enumerate(csv_files):
+        for csv_file in csv_files:
             progbar.set_description(f"Processing file: {csv_file}")
             try:
                 with load_csv(csv_file) as rows:
@@ -814,11 +814,11 @@ def plot_everything(
     
     if search_ppn:
         results_df = results_df[results_df["ppn"].isin(
-        metadata_df.loc[(metadata_df["PPN"].astype(str) == search_ppn), "PPN"])]
+        metadata_df.loc[(metadata_df["PPN"].astype(str) == search_ppn), "PPN"])] # type: ignore
     
     if search_date is not None: # "is not None" enables zero as input
         results_df = results_df[results_df["ppn"].isin(
-        metadata_df.loc[(metadata_df["publication_date"].astype(int) == search_date), "PPN"])]
+        metadata_df.loc[(metadata_df["publication_date"].astype(int) == search_date), "PPN"])] # type: ignore
     
     if date_range_start is not None and date_range_end is not None:
         results_df = results_df[results_df["ppn"].isin(
