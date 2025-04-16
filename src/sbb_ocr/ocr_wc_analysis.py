@@ -945,37 +945,31 @@ def plot_everything(
     if results_df.empty:
         logging.info("\nThere are no results matching the applied filters.")
         print("\nThere are no results matching the applied filters.")
-    else:
-        if "metadata" in metadata_csv:
-            metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre-aad']]
-            results_df = results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
-            results_df.drop(columns=['PPN'], inplace=True)
-            results_df_description = results_df.describe(include='all')
-            logging.info("\nResults description: \n")
-            logging.info(results_df_description)
-            print("\nResults description: \n")
-            print(results_df_description)
-        else:
-            # TODO Unreachable, metadata_csv is always set!
-            logging.info("\nResults description: \n")
-            logging.info(results_df.describe(include='all'))
-            print("\nResults description: \n")
-            print(results_df.describe(include='all'))
-            
-        if output:
-            results_df.to_csv(output, index=False)
-            logging.info(f"\nSaved results to: {output.name}")
-            print(f"\nSaved results to: {output.name}")
-            output_desc = output.name.split(".")[0] + "_desc.csv" 
-            # TODO will fail if `metadata` not in `metadata_csv`
-            results_df_description.to_csv(output_desc, index=False)
-            logging.info(f"\nSaved results description to: {output_desc}")
-            print(f"\nSaved results description to: {output_desc}")
-            
-        plot_file_weighted = plot_file.split(".")[0] + "_weighted." + plot_file.split(".")[1]
+        return
 
-        create_plots(results_df, None, None, plot_file=plot_file, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per Page")
-        create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file=plot_file_weighted, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per Page (Weighted)")
+    metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre-aad']]
+    results_df = results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
+    results_df.drop(columns=['PPN'], inplace=True)
+    results_df_description = results_df.describe(include='all')
+    logging.info("\nResults description: \n")
+    logging.info(results_df_description)
+    print("\nResults description: \n")
+    print(results_df_description)
+        
+    if output:
+        results_df.to_csv(output, index=False)
+        logging.info(f"\nSaved results to: {output.name}")
+        print(f"\nSaved results to: {output.name}")
+        output_desc = output.name.split(".")[0] + "_desc.csv" 
+        # TODO will fail if `metadata` not in `metadata_csv`
+        results_df_description.to_csv(output_desc, index=False)
+        logging.info(f"\nSaved results description to: {output_desc}")
+        print(f"\nSaved results description to: {output_desc}")
+        
+    plot_file_weighted = plot_file.split(".")[0] + "_weighted." + plot_file.split(".")[1]
+
+    create_plots(results_df, None, None, plot_file=plot_file, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per Page")
+    create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file=plot_file_weighted, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per Page (Weighted)")
         
 def evaluate_everything(parent_dir=None, gt_dir=None, ocr_dir=None, report_dir=None, parent_dir_error=None, report_dir_error=None, error_rates_filename=None,
                         use_logging=None, conf_df=None, error_rates_df=None, wcwer_filename=None, wcwer_csv=None, plot_filename=None, wcwer_csv_inter=None, plot_filename_inter=None):
