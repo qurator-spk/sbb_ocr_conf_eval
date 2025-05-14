@@ -832,7 +832,6 @@ def plot_everything(
         results_df = results_df[(results_df['mean_textline'] == mean_textline_conf)]
             
     if mean_word_range:
-        # TODO why >= 0 but > n?
         if mean_word_range[0] == 0:
             results_df = results_df[
                 (results_df['mean_word'] >= mean_word_range[0]) &
@@ -844,7 +843,6 @@ def plot_everything(
             
     if mean_textline_range:
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
-        # TODO why >= 0 but > n?
         if mean_textline_range[0] == 0:
             results_df = results_df[
                 (results_df['mean_textline'] >= mean_textline_range[0]) &
