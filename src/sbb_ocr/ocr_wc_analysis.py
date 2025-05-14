@@ -955,7 +955,6 @@ def plot_everything(
         logging.info(f"\nSaved results to: {output.name}")
         print(f"\nSaved results to: {output.name}")
         output_desc = output.name.split(".")[0] + "_desc.csv" 
-        # TODO will fail if `metadata` not in `metadata_csv`
         results_df_description.to_csv(output_desc, index=False)
         logging.info(f"\nSaved results description to: {output_desc}")
         print(f"\nSaved results description to: {output_desc}")
