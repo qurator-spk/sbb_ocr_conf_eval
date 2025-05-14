@@ -676,9 +676,6 @@ def generate_dataframes(
         "weight_textline"
     ])        
     
-    # TODO this checked whether the string `metadata` is in the filename
-    # `metadata_csv` - Intention?
-    # if "metadata" in metadata_csv:
     # "originInfo-publication0_dateIssued" changed to "publication_date"
     metadata_df = pd.DataFrame(load_csv_to_list(metadata_csv)[1:], columns=["PPN", "genre-aad", "publication_date"])
     
