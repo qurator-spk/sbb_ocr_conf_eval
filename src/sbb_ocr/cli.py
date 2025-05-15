@@ -129,10 +129,8 @@ def plot_cli(
         num_bottom_ppns_textline=num_bottom_ppns_textline,
         mean_word_conf=mean_word_conf,
         mean_textline_conf=mean_textline_conf,
-        # Why pass it on without the `_confs`?
-        mean_word_range=mean_word_confs_range,
-        # Why pass it on without the `_confs`?
-        mean_textline_range=mean_textline_confs_range,
+        mean_word_confs_range=mean_word_confs_range,
+        mean_textline_confs_range=mean_textline_confs_range,
         show_genre_evaluation=show_genre_evaluation,
         output=output,
         show_dates_evaluation=show_dates_evaluation,

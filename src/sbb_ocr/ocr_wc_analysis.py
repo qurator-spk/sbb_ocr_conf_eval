@@ -761,8 +761,8 @@ def plot_everything(
     num_bottom_ppns_textline=1,
     mean_word_conf=None,
     mean_textline_conf=None,
-    mean_word_range: Optional[Tuple[float, float]] = None,
-    mean_textline_range: Optional[Tuple[float, float]] = None,
+    mean_word_confs_range: Optional[Tuple[float, float]] = None,
+    mean_textline_confs_range: Optional[Tuple[float, float]] = None,
     show_genre_evaluation=False,
     output: Optional[IO] = None,
     show_dates_evaluation=False,
@@ -828,26 +828,26 @@ def plot_everything(
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
         results_df = results_df[(results_df['mean_textline'] == mean_textline_conf)]
             
-    if mean_word_range:
-        if mean_word_range[0] == 0:
+    if mean_word_confs_range:
+        if mean_word_confs_range[0] == 0:
             results_df = results_df[
-                (results_df['mean_word'] >= mean_word_range[0]) &
-                (results_df['mean_word'] <= mean_word_range[1])]
+                (results_df['mean_word'] >= mean_word_confs_range[0]) &
+                (results_df['mean_word'] <= mean_word_confs_range[1])]
         else:
             results_df = results_df[
-                (results_df['mean_word'] > mean_word_range[0]) &
-                (results_df['mean_word'] <= mean_word_range[1])]
+                (results_df['mean_word'] > mean_word_confs_range[0]) &
+                (results_df['mean_word'] <= mean_word_confs_range[1])]
             
-    if mean_textline_range:
+    if mean_textline_confs_range:
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
-        if mean_textline_range[0] == 0:
+        if mean_textline_confs_range[0] == 0:
             results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_range[0]) &
-                (results_df['mean_textline'] <= mean_textline_range[1])]
+                (results_df['mean_textline'] >= mean_textline_confs_range[0]) &
+                (results_df['mean_textline'] <= mean_textline_confs_range[1])]
         else:
             results_df = results_df[
-                (results_df['mean_textline'] > mean_textline_range[0]) &
-                (results_df['mean_textline'] <= mean_textline_range[1])]
+                (results_df['mean_textline'] > mean_textline_confs_range[0]) &
+                (results_df['mean_textline'] <= mean_textline_confs_range[1])]
             
     if search_genre:
         # Escape special characters in the search_genre string
