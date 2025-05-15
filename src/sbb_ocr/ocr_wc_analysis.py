@@ -861,7 +861,6 @@ def plot_everything(
         results_df = results_df.head(num_top_ppns_word)
     elif use_bottom_ppns_word:
         results_df = results_df[((results_df["mean_word"] >= 0.0) & (results_df["mean_word"] <= 0.05))]
-        results_df = results_df.sort_values(by='mean_word', ascending=True)
         results_df = results_df.head(num_bottom_ppns_word)
         
     if use_top_ppns_textline:
@@ -878,7 +877,6 @@ def plot_everything(
         best_unique_ppns = results_df['ppn'].drop_duplicates().head(num_best_mean_word_confs_unique)
         results_df = results_df[results_df['ppn'].isin(best_unique_ppns)]
     elif use_worst_mean_word_confs_unique:
-        results_df = results_df.sort_values(by='mean_word', ascending=True)
         worst_unique_ppns = results_df['ppn'].drop_duplicates().head(num_worst_mean_word_confs_unique)
         results_df = results_df[results_df['ppn'].isin(worst_unique_ppns)]
         
@@ -895,7 +893,6 @@ def plot_everything(
         results_df = results_df.sort_values(by='mean_word', ascending=False)
         results_df = results_df.head(num_best_mean_word_confs)
     elif use_worst_mean_word_confs:
-        results_df = results_df.sort_values(by='mean_word', ascending=True)
         results_df = results_df.head(num_worst_mean_word_confs)
         
     if use_best_mean_textline_confs:
