@@ -75,20 +75,12 @@ def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_inf
             left = max(0.0, interval.left)
             right = interval.right
 
-            # First bin is [a, b]
             if i == 0:
                 left_bracket = "["
-                right_bracket = "]"
-                
-            # Last bin is [a, b]
-            elif i == len(bin_counts) - 1:
-                left_bracket = "["
-                right_bracket = "]"
-                
-            # Middle bins are (a, b]
             else:
                 left_bracket = "("
-                right_bracket = "]"
+
+            right_bracket = "]"
 
             bin_label = f"Bin {left_bracket}{left:.2f}, {right:.2f}{right_bracket}: {bin_counts[interval]}"
             print(bin_label)
