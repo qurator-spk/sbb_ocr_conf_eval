@@ -84,6 +84,13 @@ def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_inf
             bin_label = f"Bin {bracket}{left:.2f}, {right:.2f}]: {bin_counts[interval]}"
             print(bin_label)
             logging.info(bin_label)
+            
+def weighted_mean(data, weights):
+    return np.average(data, weights=weights)
+    
+def weighted_std(data, weights):
+    #TODO
+    pass
     
 def weighted_percentile(data, weights, percentiles):
     data = np.array(data)
