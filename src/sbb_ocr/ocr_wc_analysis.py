@@ -89,9 +89,14 @@ def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_inf
 def weighted_mean(data, weights):
     return np.average(data, weights=weights)
     
-def weighted_std(data, weights):
-    #TODO
-    pass
+def weighted_std(std_devs, weights):
+    variances = np.square(std_devs)
+    weighted_variances = weights * variances
+    pooled_variance = weighted_variances.sum() / weights.sum()
+    
+    # Calculate the weighted pooled standard deviation
+    pooled_std = sqrt(pooled_variance)
+    return pooled_std
     
 def weighted_percentile(data, weights, percentiles):
     data = np.array(data)
