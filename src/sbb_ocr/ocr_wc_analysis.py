@@ -17,7 +17,6 @@ import plotly.express as px
 import plotly.offline as pyo
 import re
 from matplotlib.ticker import MaxNLocator
-from math import sqrt
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
 
@@ -91,12 +90,15 @@ def weighted_mean(data, weights):
     return np.average(data, weights=weights)
     
 def weighted_std(std_devs, weights):
+    std_devs = np.array(std_devs)
+    weights = np.array(weights)
     variances = np.square(std_devs)
-    weighted_variances = weights * variances
-    pooled_variance = weighted_variances.sum() / weights.sum()
+    
+    # Compute the weighted mean of variances
+    weighted_variance = np.average(variances, weights=weights)
     
     # Calculate the weighted pooled standard deviation
-    pooled_std = sqrt(pooled_variance)
+    pooled_std = np.sqrt(weighted_variance)
     return pooled_std
     
 def weighted_percentile(data, weights, percentiles):
