@@ -232,7 +232,7 @@ def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))
 
-def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
+def genre_evaluation(metadata_df, results_df):
     matching_ppn_mods = results_df["ppn"].unique()
     filtered_genres = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
     
@@ -255,8 +255,7 @@ def genre_evaluation(metadata_df, results_df, replace_subgenres=True):
                 print(f"JSON decode error for PPN {ppn}: {e}")
                 continue
 
-            if replace_subgenres:
-                genres = [x.split(':')[0] if ':' in x else x.split('.')[0] for x in genres]
+            genres = [x.split(':')[0] if ':' in x else x.split('.')[0] for x in genres]
             
             # Count each genre for this PPN
             if len(genres) > 1:
