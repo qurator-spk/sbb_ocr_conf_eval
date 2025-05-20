@@ -3,7 +3,7 @@ import sys
 import csv
 import click
 from .ppn_handler import PpnHandler, PpnHandlerConfig
-from .ocr_wc_analysis import plot_everything, evaluate_everything
+from .ocr_wc_analysis import plot_everything, evaluate_everything, generate_dataframes
 import pandas as pd
 import sqlite3
 
@@ -47,6 +47,7 @@ def cli():
 @click.option('-crg', '--check-raw-genres', 'check_raw_genres', is_flag=True, default=False, help="Check the METADATA_FILE for all raw genres and save them to genres_raw.csv (optional)")
 @click.option('-hi', '--histogram-info', 'histogram_info', is_flag=True, default=False, help="Show additional information about the histogram (optional)")
 @click.option('-ppn', '--search-ppn', 'search_ppn', type=str, help='Filter the data for a specific PPN, specify <PPN> (optional)')
+@click.option('-a', '--aggregate-mode', 'aggregate_mode', default='ppn_page', type=click.Choice(['ppn_page', 'ppn']), help="Choose between aggregation by PPN or PPN_PAGE")
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(
@@ -82,7 +83,8 @@ def plot_cli(
     check_value_errors,
     check_duplicates,
     check_raw_genres,
-    histogram_info
+    histogram_info,
+    aggregate_mode
 ):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
@@ -157,7 +159,8 @@ def plot_cli(
         check_value_errors=check_value_errors,
         check_duplicates=check_duplicates,
         check_raw_genres=check_raw_genres,
-        histogram_info=histogram_info
+        histogram_info=histogram_info,
+        aggregate_mode=aggregate_mode
     )
 
 @cli.command('evaluate')

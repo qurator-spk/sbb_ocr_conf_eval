@@ -627,6 +627,7 @@ def generate_dataframes(
     check_value_errors: bool = False,
     check_duplicates: bool = False,
     check_raw_genres: bool = False,
+    aggregate_mode: str = "ppn_page",
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     for file in csv_files:
@@ -688,7 +689,38 @@ def generate_dataframes(
         "standard_deviation_textline",
         "weight_word",
         "weight_textline"
-    ])        
+    ])
+    
+    if aggregate_mode == "ppn":
+        grouped = results_df.groupby("ppn")
+        aggregated_results = []
+
+        for ppn, group in grouped:
+            word_weights = group["weight_word"].to_numpy()
+            textline_weights = group["weight_textline"].to_numpy()
+
+            mean_word = weighted_mean(group["mean_word"], word_weights)
+            median_word = weighted_percentile(group["median_word"], word_weights, [50])[0]
+            std_word = weighted_std(group["standard_deviation_word"], word_weights)
+
+            mean_textline = weighted_mean(group["mean_textline"], textline_weights)
+            median_textline = weighted_percentile(group["median_textline"], textline_weights, [50])[0]
+            std_textline = weighted_std(group["standard_deviation_textline"], textline_weights)
+
+            total_word_weight = word_weights.sum()
+            total_textline_weight = textline_weights.sum()
+
+            aggregated_results.append([
+                ppn, mean_word, median_word, std_word,
+                mean_textline, median_textline, std_textline,
+                total_word_weight, total_textline_weight
+            ])
+
+        results_df = pd.DataFrame(aggregated_results, columns=[
+            "ppn", "mean_word", "median_word", "standard_deviation_word",
+            "mean_textline", "median_textline", "standard_deviation_textline",
+            "weight_word", "weight_textline"
+        ])
     
     # "originInfo-publication0_dateIssued" changed to "publication_date"
     metadata_df = pd.DataFrame(load_csv_to_list(metadata_csv)[1:], columns=["PPN", "genre-aad", "publication_date"])
@@ -804,6 +836,7 @@ def plot_everything(
     check_value_errors: bool = False,
     check_duplicates: bool = False,
     check_raw_genres: bool = False,
+    aggregate_mode='ppn_page'
 ):
     if use_logging:
         setup_logging("plot")
@@ -813,7 +846,8 @@ def plot_everything(
         metadata_csv,
         check_value_errors=check_value_errors,
         check_duplicates=check_duplicates,
-        check_raw_genres=check_raw_genres
+        check_raw_genres=check_raw_genres,
+        aggregate_mode=aggregate_mode
     )
             
     # Count the number of unique PPNs in the results dataframe
@@ -931,7 +965,10 @@ def plot_everything(
     
     if show_results:
         if len(results_df_unique) > 0:
-            filtered_results_df = results_df[['ppn', 'ppn_page', 'mean_word', 'mean_textline']]
+            if aggregate_mode == 'ppn_page':
+                filtered_results_df = results_df[['ppn', 'ppn_page', 'mean_word', 'mean_textline', 'weight_word', 'weight_textline']]
+            elif aggregate_mode == 'ppn':
+                filtered_results_df = results_df[['ppn', 'mean_word', 'mean_textline', 'weight_word', 'weight_textline']]
             metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre-aad']]
             filtered_results_df = filtered_results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
             filtered_results_df.drop(columns=['PPN'], inplace=True)
