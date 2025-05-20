@@ -89,6 +89,7 @@ Options:
   
     plot:
        -m,      --metadata                          Add a METADATA_FILE with the PPN metadata
+       -a,      --aggregate-mode                    Choose between aggregation by PPN or PPN_PAGE (default is PPN_PAGE)
        -r,      --show-results                      Show the light version of the results [ppn, ppn_page, mean_word, originInfo-publication0_dateIssued, genre-aad] (optional)
        -o,      --output                            Save the results and the description of the results to an OUTPUT_CSV_FILE (optional)
        -g,      --genre                             Choose a GENRE (optional)
