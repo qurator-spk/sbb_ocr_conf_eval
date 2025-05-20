@@ -17,6 +17,7 @@ import plotly.express as px
 import plotly.offline as pyo
 import re
 from matplotlib.ticker import MaxNLocator
+from math import sqrt
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
 
