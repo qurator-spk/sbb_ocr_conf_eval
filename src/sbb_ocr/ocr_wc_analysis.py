@@ -231,6 +231,24 @@ def load_csv(csv_file):
 def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))
+        
+def plot_weighted_means_barplot(plot_df, label_col, title, filename, ha):
+    x = np.arange(len(plot_df))
+    width = 0.35
+    plt.figure(figsize=(max(13, len(plot_df) * 0.5), 7))
+    plt.bar(x - width / 2, plot_df['Weighted_Mean_Word'], width, label='Weighted Mean Word', color='skyblue')
+    plt.bar(x + width / 2, plot_df['Weighted_Mean_Textline'], width, label='Weighted Mean Textline', color='salmon')
+    plt.xlabel(label_col, fontsize=13)
+    plt.ylabel('Confidence Score', fontsize=13)
+    plt.title(title, fontsize=16, fontweight='bold')
+    plt.xticks(x, plot_df[label_col], rotation=45, ha=ha)
+    plt.tick_params(axis='x', length=10)
+    plt.ylim(0, 1)
+    plt.xlim(-0.5, len(plot_df))
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
 
 def genre_evaluation(metadata_df, results_df):
     matching_ppn_mods = results_df["ppn"].unique()
@@ -334,7 +352,7 @@ def genre_evaluation(metadata_df, results_df):
         bars = plt.barh(genres, counts, color=plt.cm.tab10.colors) # type: ignore
         plt.ylabel('Genres', fontsize=130)
         plt.xlabel('Counts', fontsize=130)
-        plt.title('Counts of Unique Genres', fontsize=150)
+        plt.title('Counts of Unique Genres', fontsize=150, fontweight='bold')
         plt.xticks(fontsize=100)
         plt.yticks(fontsize=100)
         plt.grid(axis='x', linestyle='--', alpha=1.0)
@@ -370,23 +388,13 @@ def genre_evaluation(metadata_df, results_df):
         }).dropna()
         plot_df.to_csv("genre_weighted_mean_scores.csv", index=False)
 
-        x = np.arange(len(plot_df))
-        width = 0.35
-
-        plt.figure(figsize=(max(12, len(plot_df)*0.5), 8))
-        plt.bar(x - width/2, plot_df['Weighted_Mean_Word'], width, label='Weighted Mean Word', color='skyblue')
-        plt.bar(x + width/2, plot_df['Weighted_Mean_Textline'], width, label='Weighted Mean Textline', color='salmon')
-        plt.xlabel('Genre')
-        plt.ylabel('Confidence Score')
-        plt.title('Genre-based Weighted Means of Word and Textline Confidence Scores')
-        plt.xticks(x, plot_df['Genre'], rotation=45, ha='right')
-        plt.tick_params(axis='x', length=10)
-        plt.ylim(0, 1)
-        plt.xlim(-0.5, len(plot_df))
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig("genre_weighted_mean_scores.png")
-        plt.close()
+        plot_weighted_means_barplot(
+            plot_df,
+            label_col='Genre',
+            title='Genre-based Weighted Means of Word and Textline Confidence Scores',
+            filename="genre_weighted_mean_scores.png",
+            ha='right'
+        )
         
 def dates_evaluation(metadata_df, results_df):
     matching_ppn_mods = results_df["ppn"].unique()
@@ -427,7 +435,7 @@ def dates_evaluation(metadata_df, results_df):
         
         plt.figure(figsize=(max(30, len(full_year_range) * 0.25), 15))
         plt.bar(year_counts_df['Year'], year_counts_df['Count'], color=plt.cm.tab10.colors, width=0.6) # type: ignore
-        plt.title('Publication Counts per Year', fontsize=18)
+        plt.title('Publication Counts per Year', fontsize=18, fontweight='bold')
         plt.tick_params(axis='x', length=10)
         plt.xticks(full_year_range, fontsize=12, rotation=45)
         plt.yticks(fontsize=13)
@@ -473,23 +481,13 @@ def dates_evaluation(metadata_df, results_df):
         }).dropna()
         plot_df.to_csv(f"date_range_{min_year}-{max_year}_yearly_weighted_means.csv", index=False)
 
-        # Plotting the bar plot with two bars per year
-        x = np.arange(len(plot_df))
-        width = 0.35
-
-        plt.figure(figsize=(max(12, len(plot_df)*0.4), 6))
-        plt.bar(x - width/2, plot_df['Weighted_Mean_Word'], width, label='Weighted Mean Word', color='skyblue')
-        plt.bar(x + width/2, plot_df['Weighted_Mean_Textline'], width, label='Weighted Mean Textline', color='salmon')
-        plt.xlabel('Year')
-        plt.ylabel('Confidence Score')
-        plt.title('Yearly Weighted Means of Word and Textline Confidence Scores')
-        plt.xticks(x, plot_df['Year'], rotation=45)
-        plt.ylim(0, 1)
-        plt.xlim(-0.5, len(plot_df))
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig(f"date_range_{min_year}-{max_year}_yearly_weighted_means.png")
-        plt.close()
+        plot_weighted_means_barplot(
+            plot_df,
+            label_col='Year',
+            title='Yearly Weighted Means of Word and Textline Confidence Scores',
+            filename=f"date_range_{min_year}-{max_year}_yearly_weighted_means.png",
+            ha='center'
+        )
         
     except ValueError as e:
         logging.info(f"Invalid publication dates: {e}")
