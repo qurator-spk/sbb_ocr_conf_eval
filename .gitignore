@@ -9,7 +9,6 @@ statistics_results.jpg
 *Zone.Identifier
 /test*
 /.~lock*
-/bar*
 /PPN*
 /ppn*
 /res*
@@ -27,3 +26,5 @@ statistics_results.jpg
 value_error_pages.csv
 duplicates.csv
 genres_raw.csv
+genre_weighted_mean_scores.png
+genre_publications.png

@@ -236,12 +236,17 @@ def genre_evaluation(metadata_df, results_df):
     matching_ppn_mods = results_df["ppn"].unique()
     filtered_genres = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
     
+    genre_weighted_data = {}
     genre_counts = {}
     count_multiple_genres = 0
     count_single_genres = 0
+    
     for ppn in matching_ppn_mods:
         current_genres_raw = filtered_genres[filtered_genres["PPN"] == ppn]["genre-aad"]
         counted_genres = set()
+        result_entry = results_df[results_df["ppn"] == ppn]
+        if result_entry.empty:
+            continue
         
         for genre_raw in current_genres_raw:
             genres_json = genre_raw.replace('{', '[').replace('}', ']').replace("'", '"')
@@ -269,6 +274,17 @@ def genre_evaluation(metadata_df, results_df):
                 
                 genre_counts[genre] = genre_counts.get(genre, 0) + 1
                 counted_genres.add(genre)
+                
+                mean_word = result_entry["mean_word"].values[0]
+                mean_textline = result_entry["mean_textline"].values[0]
+                weight_word = result_entry["weight_word"].values[0]
+                weight_textline = result_entry["weight_textline"].values[0]
+
+                genre_weighted_data.setdefault(genre, {"mean_word": [], "weight_word": [], "mean_textline": [], "weight_textline": []})
+                genre_weighted_data[genre]["mean_word"].append(mean_word)
+                genre_weighted_data[genre]["weight_word"].append(weight_word)
+                genre_weighted_data[genre]["mean_textline"].append(mean_textline)
+                genre_weighted_data[genre]["weight_textline"].append(weight_textline)
     
     logging.info(f"\nNumber of PPNs: {len(matching_ppn_mods)}")
     print(f"\nNumber of PPNs: {len(matching_ppn_mods)}")
@@ -329,7 +345,45 @@ def genre_evaluation(metadata_df, results_df):
             plt.text(xval, bar.get_y() + bar.get_height()/2, str(int(xval)), ha='left', va='center', fontsize=100)  # Display counts next to bars
         
         plt.tight_layout(pad=2.0)
-        plt.savefig("bar_plot_of_all_genres.png")
+        plt.savefig("genre_publications.png")
+        plt.close()
+        
+        genre_list = []
+        mean_word_list = []
+        mean_textline_list = []
+
+        for genre in genres:
+            data = genre_weighted_data.get(genre)
+            if not data:
+                continue
+            wm_word = weighted_mean(data["mean_word"], data["weight_word"])
+            wm_textline = weighted_mean(data["mean_textline"], data["weight_textline"])
+            genre_list.append(genre)
+            mean_word_list.append(wm_word)
+            mean_textline_list.append(wm_textline)
+
+        plot_df = pd.DataFrame({
+            'Genre': genre_list,
+            'Weighted_Mean_Word': mean_word_list,
+            'Weighted_Mean_Textline': mean_textline_list
+        }).dropna()
+
+        x = np.arange(len(plot_df))
+        width = 0.35
+
+        plt.figure(figsize=(max(12, len(plot_df)*0.5), 8))
+        plt.bar(x - width/2, plot_df['Weighted_Mean_Word'], width, label='Weighted Mean Word', color='skyblue')
+        plt.bar(x + width/2, plot_df['Weighted_Mean_Textline'], width, label='Weighted Mean Textline', color='salmon')
+        plt.xlabel('Genre')
+        plt.ylabel('Confidence Score')
+        plt.title('Genre-based Weighted Means of Word and Textline Confidence Scores')
+        plt.xticks(x, plot_df['Genre'], rotation=45, ha='right')
+        plt.tick_params(axis='x', length=10)
+        plt.ylim(0, 1)
+        plt.xlim(-0.5, len(plot_df))
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig("genre_weighted_mean_scores.png")
         plt.close()
         
 def dates_evaluation(metadata_df, results_df):
