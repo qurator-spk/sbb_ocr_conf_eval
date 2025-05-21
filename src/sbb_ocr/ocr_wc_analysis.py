@@ -388,7 +388,49 @@ def dates_evaluation(metadata_df, results_df):
             
         plt.grid(axis='y', linestyle='--', alpha=0.8)
         plt.tight_layout(pad=1.0)
-        plt.savefig(f"date_range_{min_year}-{max_year}_bar_plot.png")
+        plt.savefig(f"date_range_{min_year}-{max_year}_publications_per_year.png")
+        plt.close()
+        
+        grouped = metadata_df.groupby("publication_date")
+        years = []
+        weighted_mean_word_list = []
+        weighted_mean_textline_list = []
+
+        for year, group in grouped:
+            group_ppns = group["PPN"]
+            subgroup = results_df[results_df["ppn"].isin(group_ppns)]
+            if len(subgroup) > 0:
+                wm_word = weighted_mean(subgroup["mean_word"], subgroup["weight_word"])
+                wm_textline = weighted_mean(subgroup["mean_textline"], subgroup["weight_textline"])
+            else:
+                wm_word = np.nan
+                wm_textline = np.nan
+            years.append(year)
+            weighted_mean_word_list.append(wm_word)
+            weighted_mean_textline_list.append(wm_textline)
+        
+        plot_df = pd.DataFrame({
+            'Year': years,
+            'Weighted_Mean_Word': weighted_mean_word_list,
+            'Weighted_Mean_Textline': weighted_mean_textline_list
+        }).dropna()
+
+        # Plotting the bar plot with two bars per year
+        x = np.arange(len(plot_df))
+        width = 0.35
+
+        plt.figure(figsize=(max(12, len(plot_df)*0.4), 6))
+        plt.bar(x - width/2, plot_df['Weighted_Mean_Word'], width, label='Weighted Mean Word', color='skyblue')
+        plt.bar(x + width/2, plot_df['Weighted_Mean_Textline'], width, label='Weighted Mean Textline', color='salmon')
+        plt.xlabel('Year')
+        plt.ylabel('Confidence Score')
+        plt.title('Yearly Weighted Means of Word and Textline Confidence Scores')
+        plt.xticks(x, plot_df['Year'], rotation=45)
+        plt.ylim(0, 1)
+        plt.xlim(-0.5, len(plot_df))
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(f"date_range_{min_year}-{max_year}_yearly_weighted_means.png")
         plt.close()
         
     except ValueError as e:
