@@ -301,6 +301,7 @@ def genre_evaluation(metadata_df, results_df):
     
     genre_counts_df = pd.DataFrame(list(genre_counts.items()), columns=['Genre', 'Count'])
     genre_counts_df_sorted = genre_counts_df.sort_values(by='Count', ascending=False)
+    genre_counts_df_sorted.to_csv("genre_publications.csv", index=False)
     
     if not genre_counts_df.empty:
         logging.info("\nUnique genres and their counts:\n")
@@ -367,6 +368,7 @@ def genre_evaluation(metadata_df, results_df):
             'Weighted_Mean_Word': mean_word_list,
             'Weighted_Mean_Textline': mean_textline_list
         }).dropna()
+        plot_df.to_csv("genre_weighted_mean_scores.csv", index=False)
 
         x = np.arange(len(plot_df))
         width = 0.35
@@ -412,6 +414,7 @@ def dates_evaluation(metadata_df, results_df):
         year_counts_df.columns = ['Year', 'Count']
         year_counts_df['Year'] = year_counts_df['Year'].astype(int)
         year_counts_df['Count'] = year_counts_df['Count'].astype(int)
+        year_counts_df.to_csv(f"date_range_{min_year}-{max_year}_publications_per_year.csv", index=False)
         
         num_years_with_zero = (year_counts_df['Count'] == 0).sum()
         logging.info(f"Number of years with no publications: {num_years_with_zero}")
@@ -468,6 +471,7 @@ def dates_evaluation(metadata_df, results_df):
             'Weighted_Mean_Word': weighted_mean_word_list,
             'Weighted_Mean_Textline': weighted_mean_textline_list
         }).dropna()
+        plot_df.to_csv(f"date_range_{min_year}-{max_year}_yearly_weighted_means.csv", index=False)
 
         # Plotting the bar plot with two bars per year
         x = np.arange(len(plot_df))
