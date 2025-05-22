@@ -95,7 +95,7 @@ def weighted_std(std_devs, weights):
     variances = np.square(std_devs)
     
     # Compute the weighted mean of variances
-    weighted_variance = np.average(variances, weights=weights)
+    weighted_variance = weighted_mean(variances, weights)
     
     # Calculate the weighted pooled standard deviation
     pooled_std = np.sqrt(weighted_variance)
@@ -138,7 +138,7 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color):
         density_values = kde(x_range)
         ax.set_ylim(bottom=0, top=np.max(density_values) * 1.1)
 
-        mean = np.average(data, weights=weights) if weights is not None else np.mean(data)
+        mean = weighted_mean(data, weights) if weights is not None else np.mean(data)
         q25, q50, q75 = weighted_percentile(data, weights, [25, 50, 75])
 
         ax.axvline(mean, color="black", linestyle="solid", linewidth=1, label="Mean")
