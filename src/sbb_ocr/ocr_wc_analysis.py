@@ -249,28 +249,33 @@ def plot_weighted_means_barplot(plot_df, label_col, title, filename, ha):
     plt.tight_layout()
     plt.savefig(filename)
     plt.close()
-
+ 
 def genre_evaluation(metadata_df, results_df):
     matching_ppn_mods = results_df["ppn"].unique()
     filtered_genres = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
-    
+
+    # Create dicts for fast access
+    ppn_to_genres_raw = filtered_genres.groupby("PPN")["genre-aad"].apply(list).to_dict()
+    ppn_to_results = results_df.groupby("ppn").first().to_dict(orient="index")
+
     genre_weighted_data = {}
     genre_counts = {}
     count_multiple_genres = 0
     count_single_genres = 0
-    
+
     for ppn in matching_ppn_mods:
-        current_genres_raw = filtered_genres[filtered_genres["PPN"] == ppn]["genre-aad"]
-        counted_genres = set()
-        result_entry = results_df[results_df["ppn"] == ppn]
-        if result_entry.empty:
+        current_genres_raw_list = ppn_to_genres_raw.get(ppn, [])
+        result_entry = ppn_to_results.get(ppn)
+        if result_entry is None:
             continue
-        
-        for genre_raw in current_genres_raw:
-            genres_json = genre_raw.replace('{', '[').replace('}', ']').replace("'", '"')
-            if not genres_json:
+
+        counted_genres = set()
+
+        for genre_raw in current_genres_raw_list:
+            if not genre_raw:
                 continue
-            
+            genres_json = genre_raw.replace('{', '[').replace('}', ']').replace("'", '"')
+
             try:
                 genres = json.loads(genres_json)
             except json.JSONDecodeError as e:
@@ -279,48 +284,52 @@ def genre_evaluation(metadata_df, results_df):
                 continue
 
             genres = [x.split(':')[0] if ':' in x else x.split('.')[0] for x in genres]
-            
-            # Count each genre for this PPN
+
             if len(genres) > 1:
                 count_multiple_genres += 1
             elif len(genres) == 1:
                 count_single_genres += 1
-                
-            for genre in set(genres):  # Avoid duplicates
+
+            for genre in set(genres):
                 if genre in counted_genres:
-                    continue 
-                
+                    continue
+
                 genre_counts[genre] = genre_counts.get(genre, 0) + 1
                 counted_genres.add(genre)
-                
-                mean_word = result_entry["mean_word"].values[0]
-                mean_textline = result_entry["mean_textline"].values[0]
-                weight_word = result_entry["weight_word"].values[0]
-                weight_textline = result_entry["weight_textline"].values[0]
 
-                genre_weighted_data.setdefault(genre, {"mean_word": [], "weight_word": [], "mean_textline": [], "weight_textline": []})
+                mean_word = result_entry["mean_word"]
+                mean_textline = result_entry["mean_textline"]
+                weight_word = result_entry["weight_word"]
+                weight_textline = result_entry["weight_textline"]
+
+                if genre not in genre_weighted_data:
+                    genre_weighted_data[genre] = {
+                        "mean_word": [], "weight_word": [],
+                        "mean_textline": [], "weight_textline": []
+                    }
+
                 genre_weighted_data[genre]["mean_word"].append(mean_word)
                 genre_weighted_data[genre]["weight_word"].append(weight_word)
                 genre_weighted_data[genre]["mean_textline"].append(mean_textline)
                 genre_weighted_data[genre]["weight_textline"].append(weight_textline)
-    
+
     logging.info(f"\nNumber of PPNs: {len(matching_ppn_mods)}")
     print(f"\nNumber of PPNs: {len(matching_ppn_mods)}")
-    
+
     logging.info(f"Number of PPNs with one genre: {count_single_genres}")
     print(f"Number of PPNs with one genre: {count_single_genres}")
-    
+
     logging.info(f"Number of PPNs with more than one genre: {count_multiple_genres}")
     print(f"Number of PPNs with more than one genre: {count_multiple_genres}")
-    
+
     all_genres_reduced = set(genre_counts.keys())
     logging.info(f"\nNumber of all unique genres (without subgenres): {len(all_genres_reduced)}")
     print(f"\nNumber of all unique genres (without subgenres): {len(all_genres_reduced)}")
-    
+
     genre_counts_df = pd.DataFrame(list(genre_counts.items()), columns=['Genre', 'Count'])
     genre_counts_df_sorted = genre_counts_df.sort_values(by='Count', ascending=False)
     genre_counts_df_sorted.to_csv("genre_publications.csv", index=False)
-    
+
     if not genre_counts_df.empty:
         logging.info("\nUnique genres and their counts:\n")
         logging.info(genre_counts_df_sorted.to_string(index=False))
@@ -328,10 +337,9 @@ def genre_evaluation(metadata_df, results_df):
         print(genre_counts_df_sorted.to_string(index=False))
 
     sorted_genre_counts = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)
-    sorted_genre_counts_descending = sorted(genre_counts.items(), key=lambda x: x[1], reverse=False)
+    sorted_genre_counts_asc = sorted(genre_counts.items(), key=lambda x: x[1])
 
     if sorted_genre_counts:
-        # Get the genre with the highest count
         _, highest_count = sorted_genre_counts[0]
         plot_threshold = highest_count * 0.04
     else:
@@ -339,8 +347,8 @@ def genre_evaluation(metadata_df, results_df):
         print("No genre available to calculate the threshold.")
         plot_threshold = 0
 
-    # Filter genres by the threshold
-    filtered_genre_counts = [(genre, count) for genre, count in sorted_genre_counts_descending if count > plot_threshold]
+    # Filter genres by threshold
+    filtered_genre_counts = [(genre, count) for genre, count in sorted_genre_counts_asc if count > plot_threshold]
 
     if not filtered_genre_counts:
         logging.info("No genre exceeds the threshold.")
@@ -349,7 +357,7 @@ def genre_evaluation(metadata_df, results_df):
         genres, counts = zip(*filtered_genre_counts)
 
         plt.figure(figsize=(100, 150))
-        bars = plt.barh(genres, counts, color=plt.cm.tab10.colors) # type: ignore
+        bars = plt.barh(genres, counts, color=plt.cm.tab10.colors)  # type: ignore
         plt.ylabel('Genres', fontsize=130)
         plt.xlabel('Counts', fontsize=130)
         plt.title('Counts of Unique Genres', fontsize=150, fontweight='bold')
@@ -358,15 +366,15 @@ def genre_evaluation(metadata_df, results_df):
         plt.grid(axis='x', linestyle='--', alpha=1.0)
         plt.ylim(-0.5, len(genres) - 0.5)
 
-        # Adding data labels next to bars
+        # Add data labels next to bars
         for bar in bars:
             xval = bar.get_width()
-            plt.text(xval, bar.get_y() + bar.get_height()/2, str(int(xval)), ha='left', va='center', fontsize=100)  # Display counts next to bars
-        
+            plt.text(xval, bar.get_y() + bar.get_height()/2, str(int(xval)), ha='left', va='center', fontsize=100)
+
         plt.tight_layout(pad=2.0)
         plt.savefig("genre_publications.png")
         plt.close()
-        
+
         genre_list = []
         mean_word_list = []
         mean_textline_list = []
@@ -1113,7 +1121,7 @@ def plot_everything(
         create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file=plot_file_weighted, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per Page (Weighted)")
     elif aggregate_mode == 'ppn':
         create_plots(results_df, None, None, plot_file=plot_file, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per PPN")
-        create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file=plot_file_weighted, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per PPN (Weighted)")            
+        create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file=plot_file_weighted, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per PPN (Weighted)")
     
         
 def evaluate_everything(
