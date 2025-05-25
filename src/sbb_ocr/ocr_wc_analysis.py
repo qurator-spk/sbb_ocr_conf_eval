@@ -854,13 +854,28 @@ def generate_dataframes(
     metadata_df.loc[metadata_df["genre-aad"].isin([""]), "genre-aad"] = "{'Unbekannt'}"
     
     # Change the genre separation from slashes to commas
-    metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: "{" + genre.strip().strip("{ }").replace("  / ", "', '").replace(" / ", "', '") + "}")
-    
+    metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(
+        lambda genre: "{" + genre.strip().strip("{ }")
+        .replace("  / ", "', '")
+        .replace(" / ", "', '") + "}"
+    )
+
     # Fill incomplete genre names
-    metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: genre.replace("'Ars'", "'Ars moriendi'").replace("'moriendi'", "'Ars moriendi'").strip())
+    metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(
+        lambda genre: genre.replace("'Ars'", "'Ars moriendi'")
+        .replace("'moriendi'", "'Ars moriendi'")
+        .strip()
+    )
     
     # Merge loose subgenres with their genre
-    metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(lambda genre: genre.replace("'jur.'", "'Kommentar:jur.'").replace("'hist.'", "'Kommentar:hist.'").replace("'theol.'", "'Kommentar:theol.'").replace("'lit.'", "'Kommentar:lit.'").strip())
+    metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(
+        lambda genre: genre.replace("'jur.'", "'Kommentar:jur.'")
+                           .replace("'hist.'", "'Kommentar:hist.'")
+                           .replace("'theol.'", "'Kommentar:theol.'")
+                           .replace("'lit.'", "'Kommentar:lit.'")
+                           .replace("Gelegenheitsschrift.Fest", "Gelegenheitsschrift:Fest")
+                           .strip()
+    )
     
     if check_raw_genres:
         metadata_df_unique = metadata_df["genre-aad"].unique()
