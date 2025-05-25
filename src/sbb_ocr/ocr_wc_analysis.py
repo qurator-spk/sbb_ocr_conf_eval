@@ -249,6 +249,15 @@ def plot_weighted_means_barplot(plot_df, label_col, title, filename, ha):
     plt.tight_layout()
     plt.savefig(filename)
     plt.close()
+    
+def extract_genre_and_subgenre(x):
+    parts = x.split(':', 1)
+    genre = parts[0]
+    if len(parts) > 1:
+        subgenre = parts[1].strip()
+        return genre, subgenre
+    else:
+        return genre, None
  
 def genre_evaluation(metadata_df, results_df):
     matching_ppn_mods = results_df["ppn"].unique()
@@ -260,6 +269,7 @@ def genre_evaluation(metadata_df, results_df):
 
     genre_weighted_data = {}
     genre_counts = {}
+    subgenre_counts = {}
     count_multiple_genres = 0
     count_single_genres = 0
 
@@ -283,12 +293,20 @@ def genre_evaluation(metadata_df, results_df):
                 print(f"JSON decode error for PPN {ppn}: {e}")
                 continue
             
-            genres = [x.split(':')[0] for x in genres]
+            genres_with_subgenres = [extract_genre_and_subgenre(x) for x in genres]
+            genres = [g[0] for g in genres_with_subgenres]
+            subgenres = [sub for _, sub in genres_with_subgenres if sub]
 
             if len(genres) > 1:
                 count_multiple_genres += 1
             elif len(genres) == 1:
                 count_single_genres += 1
+                
+            for sub in subgenres:
+                if sub in subgenre_counts:
+                    subgenre_counts[sub] += 1
+                else:
+                    subgenre_counts[sub] = 1
 
             for genre in set(genres): # Avoid duplicates
                 if genre in counted_genres:
@@ -335,6 +353,19 @@ def genre_evaluation(metadata_df, results_df):
         logging.info(genre_counts_df_sorted.to_string(index=False))
         print("\nUnique genres and their counts:\n")
         print(genre_counts_df_sorted.to_string(index=False))
+        
+    subgenre_counts_df = pd.DataFrame(list(subgenre_counts.items()), columns=['Subgenre', 'Count'])
+    subgenre_counts_df_sorted = subgenre_counts_df.sort_values(by='Count', ascending=False)
+    subgenre_counts_df_sorted.to_csv("subgenre_publications.csv", index=False)
+
+    logging.info(f"\nNumber of all unique subgenres: {len(subgenre_counts_df_sorted)}")
+    print(f"\nNumber of all unique subgenres: {len(subgenre_counts_df_sorted)}")
+
+    if not subgenre_counts_df.empty:
+        logging.info("\nUnique subgenres and their counts:\n")
+        logging.info(subgenre_counts_df_sorted.to_string(index=False))
+        print("\nUnique subgenres and their counts:\n")
+        print(subgenre_counts_df_sorted.to_string(index=False))
 
     sorted_genre_counts = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)
     sorted_genre_counts_asc = sorted(genre_counts.items(), key=lambda x: x[1])
