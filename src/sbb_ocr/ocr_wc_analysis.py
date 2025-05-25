@@ -282,15 +282,15 @@ def genre_evaluation(metadata_df, results_df):
                 logging.error(f"JSON decode error for PPN {ppn}: {e}")
                 print(f"JSON decode error for PPN {ppn}: {e}")
                 continue
-
-            genres = [x.split(':')[0] if ':' in x else x.split('.')[0] for x in genres]
+            
+            genres = [x.split(':')[0] for x in genres]
 
             if len(genres) > 1:
                 count_multiple_genres += 1
             elif len(genres) == 1:
                 count_single_genres += 1
 
-            for genre in set(genres):
+            for genre in set(genres): # Avoid duplicates
                 if genre in counted_genres:
                     continue
 
@@ -369,7 +369,7 @@ def genre_evaluation(metadata_df, results_df):
         # Add data labels next to bars
         for bar in bars:
             xval = bar.get_width()
-            plt.text(xval, bar.get_y() + bar.get_height()/2, str(int(xval)), ha='left', va='center', fontsize=100)
+            plt.text(xval, bar.get_y() + bar.get_height()/2, str(int(xval)), ha='left', va='center', fontsize=100)  # Display counts next to bars
 
         plt.tight_layout(pad=2.0)
         plt.savefig("genre_publications.png")
