@@ -258,6 +258,62 @@ def extract_genre_and_subgenre(x):
         return genre, subgenre
     else:
         return genre, None
+        
+def get_sizefactor(n):
+    return 0.45 if n > 200 else 0.6 if n > 150 else 1.0
+    
+def plot_horizontal_bar_chart(labels, counts, title, ylabel, filename, fontsize_scale=1.0):
+    sizefactor = get_sizefactor(len(labels))
+    # Descending order
+    labels, counts = list(labels)[::-1], list(counts)[::-1]
+
+    plt.figure(figsize=(100, 150))
+    bars = plt.barh(labels, counts, color=plt.cm.tab10.colors)  # type: ignore
+    plt.ylabel(ylabel, fontsize=130 * sizefactor * fontsize_scale)
+    plt.xlabel('Counts', fontsize=130 * sizefactor * fontsize_scale)
+    plt.title(title, fontsize=150 * sizefactor * fontsize_scale, fontweight='bold')
+    plt.xticks(fontsize=100 * sizefactor * fontsize_scale)
+    plt.yticks(fontsize=100 * sizefactor * fontsize_scale)
+    plt.grid(axis='x', linestyle='--', alpha=1.0)
+    plt.ylim(-0.5, len(labels) - 0.5)
+    
+    # Add data labels next to bars
+    for bar in bars:
+        xval = bar.get_width()
+        plt.text(xval, bar.get_y() + bar.get_height() / 2, str(int(xval)), ha='left', va='center', fontsize=100 * sizefactor * fontsize_scale)
+
+    plt.tight_layout(pad=2.0)
+    plt.savefig(filename)
+    plt.close()
+    
+def process_weighted_means(data_dict, label_name, filename_prefix):
+    labels = []
+    mean_words = []
+    mean_textlines = []
+
+    for label, data in data_dict.items():
+        if not data["mean_word"] or not data["weight_word"]:
+            continue
+        wm_word = weighted_mean(data["mean_word"], data["weight_word"])
+        wm_textline = weighted_mean(data["mean_textline"], data["weight_textline"])
+        labels.append(label)
+        mean_words.append(wm_word)
+        mean_textlines.append(wm_textline)
+
+    df = pd.DataFrame({
+        label_name: labels,
+        'Weighted_Mean_Word': mean_words,
+        'Weighted_Mean_Textline': mean_textlines
+    }).dropna()
+    df.to_csv(f"{filename_prefix}_weighted_mean_scores.csv", index=False)
+
+    plot_weighted_means_barplot(
+        df,
+        label_col=label_name,
+        title=f'{label_name}-based Weighted Means of Word and Textline Confidence Scores',
+        filename=f"{filename_prefix}_weighted_mean_scores.png",
+        ha='right'
+    )
  
 def genre_evaluation(metadata_df, results_df, use_threshold=False):
     matching_ppn_mods = results_df["ppn"].unique()
@@ -304,10 +360,7 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
                 count_single_genres += 1
                 
             for sub in subgenres:
-                if sub in subgenre_counts:
-                    subgenre_counts[sub] += 1
-                else:
-                    subgenre_counts[sub] = 1
+                subgenre_counts[sub] = subgenre_counts.get(sub, 0) + 1
                     
                 if sub not in subgenre_weighted_data:
                     subgenre_weighted_data[sub] = {
@@ -380,36 +433,15 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         
     if not subgenre_counts_df_sorted.empty:
         subgenres, sub_counts = zip(*subgenre_counts_df_sorted.values)
-        subgenres = subgenres[::-1]
-        sub_counts = sub_counts[::-1] 
-
-        if len(subgenres) > 200:
-            sizefactor = 0.45
-        elif len(subgenres) > 150:
-            sizefactor = 0.6
-        else:
-            sizefactor = 1.0
-
-        plt.figure(figsize=(100, 150))
-        sub_bars = plt.barh(subgenres, sub_counts, color=plt.cm.tab10.colors)  # type: ignore
-        plt.ylabel('Subgenres', fontsize=130*sizefactor)
-        plt.xlabel('Counts', fontsize=130*sizefactor)
-        plt.title('Counts of Unique Subgenres', fontsize=150*sizefactor, fontweight='bold')
-        plt.xticks(fontsize=100*sizefactor)
-        plt.yticks(fontsize=100*sizefactor)
-        plt.grid(axis='x', linestyle='--', alpha=1.0)
-        plt.ylim(-0.5, len(subgenres) - 0.5)
-
-        for bar in sub_bars:
-            xval = bar.get_width()
-            plt.text(xval, bar.get_y() + bar.get_height()/2, str(int(xval)), ha='left', va='center', fontsize=100*sizefactor)
-
-        plt.tight_layout(pad=2.0)
-        plt.savefig("subgenre_publications.png")
-        plt.close()
+        plot_horizontal_bar_chart(
+            labels=subgenres,
+            counts=sub_counts,
+            title='Counts of Unique Subgenres',
+            ylabel='Subgenres',
+            filename='subgenre_publications.png'
+        )
 
     sorted_genre_counts = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)
-    sorted_genre_counts_asc = sorted(genre_counts.items(), key=lambda x: x[1])
 
     if sorted_genre_counts:
         _, highest_count = sorted_genre_counts[0]
@@ -421,99 +453,26 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
     
     if use_threshold:
         # Filter genres by threshold
-        filtered_genre_counts = [(genre, count) for genre, count in sorted_genre_counts_asc if count > plot_threshold]
+        filtered_genre_counts = [(genre, count) for genre, count in sorted_genre_counts if count > plot_threshold]
     else:
         # Include all genres
-        filtered_genre_counts = sorted_genre_counts_asc
+        filtered_genre_counts = sorted_genre_counts
 
     if not filtered_genre_counts:
         logging.info("No genre exceeds the threshold.")
         print("No genre exceeds the threshold.")
     else:
         genres, counts = zip(*filtered_genre_counts)
-        
-        if len(all_genres_reduced) > 200:
-            sizefactor = 0.45
-        elif len(all_genres_reduced) > 150:
-            sizefactor = 0.6
-        else:
-            sizefactor = 1.0
-
-        plt.figure(figsize=(100, 150))
-        bars = plt.barh(genres, counts, color=plt.cm.tab10.colors)  # type: ignore
-        plt.ylabel('Genres', fontsize=130*sizefactor)
-        plt.xlabel('Counts', fontsize=130*sizefactor)
-        plt.title('Counts of Unique Genres', fontsize=150*sizefactor, fontweight='bold')
-        plt.xticks(fontsize=100*sizefactor)
-        plt.yticks(fontsize=100*sizefactor)
-        plt.grid(axis='x', linestyle='--', alpha=1.0)
-        plt.ylim(-0.5, len(genres) - 0.5)
-
-        # Add data labels next to bars
-        for bar in bars:
-            xval = bar.get_width()
-            plt.text(xval, bar.get_y() + bar.get_height()/2, str(int(xval)), ha='left', va='center', fontsize=100*sizefactor)  # Display counts next to bars
-
-        plt.tight_layout(pad=2.0)
-        plt.savefig("genre_publications.png")
-        plt.close()
-
-        genre_list = []
-        mean_word_list = []
-        mean_textline_list = []
-
-        for genre in genres:
-            data = genre_weighted_data.get(genre)
-            if not data:
-                continue
-            wm_word = weighted_mean(data["mean_word"], data["weight_word"])
-            wm_textline = weighted_mean(data["mean_textline"], data["weight_textline"])
-            genre_list.append(genre)
-            mean_word_list.append(wm_word)
-            mean_textline_list.append(wm_textline)
-
-        plot_df = pd.DataFrame({
-            'Genre': genre_list,
-            'Weighted_Mean_Word': mean_word_list,
-            'Weighted_Mean_Textline': mean_textline_list
-        }).dropna()
-        plot_df.to_csv("genre_weighted_mean_scores.csv", index=False)
-
-        plot_weighted_means_barplot(
-            plot_df,
-            label_col='Genre',
-            title='Genre-based Weighted Means of Word and Textline Confidence Scores',
-            filename="genre_weighted_mean_scores.png",
-            ha='right'
+        plot_horizontal_bar_chart(
+            labels=genres,
+            counts=counts,
+            title='Counts of Unique Genres',
+            ylabel='Genres',
+            filename='genre_publications.png'
         )
-        
-        subgenre_list = []
-        sub_mean_word_list = []
-        sub_mean_textline_list = []
 
-        for subgenre, data in subgenre_weighted_data.items():
-            if not data["mean_word"] or not data["weight_word"]:
-                continue
-            wm_word = weighted_mean(data["mean_word"], data["weight_word"])
-            wm_textline = weighted_mean(data["mean_textline"], data["weight_textline"])
-            subgenre_list.append(subgenre)
-            sub_mean_word_list.append(wm_word)
-            sub_mean_textline_list.append(wm_textline)
-
-        sub_plot_df = pd.DataFrame({
-            'Subgenre': subgenre_list,
-            'Weighted_Mean_Word': sub_mean_word_list,
-            'Weighted_Mean_Textline': sub_mean_textline_list
-        }).dropna()
-        sub_plot_df.to_csv("subgenre_weighted_mean_scores.csv", index=False)
-
-        plot_weighted_means_barplot(
-            sub_plot_df,
-            label_col='Subgenre',
-            title='Subgenre-based Weighted Means of Word and Textline Confidence Scores',
-            filename="subgenre_weighted_mean_scores.png",
-            ha='right'
-        )
+        process_weighted_means(genre_weighted_data, label_name='Genre', filename_prefix='genre')
+        process_weighted_means(subgenre_weighted_data, label_name='Subgenre', filename_prefix='subgenre')
         
 def dates_evaluation(metadata_df, results_df):
     matching_ppn_mods = results_df["ppn"].unique()
