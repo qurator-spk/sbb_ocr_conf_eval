@@ -377,6 +377,36 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         logging.info(subgenre_counts_df_sorted.to_string(index=False))
         print("\nUnique subgenres and their counts:\n")
         print(subgenre_counts_df_sorted.to_string(index=False))
+        
+    if not subgenre_counts_df_sorted.empty:
+        subgenres, sub_counts = zip(*subgenre_counts_df_sorted.values)
+        subgenres = subgenres[::-1]
+        sub_counts = sub_counts[::-1] 
+
+        if len(subgenres) > 200:
+            sizefactor = 0.45
+        elif len(subgenres) > 150:
+            sizefactor = 0.6
+        else:
+            sizefactor = 1.0
+
+        plt.figure(figsize=(100, 150))
+        sub_bars = plt.barh(subgenres, sub_counts, color=plt.cm.tab10.colors)  # type: ignore
+        plt.ylabel('Subgenres', fontsize=130*sizefactor)
+        plt.xlabel('Counts', fontsize=130*sizefactor)
+        plt.title('Counts of Unique Subgenres', fontsize=150*sizefactor, fontweight='bold')
+        plt.xticks(fontsize=100*sizefactor)
+        plt.yticks(fontsize=100*sizefactor)
+        plt.grid(axis='x', linestyle='--', alpha=1.0)
+        plt.ylim(-0.5, len(subgenres) - 0.5)
+
+        for bar in sub_bars:
+            xval = bar.get_width()
+            plt.text(xval, bar.get_y() + bar.get_height()/2, str(int(xval)), ha='left', va='center', fontsize=100*sizefactor)
+
+        plt.tight_layout(pad=2.0)
+        plt.savefig("subgenre_publications.png")
+        plt.close()
 
     sorted_genre_counts = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)
     sorted_genre_counts_asc = sorted(genre_counts.items(), key=lambda x: x[1])
