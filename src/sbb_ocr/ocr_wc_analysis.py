@@ -327,6 +327,7 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
     genre_counts = {}
     subgenre_weighted_data = {}
     subgenre_counts = {}
+    genre_to_subgenre_counts = {}
     count_multiple_genres = 0
     count_single_genres = 0
 
@@ -358,6 +359,14 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
                 count_multiple_genres += 1
             elif len(genres) == 1:
                 count_single_genres += 1
+                
+            for genre, subgenre in genres_with_subgenres:
+                if subgenre:
+                    if genre not in genre_to_subgenre_counts:
+                        genre_to_subgenre_counts[genre] = {}
+                    if subgenre not in genre_to_subgenre_counts[genre]:
+                        genre_to_subgenre_counts[genre][subgenre] = 0
+                    genre_to_subgenre_counts[genre][subgenre] += 1
                 
             for sub in subgenres:
                 subgenre_counts[sub] = subgenre_counts.get(sub, 0) + 1
@@ -430,6 +439,22 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         logging.info(subgenre_counts_df_sorted.to_string(index=False))
         print("\nUnique subgenres and their counts:\n")
         print(subgenre_counts_df_sorted.to_string(index=False))
+        
+    genre_subgenre_summary = []
+
+    for genre, subgenre_dict in genre_to_subgenre_counts.items():
+        subgenre_str = "; ".join([f"{sub} ({count})" for sub, count in sorted(subgenre_dict.items(), key=lambda x: -x[1])])
+        genre_subgenre_summary.append((genre, subgenre_str))
+
+    genre_subgenre_df = pd.DataFrame(genre_subgenre_summary, columns=["Genre", "Subgenres (with counts)"])
+    genre_subgenre_df_sorted = genre_subgenre_df.sort_values(by="Genre")
+    genre_subgenre_df_sorted.to_csv("genre_subgenre_combinations.csv", index=False)
+
+    logging.info(f"\nNumber of genres with subgenre associations: {len(genre_subgenre_df_sorted)}")
+    print(f"\nNumber of genres with subgenre associations: {len(genre_subgenre_df_sorted)}")
+
+    print("\nGenre-subgenre combinations:\n")
+    print(genre_subgenre_df_sorted.to_string(index=False))
         
     if not subgenre_counts_df_sorted.empty:
         subgenres, sub_counts = zip(*subgenre_counts_df_sorted.values)
