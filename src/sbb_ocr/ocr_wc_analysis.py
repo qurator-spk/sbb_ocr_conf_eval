@@ -244,7 +244,7 @@ def create_weighted_means_barplot(plot_df, label_col, title, filename, ha):
     plt.xticks(x, plot_df[label_col], rotation=45, ha=ha)
     plt.tick_params(axis='x', length=10)
     plt.ylim(0, 1)
-    plt.xlim(-0.5, len(plot_df))
+    plt.xlim(-0.5, len(plot_df)-0.5)
     plt.legend()
     plt.tight_layout()
     plt.savefig(filename)
