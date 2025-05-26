@@ -499,6 +499,27 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         process_weighted_means(genre_weighted_data, label_name='Genre', filename_prefix='genre')
         process_weighted_means(subgenre_weighted_data, label_name='Subgenre', filename_prefix='subgenre')
         
+        # Flatten and sort within genre in order to plot the genre-subgenre combinations
+        flattened_labels = []
+        flattened_counts = []
+        for genre in sorted(genre_to_subgenre_counts.keys()):
+            subgenre_dict = genre_to_subgenre_counts[genre]
+            
+            # Use descending order
+            sorted_subgenres = sorted(subgenre_dict.items(), key=lambda x: -x[1])
+            for subgenre, count in sorted_subgenres:
+                flattened_labels.append(f"{genre}: {subgenre}")
+                flattened_counts.append(count)
+
+        if flattened_labels and flattened_counts:
+            create_publication_count_horizontal_barplot(
+                labels=flattened_labels,
+                counts=flattened_counts,
+                title='Counts of Genre-Subgenre Combinations',
+                ylabel='Genre: Subgenre',
+                filename='genre_subgenre_combinations.png'
+            )
+        
 def dates_evaluation(metadata_df, results_df):
     matching_ppn_mods = results_df["ppn"].unique()
     metadata_df = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)].copy()
