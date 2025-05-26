@@ -5,21 +5,21 @@
 ## METADATA_FILES description
 
 Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive` 
-- Number of PPNs: ***46506***
-- Number of PPN_PAGEs: ***4632942***
-- Number of CSV_FILEs: ***10988***
-- Number of words: ***979948836***
-- Number of textlines: ***140950695***
+- Number of PPNs: ***46.506***
+- Number of PPN_PAGEs: ***4.632.942***
+- Number of CSV_FILEs: ***10.988***
+- Number of words: ***979.948.836***
+- Number of textlines: ***140.950.695***
 - Number of raw genres: ***2130***
 - Number of unique genres (without subgenres): ***215***
 - Number of unique years: ***507***
 - Earliest year: ***1456***
 - Latest year: ***2025***
 - Number od duplicates: ***1194***
-- Number of pages without confidence scores: ***308839***
+- Number of pages without confidence scores: ***308.839***
 
 `metadata.csv`:
-- Number of rows: ***46506*** (without header row)
+- Number of rows: ***46.506*** (without header row)
 - Number of columns: ***3***
 - PPNs in `PPN` column
 - Genres in `genre-aad` column 
@@ -32,7 +32,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
   - Elements that are not 4 digits changed to `2025`
 - Projects: ***missing***
 - Titlepages: ***missing***
-- Source: Created from `metadata.csv` (47716 rows) by dropping 1210 PPNs that are NOT in CSV_FILEs (46506 rows)
+- Source: Created from `metadata.csv` (47.716 rows) by dropping 1210 PPNs that are NOT in CSV_FILEs (46.506 rows)
 
 
 ## Analysis results
@@ -92,7 +92,8 @@ Options:
        -a,      --aggregate-mode                    Choose between aggregation by PPN or PPN_PAGE (default is PPN_PAGE)
        -r,      --show-results                      Show the light version of the results [ppn, ppn_page, mean_word, weight_word, weight_textline, originInfo-publication0_dateIssued, genre-aad] (optional)
        -o,      --output                            Save the results and the description of the results to an OUTPUT_CSV_FILE (optional)
-       -g,      --genre                             Choose a GENRE (optional)
+       -g,      --genre                             Choose a GENRE to be evaluated (optional)
+       -sg,     --subgenre                          Choose a SUBGENRE to be evaluated (optional)
        -ge,     --show-genre-evaluation             Evaluate the number of genres in the CSV_FILEs and save the corresponding bar plot (optional)
        -d       --search-date                       Filter the data for a specific year, specify <YEAR> (optional)
        -dr,     --date-range                        Choose a date range for filtering the data, specify <YEAR_START> <YEAR_END> (optional)
