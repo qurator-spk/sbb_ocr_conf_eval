@@ -259,7 +259,7 @@ def extract_genre_and_subgenre(x):
     else:
         return genre, None
  
-def genre_evaluation(metadata_df, results_df):
+def genre_evaluation(metadata_df, results_df, use_threshold=False):
     matching_ppn_mods = results_df["ppn"].unique()
     filtered_genres = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
 
@@ -377,30 +377,41 @@ def genre_evaluation(metadata_df, results_df):
         logging.info("No genre available to calculate the threshold.")
         print("No genre available to calculate the threshold.")
         plot_threshold = 0
-
-    # Filter genres by threshold
-    filtered_genre_counts = [(genre, count) for genre, count in sorted_genre_counts_asc if count > plot_threshold]
+    
+    if use_threshold:
+        # Filter genres by threshold
+        filtered_genre_counts = [(genre, count) for genre, count in sorted_genre_counts_asc if count > plot_threshold]
+    else:
+        # Include all genres
+        filtered_genre_counts = sorted_genre_counts_asc
 
     if not filtered_genre_counts:
         logging.info("No genre exceeds the threshold.")
         print("No genre exceeds the threshold.")
     else:
         genres, counts = zip(*filtered_genre_counts)
+        
+        if len(all_genres_reduced) > 200:
+            sizefactor = 0.45
+        elif len(all_genres_reduced) > 150:
+            sizefactor = 0.6
+        else:
+            sizefactor = 1.0
 
         plt.figure(figsize=(100, 150))
         bars = plt.barh(genres, counts, color=plt.cm.tab10.colors)  # type: ignore
-        plt.ylabel('Genres', fontsize=130)
-        plt.xlabel('Counts', fontsize=130)
-        plt.title('Counts of Unique Genres', fontsize=150, fontweight='bold')
-        plt.xticks(fontsize=100)
-        plt.yticks(fontsize=100)
+        plt.ylabel('Genres', fontsize=130*sizefactor)
+        plt.xlabel('Counts', fontsize=130*sizefactor)
+        plt.title('Counts of Unique Genres', fontsize=150*sizefactor, fontweight='bold')
+        plt.xticks(fontsize=100*sizefactor)
+        plt.yticks(fontsize=100*sizefactor)
         plt.grid(axis='x', linestyle='--', alpha=1.0)
         plt.ylim(-0.5, len(genres) - 0.5)
 
         # Add data labels next to bars
         for bar in bars:
             xval = bar.get_width()
-            plt.text(xval, bar.get_y() + bar.get_height()/2, str(int(xval)), ha='left', va='center', fontsize=100)  # Display counts next to bars
+            plt.text(xval, bar.get_y() + bar.get_height()/2, str(int(xval)), ha='left', va='center', fontsize=100*sizefactor)  # Display counts next to bars
 
         plt.tight_layout(pad=2.0)
         plt.savefig("genre_publications.png")
