@@ -232,7 +232,7 @@ def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))
         
-def plot_weighted_means_barplot(plot_df, label_col, title, filename, ha):
+def create_weighted_means_barplot(plot_df, label_col, title, filename, ha):
     x = np.arange(len(plot_df))
     width = 0.35
     plt.figure(figsize=(max(13, len(plot_df) * 0.5), 7))
@@ -262,7 +262,7 @@ def extract_genre_and_subgenre(x):
 def get_sizefactor(n):
     return 0.45 if n > 200 else 0.6 if n > 150 else 1.0
     
-def plot_horizontal_bar_chart(labels, counts, title, ylabel, filename, fontsize_scale=1.0):
+def create_publication_count_horizontal_barplot(labels, counts, title, ylabel, filename, fontsize_scale=1.0):
     sizefactor = get_sizefactor(len(labels))
     # Descending order
     labels, counts = list(labels)[::-1], list(counts)[::-1]
@@ -307,7 +307,7 @@ def process_weighted_means(data_dict, label_name, filename_prefix):
     }).dropna()
     df.to_csv(f"{filename_prefix}_weighted_mean_scores.csv", index=False)
 
-    plot_weighted_means_barplot(
+    create_weighted_means_barplot(
         df,
         label_col=label_name,
         title=f'{label_name}-based Weighted Means of Word and Textline Confidence Scores',
@@ -458,7 +458,7 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         
     if not subgenre_counts_df_sorted.empty:
         subgenres, sub_counts = zip(*subgenre_counts_df_sorted.values)
-        plot_horizontal_bar_chart(
+        create_publication_count_horizontal_barplot(
             labels=subgenres,
             counts=sub_counts,
             title='Counts of Unique Subgenres',
@@ -488,7 +488,7 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         print("No genre exceeds the threshold.")
     else:
         genres, counts = zip(*filtered_genre_counts)
-        plot_horizontal_bar_chart(
+        create_publication_count_horizontal_barplot(
             labels=genres,
             counts=counts,
             title='Counts of Unique Genres',
