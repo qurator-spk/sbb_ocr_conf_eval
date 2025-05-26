@@ -265,22 +265,23 @@ def get_sizefactor(n):
 def create_publication_count_horizontal_barplot(labels, counts, title, ylabel, filename, fontsize_scale=1.0):
     sizefactor = get_sizefactor(len(labels))
     # Descending order
-    labels, counts = list(labels)[::-1], list(counts)[::-1]
+    labels, counts = labels[::-1], counts[::-1]
+    base_font = 20 * sizefactor * fontsize_scale
 
-    plt.figure(figsize=(100, 150))
+    plt.figure(figsize=(20, 30))
     bars = plt.barh(labels, counts, color=plt.cm.tab10.colors)  # type: ignore
-    plt.ylabel(ylabel, fontsize=130 * sizefactor * fontsize_scale)
-    plt.xlabel('Counts', fontsize=130 * sizefactor * fontsize_scale)
-    plt.title(title, fontsize=150 * sizefactor * fontsize_scale, fontweight='bold')
-    plt.xticks(fontsize=100 * sizefactor * fontsize_scale)
-    plt.yticks(fontsize=100 * sizefactor * fontsize_scale)
+    plt.ylabel(ylabel, fontsize=26 * sizefactor * fontsize_scale)
+    plt.xlabel('Counts', fontsize=26 * sizefactor * fontsize_scale)
+    plt.title(title, fontsize=30 * sizefactor * fontsize_scale, fontweight='bold')
+    plt.xticks(fontsize=base_font)
+    plt.yticks(fontsize=base_font)
     plt.grid(axis='x', linestyle='--', alpha=1.0)
     plt.ylim(-0.5, len(labels) - 0.5)
     
     # Add data labels next to bars
     for bar in bars:
         xval = bar.get_width()
-        plt.text(xval, bar.get_y() + bar.get_height() / 2, str(int(xval)), ha='left', va='center', fontsize=100 * sizefactor * fontsize_scale)
+        plt.text(xval, bar.get_y() + bar.get_height() / 2, str(int(xval)), ha='left', va='center', fontsize=base_font)
 
     plt.tight_layout(pad=2.0)
     plt.savefig(filename)
@@ -316,7 +317,7 @@ def process_weighted_means(data_dict, label_name, filename_prefix):
     )
  
 def genre_evaluation(metadata_df, results_df, use_threshold=False):
-    matching_ppn_mods = results_df["ppn"].unique()
+    matching_ppn_mods = set(results_df["ppn"].unique())
     filtered_genres = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
 
     # Create dicts for fast access
@@ -524,7 +525,7 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
                 )
         
 def dates_evaluation(metadata_df, results_df):
-    matching_ppn_mods = results_df["ppn"].unique()
+    matching_ppn_mods = set(results_df["ppn"].unique())
     metadata_df = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)].copy()
     metadata_df.loc[:, 'publication_date'] = pd.to_numeric(metadata_df['publication_date'], errors='coerce')
     try:
@@ -608,7 +609,7 @@ def dates_evaluation(metadata_df, results_df):
         }).dropna()
         plot_df.to_csv(f"date_range_{min_year}-{max_year}_yearly_weighted_means.csv", index=False)
 
-        plot_weighted_means_barplot(
+        create_weighted_means_barplot(
             plot_df,
             label_col='Year',
             title='Yearly Weighted Means of Word and Textline Confidence Scores',
