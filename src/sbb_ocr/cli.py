@@ -17,6 +17,7 @@ def cli():
 
 @cli.command('plot')
 @click.option('-g', '--genre', 'search_genre', help='Genre to be evaluated (optional)')
+@click.option('-sg', '--subgenre', 'search_subgenre', help='Subgenre to be evaluated (optional)')
 @click.option('-m', '--metadata', 'metadata_csv', default="metadata.csv", help='METADATA_FILE with the PPN metadata (optional)')
 @click.option('-d', '--search-date', 'search_date', type=int, help='Filter the data for a specific year, specify <YEAR> (optional)')
 @click.option('-dr', '--date-range', nargs=2, type=(int, int), help='Year range for filtering data, specify <YEAR_START> <YEAR_END> (optional)')
@@ -52,6 +53,7 @@ def cli():
 @click.argument('PLOT_FILE')
 def plot_cli(
     search_genre,
+    search_subgenre,
     metadata_csv,
     csv_files,
     plot_file,
@@ -117,6 +119,7 @@ def plot_cli(
         csv_files=csv_files,
         metadata_csv=metadata_csv,
         search_genre=search_genre,
+        search_subgenre=search_subgenre,
         plot_file=plot_file,
         search_ppn=search_ppn,
         search_date=search_date,

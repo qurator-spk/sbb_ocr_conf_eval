@@ -887,15 +887,15 @@ def generate_dataframes(
     # Change the genre separation from slashes to commas
     metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(
         lambda genre: "{" + genre.strip().strip("{ }")
-        .replace("  / ", "', '")
-        .replace(" / ", "', '") + "}"
+                                 .replace("  / ", "', '")
+                                 .replace(" / ", "', '") + "}"
     )
 
     # Fill incomplete genre names
     metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(
         lambda genre: genre.replace("'Ars'", "'Ars moriendi'")
-        .replace("'moriendi'", "'Ars moriendi'")
-        .strip()
+                           .replace("'moriendi'", "'Ars moriendi'")
+                           .strip()
     )
     
     # Merge loose subgenres with their genre
@@ -946,6 +946,7 @@ def plot_everything(
     csv_files: list[str],
     metadata_csv: str,
     search_genre,
+    search_subgenre,
     plot_file="statistics_results.jpg",
     search_ppn=None,
     search_date=None,
@@ -1055,6 +1056,13 @@ def plot_everything(
         escaped_genre = re.escape(search_genre)
         pattern = r"\{\s*[^}]*?\b" + escaped_genre + r"\b[^}]*?\}"
         results_df = results_df[results_df["ppn"].isin(metadata_df.loc[metadata_df["genre-aad"].str.match(pattern, na=False), "PPN"])]
+        
+    if search_subgenre:
+        escaped_subgenre = re.escape(search_subgenre)
+        pattern = r":[\s]*" + escaped_subgenre + r"(?!\w)"
+        results_df = results_df[results_df["ppn"].isin(
+            metadata_df.loc[metadata_df["genre-aad"].str.contains(pattern, na=False), "PPN"]
+        )]
         
     if use_top_ppns_word:
         results_df = results_df[((results_df["mean_word"] >= 0.95) & (results_df["mean_word"] <= 1.0))]
