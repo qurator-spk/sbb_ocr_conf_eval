@@ -426,37 +426,38 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         logging.info(genre_counts_df_sorted.to_string(index=False))
         print("\nUnique genres and their counts:\n")
         print(genre_counts_df_sorted.to_string(index=False))
-        
+
     subgenre_counts_df = pd.DataFrame(list(subgenre_counts.items()), columns=['Subgenre', 'Count'])
     subgenre_counts_df_sorted = subgenre_counts_df.sort_values(by='Count', ascending=False)
-    subgenre_counts_df_sorted.to_csv("subgenre_publications.csv", index=False)
-
+    
     logging.info(f"\nNumber of all unique subgenres: {len(subgenre_counts_df_sorted)}")
     print(f"\nNumber of all unique subgenres: {len(subgenre_counts_df_sorted)}")
-
-    if not subgenre_counts_df.empty:
+    
+    if not subgenre_counts_df.empty:    
+        subgenre_counts_df_sorted.to_csv("subgenre_publications.csv", index=False)        
         logging.info("\nUnique subgenres and their counts:\n")
         logging.info(subgenre_counts_df_sorted.to_string(index=False))
         print("\nUnique subgenres and their counts:\n")
         print(subgenre_counts_df_sorted.to_string(index=False))
         
-    genre_subgenre_summary = []
+        genre_subgenre_summary = []
 
-    for genre, subgenre_dict in genre_to_subgenre_counts.items():
-        subgenre_str = "; ".join([f"{sub} ({count})" for sub, count in sorted(subgenre_dict.items(), key=lambda x: -x[1])])
-        genre_subgenre_summary.append((genre, subgenre_str))
+        for genre, subgenre_dict in genre_to_subgenre_counts.items():
+            subgenre_str = "; ".join([f"{sub} ({count})" for sub, count in sorted(subgenre_dict.items(), key=lambda x: -x[1])])
+            genre_subgenre_summary.append((genre, subgenre_str))
 
-    genre_subgenre_df = pd.DataFrame(genre_subgenre_summary, columns=["Genre", "Subgenres (with counts)"])
-    genre_subgenre_df_sorted = genre_subgenre_df.sort_values(by="Genre")
-    genre_subgenre_df_sorted.to_csv("genre_subgenre_combinations.csv", index=False)
+        genre_subgenre_df = pd.DataFrame(genre_subgenre_summary, columns=["Genre", "Subgenres (with counts)"])
+        genre_subgenre_df_sorted = genre_subgenre_df.sort_values(by="Genre")
+        genre_subgenre_df_sorted.to_csv("genre_subgenre_combinations.csv", index=False)
 
-    logging.info(f"\nNumber of genres with subgenre associations: {len(genre_subgenre_df_sorted)}")
-    print(f"\nNumber of genres with subgenre associations: {len(genre_subgenre_df_sorted)}")
-
-    print("\nGenre-subgenre combinations:\n")
-    print(genre_subgenre_df_sorted.to_string(index=False))
+        logging.info(f"\nNumber of genres with subgenre associations: {len(genre_subgenre_df_sorted)}")
+        print(f"\nNumber of genres with subgenre associations: {len(genre_subgenre_df_sorted)}")
         
-    if not subgenre_counts_df_sorted.empty:
+        logging.info("\nGenre-subgenre combinations:\n")
+        logging.info(genre_subgenre_df_sorted.to_string(index=False))
+        print("\nGenre-subgenre combinations:\n")
+        print(genre_subgenre_df_sorted.to_string(index=False))
+        
         subgenres, sub_counts = zip(*subgenre_counts_df_sorted.values)
         create_publication_count_horizontal_barplot(
             labels=subgenres,
@@ -497,28 +498,30 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         )
 
         process_weighted_means(genre_weighted_data, label_name='Genre', filename_prefix='genre')
-        process_weighted_means(subgenre_weighted_data, label_name='Subgenre', filename_prefix='subgenre')
         
-        # Flatten and sort within genre in order to plot the genre-subgenre combinations
-        flattened_labels = []
-        flattened_counts = []
-        for genre in sorted(genre_to_subgenre_counts.keys()):
-            subgenre_dict = genre_to_subgenre_counts[genre]
+        if len(subgenre_counts) >= 1:
+            process_weighted_means(subgenre_weighted_data, label_name='Subgenre', filename_prefix='subgenre')
             
-            # Use descending order
-            sorted_subgenres = sorted(subgenre_dict.items(), key=lambda x: -x[1])
-            for subgenre, count in sorted_subgenres:
-                flattened_labels.append(f"{genre}: {subgenre}")
-                flattened_counts.append(count)
+            # Flatten and sort within genre in order to plot the genre-subgenre combinations
+            flattened_labels = []
+            flattened_counts = []
+            for genre in sorted(genre_to_subgenre_counts.keys()):
+                subgenre_dict = genre_to_subgenre_counts[genre]
+                
+                # Use descending order
+                sorted_subgenres = sorted(subgenre_dict.items(), key=lambda x: -x[1])
+                for subgenre, count in sorted_subgenres:
+                    flattened_labels.append(f"{genre}: {subgenre}")
+                    flattened_counts.append(count)
 
-        if flattened_labels and flattened_counts:
-            create_publication_count_horizontal_barplot(
-                labels=flattened_labels,
-                counts=flattened_counts,
-                title='Counts of Genre-Subgenre Combinations',
-                ylabel='Genre: Subgenre',
-                filename='genre_subgenre_combinations.png'
-            )
+            if flattened_labels and flattened_counts:
+                create_publication_count_horizontal_barplot(
+                    labels=flattened_labels,
+                    counts=flattened_counts,
+                    title='Counts of Genre-Subgenre Combinations',
+                    ylabel='Genre: Subgenre',
+                    filename='genre_subgenre_combinations.png'
+                )
         
 def dates_evaluation(metadata_df, results_df):
     matching_ppn_mods = results_df["ppn"].unique()
