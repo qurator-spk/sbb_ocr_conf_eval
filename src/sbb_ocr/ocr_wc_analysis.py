@@ -269,6 +269,7 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
 
     genre_weighted_data = {}
     genre_counts = {}
+    subgenre_weighted_data = {}
     subgenre_counts = {}
     count_multiple_genres = 0
     count_single_genres = 0
@@ -307,6 +308,16 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
                     subgenre_counts[sub] += 1
                 else:
                     subgenre_counts[sub] = 1
+                    
+                if sub not in subgenre_weighted_data:
+                    subgenre_weighted_data[sub] = {
+                        "mean_word": [], "weight_word": [],
+                        "mean_textline": [], "weight_textline": []
+                    }
+                subgenre_weighted_data[sub]["mean_word"].append(result_entry["mean_word"])
+                subgenre_weighted_data[sub]["weight_word"].append(result_entry["weight_word"])
+                subgenre_weighted_data[sub]["mean_textline"].append(result_entry["mean_textline"])
+                subgenre_weighted_data[sub]["weight_textline"].append(result_entry["weight_textline"])
 
             for genre in set(genres): # Avoid duplicates
                 if genre in counted_genres:
@@ -443,6 +454,34 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
             label_col='Genre',
             title='Genre-based Weighted Means of Word and Textline Confidence Scores',
             filename="genre_weighted_mean_scores.png",
+            ha='right'
+        )
+        
+        subgenre_list = []
+        sub_mean_word_list = []
+        sub_mean_textline_list = []
+
+        for subgenre, data in subgenre_weighted_data.items():
+            if not data["mean_word"] or not data["weight_word"]:
+                continue
+            wm_word = weighted_mean(data["mean_word"], data["weight_word"])
+            wm_textline = weighted_mean(data["mean_textline"], data["weight_textline"])
+            subgenre_list.append(subgenre)
+            sub_mean_word_list.append(wm_word)
+            sub_mean_textline_list.append(wm_textline)
+
+        sub_plot_df = pd.DataFrame({
+            'Subgenre': subgenre_list,
+            'Weighted_Mean_Word': sub_mean_word_list,
+            'Weighted_Mean_Textline': sub_mean_textline_list
+        }).dropna()
+        sub_plot_df.to_csv("subgenre_weighted_mean_scores.csv", index=False)
+
+        plot_weighted_means_barplot(
+            sub_plot_df,
+            label_col='Subgenre',
+            title='Subgenre-based Weighted Means of Word and Textline Confidence Scores',
+            filename="subgenre_weighted_mean_scores.png",
             ha='right'
         )
         
