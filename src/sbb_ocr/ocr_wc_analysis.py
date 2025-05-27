@@ -155,11 +155,26 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color):
         ax.legend(loc=legend_loc)
         
     except LinAlgError as e:
-        logging.info(f"Cannot plot the data!\nLinAlgError encountered while performing KDE: \n{e}. \nThe data does not have enough variation in its dimensions to accurately estimate a continuous probability density function. \nIncrease the number of PPNs to be filtered!\n")
-        print(f"Cannot plot the data!\nLinAlgError encountered while performing KDE: \n{e}. \nThe data does not have enough variation in its dimensions to accurately estimate a continuous probability density function. \nIncrease the number of PPNs to be filtered!\n")
+        msg = (
+            "Cannot plot the data!\n"
+            "LinAlgError encountered while performing KDE:\n"
+            f"{e}\n"
+            "The data does not have enough variation in its dimensions to accurately "
+            "estimate a continuous probability density function.\n"
+            "Increase the number of PPNs to be filtered!\n"
+        )
+        logging.info(msg)
+        print(msg)
+
     except ValueError as v:
-        logging.info(f"Cannot plot the data!\nValueError encountered while performing KDE: \n{v}. \nIncrease the number of PPNs to be filtered!\n")
-        print(f"Cannot plot the data!\nValueError encountered while performing KDE: \n{v}. \nIncrease the number of PPNs to be filtered!\n")
+        msg = (
+            "Cannot plot the data!\n"
+            "ValueError encountered while performing KDE:\n"
+            f"{v}\n"
+            "Increase the number of PPNs to be filtered!\n"
+        )
+        logging.info(msg)
+        print(msg)
         
 def create_plots(results_df, weights_word, weights_textline, plot_file, histogram_info, general_title):
     _, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
@@ -783,8 +798,35 @@ def merge_csv(conf_df, error_rates_df, wcwer_filename):
             print(f"File does not exist: {filename}")
             return
     
-    ppn_conf_df = pd.DataFrame(load_csv_to_list(conf_df)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "weight_word", "weight_textline"])
-    ppn_error_rates_df = pd.DataFrame(load_csv_to_list(error_rates_df)[1:], columns=["ppn", "ppn_page", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
+    ppn_conf_df = pd.DataFrame(
+        load_csv_to_list(conf_df)[1:],
+        columns=[
+            "ppn",
+            "ppn_page",
+            "mean_word",
+            "median_word",
+            "standard_deviation_word",
+            "mean_textline",
+            "median_textline",
+            "standard_deviation_textline",
+            "weight_word",
+            "weight_textline",
+        ],
+    )
+
+    ppn_error_rates_df = pd.DataFrame(
+        load_csv_to_list(error_rates_df)[1:],
+        columns=[
+            "ppn",
+            "ppn_page",
+            "gt",
+            "ocr",
+            "cer",
+            "wer",
+            "n_characters",
+            "n_words",
+        ],
+    )
     ppn_error_rates_df.drop(columns=["ppn"], inplace=True)
     ppn_conf_df = ppn_conf_df[ppn_conf_df['ppn_page'].isin(ppn_error_rates_df['ppn_page'])]
     
@@ -803,7 +845,27 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
             print(f"File does not exist: {wcwer_csv}")
             return
             
-    wcwer_df = pd.DataFrame(load_csv_to_list(wcwer_csv)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "weight_word", "weight_textline", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
+    wcwer_df = pd.DataFrame(
+        load_csv_to_list(wcwer_csv)[1:],
+        columns=[
+            "ppn",
+            "ppn_page",
+            "mean_word",
+            "median_word",
+            "standard_deviation_word",
+            "mean_textline",
+            "median_textline",
+            "standard_deviation_textline",
+            "weight_word",
+            "weight_textline",
+            "gt",
+            "ocr",
+            "cer",
+            "wer",
+            "n_characters",
+            "n_words",
+        ],
+    )
     
     wcwer_df['mean_word'] = pd.to_numeric(wcwer_df['mean_word'])
     wcwer_df['wer'] = pd.to_numeric(wcwer_df['wer'])
@@ -830,17 +892,58 @@ def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
             print(f"File does not exist: {wcwer_csv_inter}")
             return
             
-    wcwer_df = pd.DataFrame(load_csv_to_list(wcwer_csv_inter)[1:], columns=["ppn", "ppn_page", "mean_word", "median_word", "standard_deviation_word", "mean_textline", "median_textline", "standard_deviation_textline", "weight_word", "weight_textline", "gt", "ocr", "cer", "wer", "n_characters", "n_words"])
+    wcwer_df = pd.DataFrame(
+        load_csv_to_list(wcwer_csv_inter)[1:],
+        columns=[
+            "ppn",
+            "ppn_page",
+            "mean_word",
+            "median_word",
+            "standard_deviation_word",
+            "mean_textline",
+            "median_textline",
+            "standard_deviation_textline",
+            "weight_word",
+            "weight_textline",
+            "gt",
+            "ocr",
+            "cer",
+            "wer",
+            "n_characters",
+            "n_words",
+        ],
+    )
     
     wcwer_df['mean_word'] = pd.to_numeric(wcwer_df['mean_word'])
     wcwer_df['wer'] = pd.to_numeric(wcwer_df['wer'])
     
-    fig = px.scatter(wcwer_df, x="mean_word", y="wer", title="WER(WC)", labels={'mean_word': 'Mean Word Confidence Score (WC)', 'wer': 'Word Error Rate (WER)'}, template='plotly_white', hover_name="ppn_page")
-    
+    fig = px.scatter(
+        wcwer_df,
+        x="mean_word",
+        y="wer",
+        title="WER(WC)",
+        labels={
+            "mean_word": "Mean Word Confidence Score (WC)",
+            "wer": "Word Error Rate (WER)",
+        },
+        template="plotly_white",
+        hover_name="ppn_page",
+    )
+
     # Show information about the PPN_PAGE on hover
-    fig.update_traces(marker=dict(size=10, color='blue', line=dict(width=2, color='DarkSlateGrey')),
-                      hovertemplate='PPN Page: %{hovertext}<br>Mean Word Confidence: %{x}<br>WER: %{y}<extra></extra>',
-                      hovertext=wcwer_df['ppn_page'])
+    fig.update_traces(
+        marker=dict(
+            size=10,
+            color="blue",
+            line=dict(width=2, color="DarkSlateGrey"),
+        ),
+        hovertemplate=(
+            "PPN Page: %{hovertext}<br>"
+            "Mean Word Confidence: %{x}<br>"
+            "WER: %{y}<extra></extra>"
+        ),
+        hovertext=wcwer_df["ppn_page"],
+    )
 
     fig.update_xaxes(range=[-0.01, 1.01])
     fig.update_yaxes(range=[-0.01, 1.01])
@@ -896,7 +999,18 @@ def generate_dataframes(
                         
                         mean_textline, median_textline, standard_deviation_textline = statistics(textline_confs)
                         mean_word, median_word, standard_deviation_word = statistics(word_confs)
-                        all_results.append([ppn, ppn_page, mean_word, median_word, standard_deviation_word, mean_textline, median_textline, standard_deviation_textline, weight_word, weight_textline])
+                        all_results.append([
+                            ppn,
+                            ppn_page,
+                            mean_word,
+                            median_word,
+                            standard_deviation_word,
+                            mean_textline,
+                            median_textline,
+                            standard_deviation_textline,
+                            weight_word,
+                            weight_textline,
+                        ])
                                                
             except csv.Error as e:
                 exc = ValueError(f"CSV error: {e} in file: {csv_file}. \nIncrease the CSV field size limit!")
@@ -1259,14 +1373,42 @@ def plot_everything(
         
     plot_file_weighted = plot_file.split(".")[0] + "_weighted." + plot_file.split(".")[1]
 
-    if aggregate_mode == 'ppn_page':
-        create_plots(results_df, None, None, plot_file=plot_file, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per Page")
-        create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file=plot_file_weighted, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per Page (Weighted)")
-    elif aggregate_mode == 'ppn':
-        create_plots(results_df, None, None, plot_file=plot_file, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per PPN")
-        create_plots(results_df, weights_word=results_df["weight_word"], weights_textline=results_df["weight_textline"], plot_file=plot_file_weighted, histogram_info=histogram_info, general_title="Analysis of Confidence Scores per PPN (Weighted)")
-    
-        
+    if aggregate_mode == "ppn_page":
+        create_plots(
+            results_df,
+            None,
+            None,
+            plot_file=plot_file,
+            histogram_info=histogram_info,
+            general_title="Analysis of Confidence Scores per Page",
+        )
+        create_plots(
+            results_df,
+            weights_word=results_df["weight_word"],
+            weights_textline=results_df["weight_textline"],
+            plot_file=plot_file_weighted,
+            histogram_info=histogram_info,
+            general_title="Analysis of Confidence Scores per Page (Weighted)",
+        )
+    elif aggregate_mode == "ppn":
+        create_plots(
+            results_df,
+            None,
+            None,
+            plot_file=plot_file,
+            histogram_info=histogram_info,
+            general_title="Analysis of Confidence Scores per PPN",
+        )
+        create_plots(
+            results_df,
+            weights_word=results_df["weight_word"],
+            weights_textline=results_df["weight_textline"],
+            plot_file=plot_file_weighted,
+            histogram_info=histogram_info,
+            general_title="Analysis of Confidence Scores per PPN (Weighted)",
+        )
+
+
 def evaluate_everything(
     parent_dir=None,
     gt_dir=None,
