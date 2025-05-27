@@ -33,10 +33,6 @@ def cli():
 @click.option('-o', '--output', 'output', type=click.File('w'), help='Save the results to an OUTPUT_CSV_FILE (optional)')
 @click.option('-de', '--show-dates-evaluation', 'show_dates_evaluation', is_flag=True, default=False, help="Evaluate the number of years in the CSV_FILES (optional)")
 @click.option('-r', '--show-results', 'show_results', is_flag=True, default=False, help="Show the light version of the results [ppn, ppn_page, mean_word, publication_date, genre-aad] (optional)")
-@click.option('-bmwu', '--best-mean-word-confs-unique', type=int, help='Number of unique PPNs whose PPN_PAGEs have the best mean word scores, specify <NUMBER_OF> (optional)')
-@click.option('-wmwu', '--worst-mean-word-confs-unique', type=int, help='Number of unique PPNs whose PPN_PAGEs have the worst mean word scores, specify <NUMBER_OF> (optional)')
-@click.option('-bmtu', '--best-mean-textline-confs-unique', type=int, help='Number of unique PPNs whose PPN_PAGEs have the best mean textline scores, specify <NUMBER_OF> (optional)')
-@click.option('-wmtu', '--worst-mean-textline-confs-unique', type=int, help='Number of unique PPNs whose PPN_PAGEs have the worst mean textline scores, specify <NUMBER_OF> (optional)')
 @click.option('-bmw', '--best-mean-word-confs', type=int, help='Number of PPN_PAGEs with the best mean word scores, specify <NUMBER_OF> (optional)')
 @click.option('-wmw', '--worst-mean-word-confs', type=int, help='Number of PPN_PAGEs with the worst mean word scores, specify <NUMBER_OF> (optional)')
 @click.option('-bmt', '--best-mean-textline-confs', type=int, help='Number of PPN_PAGEs with the best mean textline scores, specify <NUMBER_OF> (optional)')
@@ -72,10 +68,6 @@ def plot_cli(
     output,
     show_dates_evaluation,
     show_results,
-    best_mean_word_confs_unique,
-    worst_mean_word_confs_unique,
-    best_mean_textline_confs_unique,
-    worst_mean_textline_confs_unique,
     best_mean_word_confs,
     worst_mean_word_confs,
     best_mean_textline_confs,
@@ -108,12 +100,6 @@ def plot_cli(
     
     num_best_mean_textline_confs = best_mean_textline_confs if best_mean_textline_confs is not None else 50
     num_worst_mean_textline_confs = worst_mean_textline_confs if worst_mean_textline_confs is not None else 50
-    
-    num_best_mean_word_confs_unique = best_mean_word_confs_unique if best_mean_word_confs_unique is not None else 50
-    num_worst_mean_word_confs_unique = worst_mean_word_confs_unique if worst_mean_word_confs_unique is not None else 50
-    
-    num_best_mean_textline_confs_unique = best_mean_textline_confs_unique if best_mean_textline_confs_unique is not None else 50
-    num_worst_mean_textline_confs_unique = worst_mean_textline_confs_unique if worst_mean_textline_confs_unique is not None else 50
         
     plot_everything(
         csv_files=csv_files,
@@ -140,14 +126,6 @@ def plot_cli(
         output=output,
         show_dates_evaluation=show_dates_evaluation,
         show_results=show_results,
-        use_best_mean_word_confs_unique=(best_mean_word_confs_unique is not None),
-        use_worst_mean_word_confs_unique=(worst_mean_word_confs_unique is not None),
-        num_best_mean_word_confs_unique=num_best_mean_word_confs_unique,
-        num_worst_mean_word_confs_unique=num_worst_mean_word_confs_unique,
-        use_best_mean_textline_confs_unique=(best_mean_textline_confs_unique is not None),
-        use_worst_mean_textline_confs_unique=(worst_mean_textline_confs_unique is not None),
-        num_best_mean_textline_confs_unique=num_best_mean_textline_confs_unique,
-        num_worst_mean_textline_confs_unique=num_worst_mean_textline_confs_unique,
         use_best_mean_word_confs=(best_mean_word_confs is not None),
         use_worst_mean_word_confs=(worst_mean_word_confs is not None),
         num_best_mean_word_confs=num_best_mean_word_confs,

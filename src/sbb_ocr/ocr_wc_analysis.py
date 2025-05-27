@@ -1170,14 +1170,6 @@ def plot_everything(
     output: Optional[IO] = None,
     show_dates_evaluation=False,
     show_results=False,
-    use_best_mean_word_confs_unique=False,
-    use_worst_mean_word_confs_unique=False,
-    num_best_mean_word_confs_unique=1,
-    num_worst_mean_word_confs_unique=1,
-    use_best_mean_textline_confs_unique=False,
-    use_worst_mean_textline_confs_unique=False,
-    num_best_mean_textline_confs_unique=1,
-    num_worst_mean_textline_confs_unique=1,
     use_best_mean_word_confs=False,
     use_worst_mean_word_confs=False,
     num_best_mean_word_confs=1,
@@ -1283,23 +1275,6 @@ def plot_everything(
         results_df = results_df[((results_df["mean_textline"] >= 0.0) & (results_df["mean_textline"] <= 0.05))]
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
         results_df = results_df.head(num_bottom_ppns_textline)
-        
-    if use_best_mean_word_confs_unique:
-        results_df = results_df.sort_values(by='mean_word', ascending=False)
-        best_unique_ppns = results_df['ppn'].drop_duplicates().head(num_best_mean_word_confs_unique)
-        results_df = results_df[results_df['ppn'].isin(best_unique_ppns)]
-    elif use_worst_mean_word_confs_unique:
-        worst_unique_ppns = results_df['ppn'].drop_duplicates().head(num_worst_mean_word_confs_unique)
-        results_df = results_df[results_df['ppn'].isin(worst_unique_ppns)]
-        
-    if use_best_mean_textline_confs_unique:
-        results_df = results_df.sort_values(by='mean_textline', ascending=False)
-        best_unique_ppns = results_df['ppn'].drop_duplicates().head(num_best_mean_textline_confs_unique)
-        results_df = results_df[results_df['ppn'].isin(best_unique_ppns)]
-    elif use_worst_mean_textline_confs_unique:
-        results_df = results_df.sort_values(by='mean_textline', ascending=True)
-        worst_unique_ppns = results_df['ppn'].drop_duplicates().head(num_worst_mean_textline_confs_unique)
-        results_df = results_df[results_df['ppn'].isin(worst_unique_ppns)]
         
     if use_best_mean_word_confs:
         results_df = results_df.sort_values(by='mean_word', ascending=False)
