@@ -25,6 +25,7 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Genres in `genre-aad` column 
   - Empty strings changed to `Unbekannt`
   - Slashes changed to commas
+  - Genre-subgenre separation by dots changed to colons
   - Incomplete genres `Ars` and `moriendi` changed to `Ars moriendi`
   - Loose subgenres `jur.`, `lit.`, `hist.` and `theol.` merged with their `Kommentar` genre
 - Publication dates in `publication_date` column
@@ -111,10 +112,6 @@ Options:
        -botw,   --bottom-ppns-word                  Choose a number of bottom PPNs or PPN_PAGEs with mean word nscores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
        -topt,   --top-ppns-textline                 Choose a number of top PPNs or PPN_PAGEs with mean textline scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)
        -bott,   --bottom-ppns-textline              Choose a number of bottom PPNs or PPN_PAGEs with mean textline scores between 0.0 and 0.05, specify <NUMBER_OF> (optional)
-       -bmwu,   --best-mean-word-confs-unique       Choose a number of unique PPNs whose PPN_PAGEs have the best mean word scores, specify <NUMBER_OF> (optional)
-       -wmwu,   --worst-mean-word-confs-unique      Choose a number of unique PPNs whose PPN_PAGEs have the worst mean word scores, specify <NUMBER_OF> (optional)
-       -bmtu,   --best-mean-textline-confs-unique   Choose a number of unique PPNs whose PPN_PAGEs have the best mean textline scores, specify <NUMBER_OF> (optional)
-       -wmtu,   --worst-mean-textline-confs-unique  Choose a number of unique PPNs whose PPN_PAGEs have the worst mean textline scores, specify <NUMBER_OF> (optional)
        -ppndir, --ppn-directory                     Generate a CSV with confidence scores from the names of PPN subdirectories in a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <CONF_CSV> (optional)
        -log,    --use-logging                       Save all log messages to log_plot_{TIMESTAMP}.txt (optional)
        -cve     --check-value-errors                Check the CSV_FILEs for ValueErrors and save them to value_error_pages.csv (optional)
