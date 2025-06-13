@@ -302,7 +302,7 @@ def create_publication_count_horizontal_barplot(labels, counts, title, ylabel, f
     plt.savefig(filename)
     plt.close()
     
-def process_weighted_means(data_dict, label_name, filename_prefix, genre_counts):
+def process_weighted_means(data_dict, label_name, filename_prefix, counts_dict):
     labels = []
     mean_words = []
     mean_textlines = []
@@ -324,10 +324,10 @@ def process_weighted_means(data_dict, label_name, filename_prefix, genre_counts)
     df.to_csv(f"{filename_prefix}_weighted_mean_scores.csv", index=False)
     
     # Sort based on total counts
-    label_counts = df[label_name].map(lambda x: genre_counts.get(x, 0))
+    label_counts = df[label_name].map(lambda x: counts_dict.get(x, 0))
     df['Counts'] = label_counts
     df = df.sort_values(by='Counts', ascending=False).reset_index(drop=True)
-
+    
     create_weighted_means_barplot(
         df,
         label_col=label_name,
@@ -518,10 +518,10 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
             filename='genre_publications.png'
         )
 
-        process_weighted_means(genre_weighted_data, label_name='Genre', filename_prefix='genre', genre_counts=genre_counts)
+        process_weighted_means(genre_weighted_data, label_name='Genre', filename_prefix='genre', counts_dict=genre_counts)
         
         if len(subgenre_counts) >= 1:
-            process_weighted_means(subgenre_weighted_data, label_name='Subgenre', filename_prefix='subgenre', genre_counts=genre_counts)
+            process_weighted_means(subgenre_weighted_data, label_name='Subgenre', filename_prefix='subgenre', counts_dict=subgenre_counts)
             
             # Flatten and sort within genre in order to plot the genre-subgenre combinations
             flattened_labels = []
