@@ -93,6 +93,7 @@ Options:
        -a,      --aggregate-mode                    Choose between aggregation by PPN or PPN_PAGE (default is PPN_PAGE)
        -r,      --show-results                      Show the light version of the results [ppn, ppn_page, mean_word, weight_word, weight_textline, originInfo-publication0_dateIssued, genre-aad] (optional)
        -o,      --output                            Save the results and the description of the results to an OUTPUT_CSV_FILE (optional)
+       -wm,     --weighting-method                  Choose whether to show only the weighted plots, only the unweighted plots, or both (default is both)
        -g,      --genre                             Choose a GENRE to be evaluated (optional)
        -sg,     --subgenre                          Choose a SUBGENRE to be evaluated (optional)
        -ge,     --show-genre-evaluation             Evaluate the number of genres in the CSV_FILEs and save the corresponding bar plot (optional)

@@ -45,7 +45,7 @@ def cli():
 @click.option('-hi', '--histogram-info', 'histogram_info', is_flag=True, default=False, help="Show additional information about the histogram (optional)")
 @click.option('-ppn', '--search-ppn', 'search_ppn', type=str, help='Filter the data for a specific PPN, specify <PPN> (optional)')
 @click.option('-a', '--aggregate-mode', 'aggregate_mode', default='ppn_page', type=click.Choice(['ppn_page', 'ppn']), help="Choose between aggregation by PPN or PPN_PAGE (default is set to PPN_PAGE)")
-@click.option('-wm', '--weighting-method', 'weighting_method', default='both', type=click.Choice(['unweighted', 'weighted', 'both']), help="Choose whether to only show the weighted or unweighted plots or both (default is to both)")
+@click.option('-wm', '--weighting-method', 'weighting_method', default='both', type=click.Choice(['unweighted', 'weighted', 'both']), help="Choose whether to show only the weighted plots, only the unweighted plots, or both (default is both)")
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(
