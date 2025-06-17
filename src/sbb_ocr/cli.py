@@ -44,7 +44,8 @@ def cli():
 @click.option('-crg', '--check-raw-genres', 'check_raw_genres', is_flag=True, default=False, help="Check the METADATA_FILE for all raw genres and save them to genres_raw.csv (optional)")
 @click.option('-hi', '--histogram-info', 'histogram_info', is_flag=True, default=False, help="Show additional information about the histogram (optional)")
 @click.option('-ppn', '--search-ppn', 'search_ppn', type=str, help='Filter the data for a specific PPN, specify <PPN> (optional)')
-@click.option('-a', '--aggregate-mode', 'aggregate_mode', default='ppn_page', type=click.Choice(['ppn_page', 'ppn']), help="Choose between aggregation by PPN or PPN_PAGE")
+@click.option('-a', '--aggregate-mode', 'aggregate_mode', default='ppn_page', type=click.Choice(['ppn_page', 'ppn']), help="Choose between aggregation by PPN or PPN_PAGE (default is set to PPN_PAGE)")
+@click.option('-wm', '--weighting-method', 'weighting_method', default='both', type=click.Choice(['unweighted', 'weighted', 'both']), help="Choose whether to only show the weighted or unweighted plots or both (default is to both)")
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(
@@ -78,7 +79,8 @@ def plot_cli(
     check_duplicates,
     check_raw_genres,
     histogram_info,
-    aggregate_mode
+    aggregate_mode,
+    weighting_method
 ):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
@@ -141,7 +143,8 @@ def plot_cli(
         check_duplicates=check_duplicates,
         check_raw_genres=check_raw_genres,
         histogram_info=histogram_info,
-        aggregate_mode=aggregate_mode
+        aggregate_mode=aggregate_mode,
+        weighting_method=weighting_method
     )
 
 @cli.command('evaluate')

@@ -962,7 +962,7 @@ def generate_dataframes(
     check_value_errors: bool = False,
     check_duplicates: bool = False,
     check_raw_genres: bool = False,
-    aggregate_mode: str = "ppn_page",
+    aggregate_mode: str = "ppn_page"
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     for file in csv_files:
@@ -1190,7 +1190,8 @@ def plot_everything(
     check_value_errors: bool = False,
     check_duplicates: bool = False,
     check_raw_genres: bool = False,
-    aggregate_mode='ppn_page'
+    aggregate_mode='ppn_page',
+    weighting_method: str = "both"
 ):
     if use_logging:
         setup_logging("plot")
@@ -1354,39 +1355,77 @@ def plot_everything(
     plot_file_weighted = plot_file.split(".")[0] + "_weighted." + plot_file.split(".")[1]
 
     if aggregate_mode == "ppn_page":
-        create_plots(
-            results_df,
-            None,
-            None,
-            plot_file=plot_file,
-            histogram_info=histogram_info,
-            general_title="Analysis of Confidence Scores per Page",
-        )
-        create_plots(
-            results_df,
-            weights_word=results_df["weight_word"],
-            weights_textline=results_df["weight_textline"],
-            plot_file=plot_file_weighted,
-            histogram_info=histogram_info,
-            general_title="Analysis of Confidence Scores per Page (Weighted)",
-        )
+        if weighting_method == "both":
+            create_plots(
+                results_df,
+                None,
+                None,
+                plot_file=plot_file,
+                histogram_info=histogram_info,
+                general_title="Analysis of Confidence Scores per Page",
+            )
+            create_plots(
+                results_df,
+                weights_word=results_df["weight_word"],
+                weights_textline=results_df["weight_textline"],
+                plot_file=plot_file_weighted,
+                histogram_info=histogram_info,
+                general_title="Analysis of Confidence Scores per Page (Weighted)",
+            )
+        elif weighting_method == "unweighted":
+            create_plots(
+                results_df,
+                None,
+                None,
+                plot_file=plot_file,
+                histogram_info=histogram_info,
+                general_title="Analysis of Confidence Scores per Page",
+            )
+        elif weighting_method == "weighted":
+            create_plots(
+                results_df,
+                weights_word=results_df["weight_word"],
+                weights_textline=results_df["weight_textline"],
+                plot_file=plot_file_weighted,
+                histogram_info=histogram_info,
+                general_title="Analysis of Confidence Scores per Page (Weighted)",
+            )
     elif aggregate_mode == "ppn":
-        create_plots(
-            results_df,
-            None,
-            None,
-            plot_file=plot_file,
-            histogram_info=histogram_info,
-            general_title="Analysis of Confidence Scores per PPN",
-        )
-        create_plots(
-            results_df,
-            weights_word=results_df["weight_word"],
-            weights_textline=results_df["weight_textline"],
-            plot_file=plot_file_weighted,
-            histogram_info=histogram_info,
-            general_title="Analysis of Confidence Scores per PPN (Weighted)",
-        )
+        if weighting_method == "both":
+            create_plots(
+                results_df,
+                None,
+                None,
+                plot_file=plot_file,
+                histogram_info=histogram_info,
+                general_title="Analysis of Confidence Scores per PPN",
+            )
+            create_plots(
+                results_df,
+                weights_word=results_df["weight_word"],
+                weights_textline=results_df["weight_textline"],
+                plot_file=plot_file_weighted,
+                histogram_info=histogram_info,
+                general_title="Analysis of Confidence Scores per PPN (Weighted)",
+            )
+        elif weighting_method == "unweighted":
+            create_plots(
+                results_df,
+                None,
+                None,
+                plot_file=plot_file,
+                histogram_info=histogram_info,
+                general_title="Analysis of Confidence Scores per PPN",
+            )
+        elif weighting_method == "weighted":
+            create_plots(
+                results_df,
+                weights_word=results_df["weight_word"],
+                weights_textline=results_df["weight_textline"],
+                plot_file=plot_file_weighted,
+                histogram_info=histogram_info,
+                general_title="Analysis of Confidence Scores per PPN (Weighted)",
+            )
 
 
 def evaluate_everything(
