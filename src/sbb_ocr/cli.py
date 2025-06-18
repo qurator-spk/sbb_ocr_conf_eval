@@ -46,6 +46,7 @@ def cli():
 @click.option('-ppn', '--search-ppn', 'search_ppn', type=str, help='Filter the data for a specific PPN, specify <PPN> (optional)')
 @click.option('-a', '--aggregate-mode', 'aggregate_mode', default='ppn_page', type=click.Choice(['ppn_page', 'ppn']), help="Choose between aggregation by PPN or PPN_PAGE (default is set to PPN_PAGE)")
 @click.option('-wm', '--weighting-method', 'weighting_method', default='both', type=click.Choice(['unweighted', 'weighted', 'both']), help="Choose whether to show only the weighted plots, only the unweighted plots, or both (default is both)")
+@click.option('-ww', '--search-weight-word', 'search_weight_word', type=int, help='Filter the data for a specific number of words, specify <YEAR> (optional)')
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(
@@ -80,7 +81,8 @@ def plot_cli(
     check_raw_genres,
     histogram_info,
     aggregate_mode,
-    weighting_method
+    weighting_method,
+    search_weight_word
 ):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
@@ -144,7 +146,8 @@ def plot_cli(
         check_raw_genres=check_raw_genres,
         histogram_info=histogram_info,
         aggregate_mode=aggregate_mode,
-        weighting_method=weighting_method
+        weighting_method=weighting_method,
+        search_weight_word=search_weight_word
     )
 
 @cli.command('evaluate')

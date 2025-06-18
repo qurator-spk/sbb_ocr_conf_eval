@@ -1205,7 +1205,8 @@ def plot_everything(
     check_duplicates: bool = False,
     check_raw_genres: bool = False,
     aggregate_mode='ppn_page',
-    weighting_method: str = "both"
+    weighting_method: str = "both",
+    search_weight_word=None
 ):
     if use_logging:
         setup_logging("plot")
@@ -1230,6 +1231,9 @@ def plot_everything(
     if search_date is not None: # "is not None" enables zero as input
         results_df = results_df[results_df["ppn"].isin(
         metadata_df.loc[(metadata_df["publication_date"].astype(int) == search_date), "PPN"])] # type: ignore
+        
+    if search_weight_word is not None:
+        results_df = results_df[(results_df['weight_word'] == search_weight_word)]
     
     if date_range:
         results_df = results_df[results_df["ppn"].isin(
