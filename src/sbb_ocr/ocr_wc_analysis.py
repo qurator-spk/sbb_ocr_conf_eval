@@ -137,8 +137,10 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color):
         # Evaluate the density values
         density_values = kde(x_range)
         ax.set_ylim(bottom=0, top=np.max(density_values) * 1.1)
-
+        
+        min_val, max_val = np.min(data), np.max(data)
         mean = weighted_mean(data, weights) if weights is not None else np.mean(data)
+        std = weighted_std(data, weights) if weights is not None else np.std(data)
         q25, q50, q75 = weighted_percentile(data, weights, [25, 50, 75])
 
         ax.axvline(mean, color="black", linestyle="solid", linewidth=1, label="Mean")
@@ -153,6 +155,18 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color):
         # Set legend location based on the maximum position
         legend_loc = 'upper right' if max_density_x < 0.5 else 'upper left'
         ax.legend(loc=legend_loc)
+        
+        header = f"{'Weighted ' if weights is not None else ''}Density Plot: {xlabel}"
+        print(f"\n{header}")
+        logging.info(f"\n{header}")
+        
+        stats_dict = {
+            'Statistic': ['Mean', 'Std Dev', 'Min', 'Q1: 25%', 'Q2: 50% (Median)', 'Q3: 75%', 'Max'],
+            'Value': [mean, std, min_val, q25, q50, q75, max_val]
+        }
+        stats_df = pd.DataFrame(stats_dict)
+        print(stats_df.to_string(index=False))
+        logging.info(stats_df.to_string(index=False))
         
     except LinAlgError as e:
         msg = (
