@@ -1206,7 +1206,8 @@ def plot_everything(
     check_raw_genres: bool = False,
     aggregate_mode='ppn_page',
     weighting_method: str = "both",
-    search_weight_word=None
+    search_weight_word=None,
+    search_weight_textline=None
 ):
     if use_logging:
         setup_logging("plot")
@@ -1234,6 +1235,9 @@ def plot_everything(
         
     if search_weight_word is not None:
         results_df = results_df[(results_df['weight_word'] == search_weight_word)]
+        
+    if search_weight_textline is not None:
+        results_df = results_df[(results_df['weight_textline'] == search_weight_textline)]
     
     if date_range:
         results_df = results_df[results_df["ppn"].isin(
