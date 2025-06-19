@@ -1207,7 +1207,8 @@ def plot_everything(
     aggregate_mode='ppn_page',
     weighting_method: str = "both",
     search_weight_word=None,
-    search_weight_textline=None
+    search_weight_textline=None,
+    weight_word_range: Optional[Tuple[int, int]] = None
 ):
     if use_logging:
         setup_logging("plot")
@@ -1273,6 +1274,16 @@ def plot_everything(
             results_df = results_df[
                 (results_df['mean_textline'] > mean_textline_confs_range[0]) &
                 (results_df['mean_textline'] <= mean_textline_confs_range[1])]
+                
+    if weight_word_range:
+        if weight_word_range[0] == 0:
+            results_df = results_df[
+                (results_df['weight_word'] >= weight_word_range[0]) &
+                (results_df['weight_word'] <= weight_word_range[1])]
+        else:
+            results_df = results_df[
+                (results_df['weight_word'] > weight_word_range[0]) &
+                (results_df['weight_word'] <= weight_word_range[1])]
             
     if search_genre:
         # Escape special characters in the search_genre string

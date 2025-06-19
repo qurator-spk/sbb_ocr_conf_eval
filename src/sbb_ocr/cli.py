@@ -48,6 +48,7 @@ def cli():
 @click.option('-wm', '--weighting-method', 'weighting_method', default='both', type=click.Choice(['unweighted', 'weighted', 'both']), help="Choose whether to show only the weighted plots, only the unweighted plots, or both (default is both)")
 @click.option('-ww', '--search-weight-word', 'search_weight_word', type=int, help='Filter the data for a specific number of words, specify <NUMBER_OF> (optional)')
 @click.option('-wt', '--search-weight-textline', 'search_weight_textline', type=int, help='Filter the data for a specific number of textlines, specify <NUMBER_OF> (optional)')
+@click.option('-wwr', '--weight-word-range', nargs=2, type=(int, int), help='Year range for filtering data, specify <YEAR_START> <YEAR_END> (optional)')
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(
@@ -84,7 +85,8 @@ def plot_cli(
     aggregate_mode,
     weighting_method,
     search_weight_word,
-    search_weight_textline
+    search_weight_textline,
+    weight_word_range
 ):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
@@ -150,7 +152,8 @@ def plot_cli(
         aggregate_mode=aggregate_mode,
         weighting_method=weighting_method,
         search_weight_word=search_weight_word,
-        search_weight_textline=search_weight_textline
+        search_weight_textline=search_weight_textline,
+        weight_word_range=weight_word_range
     )
 
 @cli.command('evaluate')
