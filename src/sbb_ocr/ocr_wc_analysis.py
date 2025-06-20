@@ -677,8 +677,8 @@ def weights_evaluation(results_df):
     results_df['textline_bin'] = pd.cut(results_df['weight_textline'], bins=textline_bins)
 
     # Calculate mean confidence scores per bin
-    word_bin_means = results_df.groupby('word_bin')['mean_word'].mean()
-    textline_bin_means = results_df.groupby('textline_bin')['mean_textline'].mean()
+    word_bin_means = results_df.groupby('word_bin', observed=False)['mean_word'].mean()
+    textline_bin_means = results_df.groupby('textline_bin', observed=False)['mean_textline'].mean()
 
     plt.figure(figsize=(36, 18))
 
