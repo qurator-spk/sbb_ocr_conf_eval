@@ -50,6 +50,7 @@ def cli():
 @click.option('-wt', '--search-weight-textline', 'search_weight_textline', type=int, help='Filter the data for a specific number of textlines (textline weight), specify <NUMBER_OF> (optional)')
 @click.option('-wwr', '--weight-word-range', nargs=2, type=(int, int), help='Choose a word count (word weight) range for filtering data, specify <NUMBER_START> <NUMBER_END> (optional)')
 @click.option('-wtr', '--weight-textline-range', nargs=2, type=(int, int), help='Choose a textline count (textline weight) range for filtering data, specify <NUMBER_START> <NUMBER_END> (optional)')
+@click.option('-we', '--weights-evaluation', 'show_weights_evaluation', is_flag=True, default=False, help="Evaluate the word and textline counts (weights) in the CSV_FILES (optional)")
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(
@@ -88,7 +89,8 @@ def plot_cli(
     search_weight_word,
     search_weight_textline,
     weight_word_range,
-    weight_textline_range
+    weight_textline_range,
+    show_weights_evaluation
 ):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
@@ -156,7 +158,8 @@ def plot_cli(
         search_weight_word=search_weight_word,
         search_weight_textline=search_weight_textline,
         weight_word_range=weight_word_range,
-        weight_textline_range=weight_textline_range
+        weight_textline_range=weight_textline_range,
+        show_weights_evaluation=show_weights_evaluation
     )
 
 @cli.command('evaluate')

@@ -655,6 +655,54 @@ def dates_evaluation(metadata_df, results_df):
         logging.info(f"Invalid publication dates: {e}")
         print(f"Invalid publication dates.")
         return
+        
+def weights_evaluation(results_df):
+    results_df['weight_word'] = pd.to_numeric(results_df['weight_word'], errors='coerce')
+    results_df['weight_textline'] = pd.to_numeric(results_df['weight_textline'], errors='coerce')
+    results_df['mean_word'] = pd.to_numeric(results_df['mean_word'], errors='coerce')
+    results_df['mean_textline'] = pd.to_numeric(results_df['mean_textline'], errors='coerce')
+
+    min_word_weight = results_df['weight_word'].min()
+    max_word_weight = results_df['weight_word'].max()
+    min_textline_weight = results_df['weight_textline'].min()
+    max_textline_weight = results_df['weight_textline'].max()
+
+    print(f"Word weight range: {min_word_weight} - {max_word_weight}")
+    print(f"Textline weight range: {min_textline_weight} - {max_textline_weight}")
+    
+    word_bins = np.arange(0, results_df['weight_word'].max() + 7500, 7500)
+    textline_bins = np.arange(0, results_df['weight_textline'].max() + 750, 750)
+
+    results_df['word_bin'] = pd.cut(results_df['weight_word'], bins=word_bins)
+    results_df['textline_bin'] = pd.cut(results_df['weight_textline'], bins=textline_bins)
+
+    # Calculate mean confidence scores per bin
+    word_bin_means = results_df.groupby('word_bin')['mean_word'].mean()
+    textline_bin_means = results_df.groupby('textline_bin')['mean_textline'].mean()
+
+    plt.figure(figsize=(36, 18))
+
+    plt.subplot(1, 2, 1)
+    plt.bar(word_bin_means.index.astype(str), word_bin_means.values)
+    plt.xlabel('Word Count (Weight)', fontsize=18)
+    plt.ylabel('Mean Confidence Score', fontsize=18)
+    plt.title('Mean Confidence per Word Count', fontsize=22)
+    plt.xticks(rotation=45, ha='right')
+    plt.xlim(-0.5, len(word_bin_means) - 0.5)
+    plt.ylim(0, 1)
+
+    plt.subplot(1, 2, 2)
+    plt.bar(textline_bin_means.index.astype(str), textline_bin_means.values)
+    plt.xlabel('Textline Count (Weight)', fontsize=18)
+    plt.ylabel('Mean Confidence Score', fontsize=18)
+    plt.title('Mean Confidence per Textline Count', fontsize=22)
+    plt.xticks(rotation=45, ha='right')
+    plt.xlim(-0.5, len(textline_bin_means) - 0.5)
+    plt.ylim(0, 1)
+
+    plt.tight_layout(pad=2.0)
+    plt.savefig("histogram_confs_weights.png")
+    plt.close()
     
 def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
     if not os.path.exists(parent_dir):
@@ -1209,7 +1257,8 @@ def plot_everything(
     search_weight_word=None,
     search_weight_textline=None,
     weight_word_range: Optional[Tuple[int, int]] = None,
-    weight_textline_range: Optional[Tuple[int, int]] = None
+    weight_textline_range: Optional[Tuple[int, int]] = None,
+    show_weights_evaluation=False
 ):
     if use_logging:
         setup_logging("plot")
@@ -1372,6 +1421,9 @@ def plot_everything(
         
     if show_dates_evaluation:
         dates_evaluation(metadata_df, results_df)
+    
+    if show_weights_evaluation:
+        weights_evaluation(results_df)
     
     if results_df.empty:
         logging.info("\nThere are no results matching the applied filters.")
