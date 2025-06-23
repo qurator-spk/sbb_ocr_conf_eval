@@ -53,6 +53,7 @@ def cli():
 @click.option('-we', '--weights-evaluation', 'show_weights_evaluation', is_flag=True, default=False, help="Evaluate the word and textline counts (weights) in the CSV_FILES (optional)")
 @click.option('-np', '--search-number-of-pages', 'search_number_of_pages', type=int, help='Filter the data for a specific number of PPN_PAGEs, specify <NUMBER_OF> (optional)')
 @click.option('-npr', '--number-of-pages-range', nargs=2, type=(int, int), help='Choose a number of PPN_PAGEs range for filtering data, specify <NUMBER_START> <NUMBER_END> (optional)')
+@click.option('-ne', '--number-of-pages-evaluation', 'show_number_of_pages_evaluation', is_flag=True, default=False, help="Evaluate the page counts in the CSV_FILES (optional)")
 @click.argument('CSV_FILES', nargs=-1)
 @click.argument('PLOT_FILE')
 def plot_cli(
@@ -94,7 +95,8 @@ def plot_cli(
     weight_textline_range,
     show_weights_evaluation,
     search_number_of_pages,
-    number_of_pages_range
+    number_of_pages_range,
+    show_number_of_pages_evaluation
 ):
     """
     Plot confidence metrics from all CSV_FILES, output to PLOT_FILE.
@@ -165,7 +167,8 @@ def plot_cli(
         weight_textline_range=weight_textline_range,
         show_weights_evaluation=show_weights_evaluation,
         search_number_of_pages=search_number_of_pages,
-        number_of_pages_range=number_of_pages_range
+        number_of_pages_range=number_of_pages_range,
+        show_number_of_pages_evaluation=show_number_of_pages_evaluation
     )
 
 @cli.command('evaluate')

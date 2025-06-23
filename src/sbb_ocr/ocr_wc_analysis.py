@@ -1316,7 +1316,8 @@ def plot_everything(
     weight_textline_range: Optional[Tuple[int, int]] = None,
     show_weights_evaluation=False,
     search_number_of_pages=False,
-    number_of_pages_range: Optional[Tuple[int, int]] = None
+    number_of_pages_range: Optional[Tuple[int, int]] = None,
+    show_number_of_pages_evaluation=False
 ):
     if use_logging:
         setup_logging("plot")
@@ -1505,8 +1506,14 @@ def plot_everything(
     
     if show_weights_evaluation:
         weights_evaluation(results_df)
-        
-    num_pages_evaluation(results_df)
+    
+    if show_number_of_pages_evaluation:
+        if aggregate_mode == "ppn":
+            num_pages_evaluation(results_df)
+        else: 
+            logging.info("\n'-ne' can only be used if '-a ppn' is also provided.")
+            print("\n'-ne' can only be used if '-a ppn' is also provided.")
+            return    
     
     if results_df.empty:
         logging.info("\nThere are no results matching the applied filters.")
