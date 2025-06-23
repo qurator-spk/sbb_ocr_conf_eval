@@ -118,6 +118,7 @@ Options:
        -wt,     --search-weight-textline            Filter the data for a specific number of textlines (textline weight), specify <NUMBER_OF> (optional)
        -wwr,    --weight-word-range                 Choose a word count (word weight) range for filtering data, specify <NUMBER_START> <NUMBER_END> (optional)
        -wtr,    --weight-textline-range             Choose a textline count (textline weight) range for filtering data, specify <NUMBER_START> <NUMBER_END> (optional)
+       -ne,     --number-of-pages-evaluation        Evaluate the page counts in the CSV_FILES (optional)
        -np,     --search-number-of-pages            Filter the data for a specific number of PPN_PAGEs, specify <NUMBER_OF> (optional)
        -npr,    --number-of-pages-range             Choose a number of PPN_PAGEs range for filtering data, specify <NUMBER_START> <NUMBER_END> (optional)
        -ppndir, --ppn-directory                     Generate a CSV with confidence scores from the names of PPN subdirectories in a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <CONF_CSV> (optional)
