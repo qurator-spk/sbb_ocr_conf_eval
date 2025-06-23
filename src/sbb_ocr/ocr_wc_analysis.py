@@ -673,10 +673,10 @@ def weights_evaluation(results_df):
     min_textline_weight = results_df['weight_textline'].min()
     max_textline_weight = results_df['weight_textline'].max()
     
-    logging.info(f"Word weight range: {min_word_weight} - {max_word_weight}")
-    print(f"Word weight range: {min_word_weight} - {max_word_weight}")
-    logging.info(f"Textline weight range: {min_textline_weight} - {max_textline_weight}")
-    print(f"Textline weight range: {min_textline_weight} - {max_textline_weight}")
+    logging.info(f"\nWord weight range: {min_word_weight} - {max_word_weight}")
+    print(f"\nWord weight range: {min_word_weight} - {max_word_weight}")
+    logging.info(f"\nTextline weight range: {min_textline_weight} - {max_textline_weight}")
+    print(f"\nTextline weight range: {min_textline_weight} - {max_textline_weight}")
     
     word_bins = np.arange(0, results_df['weight_word'].max() + 7500, 7500)
     textline_bins = np.arange(0, results_df['weight_textline'].max() + 750, 750)
@@ -718,6 +718,11 @@ def num_pages_evaluation(results_df):
     results_df['mean_textline'] = pd.to_numeric(results_df['mean_textline'], errors='coerce')
     results_df['weight_word'] = pd.to_numeric(results_df['weight_word'], errors='coerce')
     results_df['weight_textline'] = pd.to_numeric(results_df['weight_textline'], errors='coerce')
+    
+    min_pages = results_df['num_pages'].min()
+    max_pages = results_df['num_pages'].max()
+    print(f"\nNumber of pages range: {min_pages} - {max_pages}")
+    logging.info(f"\nNumber of pages range: {min_pages} - {max_pages}")
 
     bins = np.arange(0, results_df['num_pages'].max() + 10, 10)
     results_df['pages_bin'] = pd.cut(results_df['num_pages'], bins=bins)
