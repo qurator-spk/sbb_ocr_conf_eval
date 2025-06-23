@@ -1100,6 +1100,9 @@ def generate_dataframes(
     ])
     
     if aggregate_mode == "ppn":
+        page_counts = results_df.groupby("ppn")["ppn_page"].nunique().reset_index()
+        page_counts.rename(columns={"ppn_page": "num_pages"}, inplace=True)
+
         grouped = results_df.groupby("ppn")
         aggregated_results = []
 
@@ -1118,14 +1121,16 @@ def generate_dataframes(
             total_word_weight = word_weights.sum()
             total_textline_weight = textline_weights.sum()
 
+            num_pages = page_counts.loc[page_counts["ppn"] == ppn, "num_pages"].values[0]
+
             aggregated_results.append([
-                ppn, mean_word, median_word, std_word,
+                ppn, num_pages, mean_word, median_word, std_word,
                 mean_textline, median_textline, std_textline,
                 total_word_weight, total_textline_weight
             ])
 
         results_df = pd.DataFrame(aggregated_results, columns=[
-            "ppn", "mean_word", "median_word", "standard_deviation_word",
+            "ppn", "num_pages", "mean_word", "median_word", "standard_deviation_word",
             "mean_textline", "median_textline", "standard_deviation_textline",
             "weight_word", "weight_textline"
         ])
@@ -1406,7 +1411,7 @@ def plot_everything(
             if aggregate_mode == 'ppn_page':
                 filtered_results_df = results_df[['ppn', 'ppn_page', 'mean_word', 'mean_textline', 'weight_word', 'weight_textline']]
             elif aggregate_mode == 'ppn':
-                filtered_results_df = results_df[['ppn', 'mean_word', 'mean_textline', 'weight_word', 'weight_textline']]
+                filtered_results_df = results_df[['ppn', 'num_pages', 'mean_word', 'mean_textline', 'weight_word', 'weight_textline']]
             metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre-aad']]
             filtered_results_df = filtered_results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
             filtered_results_df.drop(columns=['PPN'], inplace=True)
