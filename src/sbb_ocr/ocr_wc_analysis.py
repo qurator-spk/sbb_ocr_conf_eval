@@ -123,7 +123,7 @@ def weighted_percentile(data, weights, percentiles):
     # Interpolate the data at the percentile positions based on the normalized cumulative weights
     return np.interp(percentiles, normalized_cumsum, data)
     
-def plot_density(ax, data, weights, xlabel, ylabel, density_color):
+def plot_density(ax, data, weights, xlabel, ylabel, density_color, stats_collector):
     ax.set_xlabel(xlabel, fontsize=11)
     ax.set_ylabel(ylabel, fontsize=11)
     ax.set_xlim(0, 1.0)
@@ -165,6 +165,7 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color):
             'Value': [mean, std, min_val, q25, q50, q75, max_val]
         }
         stats_df = pd.DataFrame(stats_dict)
+        stats_collector[header] = stats_df["Value"].values
         print(stats_df.to_string(index=False))
         logging.info(stats_df.to_string(index=False))
         
@@ -191,6 +192,7 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color):
         print(msg)
         
 def create_plots(results_df, weights_word, weights_textline, plot_file, histogram_info, general_title):
+    density_stats = {}
     _, axs = plt.subplots(2, 4, figsize=(20.0, 10.0))
     plt.suptitle(general_title, fontsize=16, fontweight='bold')
     
@@ -218,7 +220,7 @@ def create_plots(results_df, weights_word, weights_textline, plot_file, histogra
     plot_density(axs[0, 1], results_df["mean_word"], weights_word, 
                  "Mean of Word Confidence Scores", 
                  "Density", 
-                 plot_colors["word"]["mean_density"])      
+                 plot_colors["word"]["mean_density"], density_stats)      
 
     plot_histogram(axs[0, 2], results_df["standard_deviation_word"], weights_word, bins, 
                    "Standard Deviation of Word Confidence Scores", 
@@ -227,7 +229,7 @@ def create_plots(results_df, weights_word, weights_textline, plot_file, histogra
     plot_density(axs[0, 3], results_df["standard_deviation_word"], weights_word, 
                  "Standard Deviation of Word Confidence Scores", 
                  "Density", 
-                 plot_colors["word"]["std_density"])
+                 plot_colors["word"]["std_density"], density_stats)
 
     plot_histogram(axs[1, 0], results_df["mean_textline"], weights_textline, bins, 
                    "Mean of Textline Confidence Scores", 
@@ -236,7 +238,7 @@ def create_plots(results_df, weights_word, weights_textline, plot_file, histogra
     plot_density(axs[1, 1], results_df["mean_textline"], weights_textline, 
                  "Mean of Textline Confidence Scores", 
                  "Density", 
-                 plot_colors["textline"]["mean_density"])      
+                 plot_colors["textline"]["mean_density"], density_stats)      
 
     plot_histogram(axs[1, 2], results_df["standard_deviation_textline"], weights_textline, bins, 
                    "Standard Deviation of Textline Confidence Scores", 
@@ -245,12 +247,16 @@ def create_plots(results_df, weights_word, weights_textline, plot_file, histogra
     plot_density(axs[1, 3], results_df["standard_deviation_textline"], weights_textline, 
                  "Standard Deviation of Textline Confidence Scores", 
                  "Density", 
-                 plot_colors["textline"]["std_density"])
+                 plot_colors["textline"]["std_density"], density_stats)
 
     plt.tight_layout(pad=1.0)
     plt.subplots_adjust(top=0.945, hspace=0.17)
     plt.savefig(plot_file)
     plt.close()
+    
+    stats_index = ['Mean', 'Std Dev', 'Min', 'Q1: 25%', 'Q2: 50% (Median)', 'Q3: 75%', 'Max']
+    density_stats_df = pd.DataFrame(density_stats, index=stats_index)
+    density_stats_df.to_csv("density_plot_summary_statistics.csv")
 
 @contextmanager
 def load_csv(csv_file):
