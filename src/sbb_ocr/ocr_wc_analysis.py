@@ -672,8 +672,10 @@ def weights_evaluation(results_df):
     max_word_weight = results_df['weight_word'].max()
     min_textline_weight = results_df['weight_textline'].min()
     max_textline_weight = results_df['weight_textline'].max()
-
+    
+    logging.info(f"Word weight range: {min_word_weight} - {max_word_weight}")
     print(f"Word weight range: {min_word_weight} - {max_word_weight}")
+    logging.info(f"Textline weight range: {min_textline_weight} - {max_textline_weight}")
     print(f"Textline weight range: {min_textline_weight} - {max_textline_weight}")
     
     word_bins = np.arange(0, results_df['weight_word'].max() + 7500, 7500)
@@ -726,6 +728,7 @@ def num_pages_evaluation(results_df):
     textline_bin_means = []
     bin_labels = []
 
+    # Calculate weighted mean confidence scores per bin
     for bin_label, group in grouped:
         if len(group) > 0:
             wm_word = weighted_mean(group["mean_word"], group["weight_word"])
