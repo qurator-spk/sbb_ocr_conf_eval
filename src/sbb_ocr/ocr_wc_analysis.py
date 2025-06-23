@@ -704,6 +704,57 @@ def weights_evaluation(results_df):
     plt.savefig("histogram_confs_weights.png")
     plt.close()
     
+def num_pages_evaluation(results_df):
+    results_df['num_pages'] = pd.to_numeric(results_df['num_pages'], errors='coerce')
+    results_df['mean_word'] = pd.to_numeric(results_df['mean_word'], errors='coerce')
+    results_df['mean_textline'] = pd.to_numeric(results_df['mean_textline'], errors='coerce')
+    results_df['weight_word'] = pd.to_numeric(results_df['weight_word'], errors='coerce')
+    results_df['weight_textline'] = pd.to_numeric(results_df['weight_textline'], errors='coerce')
+
+    bins = np.arange(0, results_df['num_pages'].max() + 10, 10)
+    results_df['pages_bin'] = pd.cut(results_df['num_pages'], bins=bins)
+
+    grouped = results_df.groupby('pages_bin', observed=False)
+
+    word_bin_means = []
+    textline_bin_means = []
+    bin_labels = []
+
+    for bin_label, group in grouped:
+        if len(group) > 0:
+            wm_word = weighted_mean(group["mean_word"], group["weight_word"])
+            wm_textline = weighted_mean(group["mean_textline"], group["weight_textline"])
+        else:
+            wm_word = np.nan
+            wm_textline = np.nan
+        word_bin_means.append(wm_word)
+        textline_bin_means.append(wm_textline)
+        bin_labels.append(str(bin_label))
+
+    plt.figure(figsize=(36, 18))
+
+    plt.subplot(1, 2, 1)
+    plt.bar(bin_labels, word_bin_means)
+    plt.xlabel('Number of Pages', fontsize=18)
+    plt.ylabel('Weighted Mean Word Confidence', fontsize=18)
+    plt.title('Weighted Mean Word Confidence by Page Count', fontsize=22)
+    plt.xticks(rotation=45, ha='right')
+    plt.xlim(-0.5, len(word_bin_means) - 0.5)
+    plt.ylim(0, 1)
+
+    plt.subplot(1, 2, 2)
+    plt.bar(bin_labels, textline_bin_means)
+    plt.xlabel('Number of Pages', fontsize=18)
+    plt.ylabel('Weighted Mean Textline Confidence', fontsize=18)
+    plt.title('Weighted Mean Textline Confidence by Page Count', fontsize=22)
+    plt.xticks(rotation=45, ha='right')
+    plt.xlim(-0.5, len(textline_bin_means) - 0.5)
+    plt.ylim(0, 1)
+
+    plt.tight_layout(pad=2.0)
+    plt.savefig("histogram_weighted_means_by_page_count.png")
+    plt.close()
+    
 def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
     if not os.path.exists(parent_dir):
             logging.info(f"Directory does not exist: {parent_dir}")
@@ -1454,6 +1505,8 @@ def plot_everything(
     
     if show_weights_evaluation:
         weights_evaluation(results_df)
+        
+    num_pages_evaluation(results_df)
     
     if results_df.empty:
         logging.info("\nThere are no results matching the applied filters.")
