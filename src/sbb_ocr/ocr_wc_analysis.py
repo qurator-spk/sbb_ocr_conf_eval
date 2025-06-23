@@ -1263,7 +1263,8 @@ def plot_everything(
     search_weight_textline=None,
     weight_word_range: Optional[Tuple[int, int]] = None,
     weight_textline_range: Optional[Tuple[int, int]] = None,
-    show_weights_evaluation=False
+    show_weights_evaluation=False,
+    search_number_of_pages=False
 ):
     if use_logging:
         setup_logging("plot")
@@ -1281,6 +1282,14 @@ def plot_everything(
     all_ppns = results_df["ppn"].unique()
     results_df = results_df.sort_values(by='mean_word', ascending=True)
     
+    if search_number_of_pages is not None:
+        if aggregate_mode == "ppn":
+            results_df = results_df[(results_df['num_pages'] == search_number_of_pages)]
+        else: 
+            logging.info("\n'-np' can only be used if '-a ppn' is also provided.")
+            print("\n'-np' can only be used if '-a ppn' is also provided.")
+            return
+        
     if search_ppn:
         results_df = results_df[results_df["ppn"].isin(
         metadata_df.loc[(metadata_df["PPN"].astype(str) == search_ppn), "PPN"])] # type: ignore
