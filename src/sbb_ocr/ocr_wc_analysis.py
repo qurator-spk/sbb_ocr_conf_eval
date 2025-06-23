@@ -1264,7 +1264,8 @@ def plot_everything(
     weight_word_range: Optional[Tuple[int, int]] = None,
     weight_textline_range: Optional[Tuple[int, int]] = None,
     show_weights_evaluation=False,
-    search_number_of_pages=False
+    search_number_of_pages=False,
+    number_of_pages_range: Optional[Tuple[int, int]] = None
 ):
     if use_logging:
         setup_logging("plot")
@@ -1288,6 +1289,21 @@ def plot_everything(
         else: 
             logging.info("\n'-np' can only be used if '-a ppn' is also provided.")
             print("\n'-np' can only be used if '-a ppn' is also provided.")
+            return
+            
+    if number_of_pages_range is not None:
+        if aggregate_mode == "ppn":
+            if number_of_pages_range[0] == 0:
+                results_df = results_df[
+                    (results_df['num_pages'] >= number_of_pages_range[0]) &
+                    (results_df['num_pages'] <= number_of_pages_range[1])]
+            else:
+                results_df = results_df[
+                    (results_df['num_pages'] > number_of_pages_range[0]) &
+                    (results_df['num_pages'] <= number_of_pages_range[1])]
+        else: 
+            logging.info("\n'-npr' can only be used if '-a ppn' is also provided.")
+            print("\n'-npr' can only be used if '-a ppn' is also provided.")
             return
         
     if search_ppn:
