@@ -66,9 +66,9 @@ Examples:
 
     sbb_ocr plot -m /path/METADATA_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
  
-    sbb_ocr plot -g GENRE -m /path/METADATA_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
+    sbb_ocr plot /path/CONF_CSV_FILES /path/PLOT_FILE -g GENRE -sb SUBGENRE
  
-    sbb_ocr plot -d <YEAR_START> <YEAR_END> -m /path/METADATA_FILE /path/CONF_CSV_FILES /path/PLOT_FILE
+    sbb_ocr plot /path/CONF_CSV_FILES /path/PLOT_FILE -d <YEAR_START> <YEAR_END>
  
     sbb_ocr evaluate -d <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY>
 
@@ -89,16 +89,16 @@ Options:
     --help                                          Show this message and exit
   
     plot:
-       -m,      --metadata                          Add a METADATA_FILE with the PPN metadata
+       -m,      --metadata                          Add a METADATA_FILE with the PPN metadata (default is metadata.csv)
        -a,      --aggregate-mode                    Choose between aggregation by PPN or PPN_PAGE (default is PPN_PAGE)
-       -r,      --show-results                      Show the light version of the results [ppn, ppn_page, mean_word, weight_word, weight_textline, originInfo-publication0_dateIssued, genre-aad] (optional)
+       -r,      --show-results                      Show the light version of the results [ppn, ppn_page/num_pages, mean_word, weight_word, weight_textline, originInfo-publication0_dateIssued, genre-aad] (optional)
        -o,      --output                            Save the results and the description of the results to an OUTPUT_CSV_FILE (optional)
        -wm,     --weighting-method                  Choose whether to show only the weighted plots, only the unweighted plots, or both (default is both)
        -g,      --genre                             Choose a GENRE to be evaluated (optional)
        -sg,     --subgenre                          Choose a SUBGENRE to be evaluated (optional)
        -ge,     --show-genre-evaluation             Evaluate the genres in the CSV_FILEs (optional)
-       -d       --search-date                       Filter the data for a specific year, specify <YEAR> (optional)
-       -dr,     --date-range                        Choose a date range for filtering the data, specify <YEAR_START> <YEAR_END> (optional)
+       -d       --search-date                       Filter the data for a specific publication year, specify <YEAR> (optional)
+       -dr,     --date-range                        Choose a publication date range for filtering the data, specify <YEAR_START> <YEAR_END> (optional)
        -ppn     --search-ppn                        Filter the data for a specific PPN, specify <PPN> (optional)
        -de,     --show-dates-evaluation             Evaluate the publication dates in the CSV_FILEs (optional)
        -wc      --mean-word-conf                    Filter the data for a specific mean word confidence score, specify <MEAN_WORD> (optional)
@@ -118,12 +118,14 @@ Options:
        -wt,     --search-weight-textline            Filter the data for a specific number of textlines (textline weight), specify <NUMBER_OF> (optional)
        -wwr,    --weight-word-range                 Choose a word count (word weight) range for filtering data, specify <NUMBER_START> <NUMBER_END> (optional)
        -wtr,    --weight-textline-range             Choose a textline count (textline weight) range for filtering data, specify <NUMBER_START> <NUMBER_END> (optional)
+       -np,     --search-number-of-pages            Filter the data for a specific number of PPN_PAGEs, specify <NUMBER_OF> (optional)
+       -npr,    --number-of-pages-range             Choose a number of PPN_PAGEs range for filtering data, specify <NUMBER_START> <NUMBER_END> (optional)
        -ppndir, --ppn-directory                     Generate a CSV with confidence scores from the names of PPN subdirectories in a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <CONF_CSV> (optional)
        -log,    --use-logging                       Save all log messages to log_plot_{TIMESTAMP}.txt (optional)
        -cve     --check-value-errors                Check the CSV_FILEs for ValueErrors and save them to value_error_pages.csv (optional)
        -cd      --check-duplicates                  Check the CSV_FILEs for duplicates and save them to duplicates.csv (optional)
        -crg     --check-raw-genres                  Check the METADATA_FILE for all raw genres and save them to genres_raw.csv (optional)
-       -hi      --histogram-info                    Show additional information about the histogram (optional)
+       -hi      --histogram-info                    Show detailed information about histogram bins (optional)
    
     evaluate:
        -d,      --dinglehopper                      Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)
