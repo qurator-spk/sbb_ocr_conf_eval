@@ -662,11 +662,26 @@ def dates_evaluation(metadata_df, results_df):
         print(f"Invalid publication dates.")
         return
         
+def create_weights_and_num_pages_histogram(data_pairs, titles, xlabels, ylabels, filename):
+    plt.figure(figsize=(36, 18))
+
+    for i, (labels, values) in enumerate(data_pairs):
+        plt.subplot(1, 2, i + 1)
+        plt.bar(labels, values)
+        plt.xlabel(xlabels[i], fontsize=18)
+        plt.ylabel(ylabels[i], fontsize=18)
+        plt.title(titles[i], fontsize=22)
+        plt.xticks(rotation=45, ha='right')
+        plt.xlim(-0.5, len(values) - 0.5)
+        plt.ylim(0, 1)
+
+    plt.tight_layout(pad=2.0)
+    plt.savefig(filename)
+    plt.close()
+        
 def weights_evaluation(results_df):
-    results_df['weight_word'] = pd.to_numeric(results_df['weight_word'], errors='coerce')
-    results_df['weight_textline'] = pd.to_numeric(results_df['weight_textline'], errors='coerce')
-    results_df['mean_word'] = pd.to_numeric(results_df['mean_word'], errors='coerce')
-    results_df['mean_textline'] = pd.to_numeric(results_df['mean_textline'], errors='coerce')
+    cols = ['weight_word', 'weight_textline', 'mean_word', 'mean_textline']
+    results_df[cols] = results_df[cols].apply(pd.to_numeric, errors='coerce')
 
     min_word_weight = results_df['weight_word'].min()
     max_word_weight = results_df['weight_word'].max()
@@ -687,37 +702,19 @@ def weights_evaluation(results_df):
     # Calculate mean confidence scores per bin
     word_bin_means = results_df.groupby('word_bin', observed=False)['mean_word'].mean()
     textline_bin_means = results_df.groupby('textline_bin', observed=False)['mean_textline'].mean()
-
-    plt.figure(figsize=(36, 18))
-
-    plt.subplot(1, 2, 1)
-    plt.bar(word_bin_means.index.astype(str), word_bin_means.values)
-    plt.xlabel('Word Count (Weight)', fontsize=18)
-    plt.ylabel('Mean Confidence Score', fontsize=18)
-    plt.title('Mean Confidence per Word Count', fontsize=22)
-    plt.xticks(rotation=45, ha='right')
-    plt.xlim(-0.5, len(word_bin_means) - 0.5)
-    plt.ylim(0, 1)
-
-    plt.subplot(1, 2, 2)
-    plt.bar(textline_bin_means.index.astype(str), textline_bin_means.values)
-    plt.xlabel('Textline Count (Weight)', fontsize=18)
-    plt.ylabel('Mean Confidence Score', fontsize=18)
-    plt.title('Mean Confidence per Textline Count', fontsize=22)
-    plt.xticks(rotation=45, ha='right')
-    plt.xlim(-0.5, len(textline_bin_means) - 0.5)
-    plt.ylim(0, 1)
-
-    plt.tight_layout(pad=2.0)
-    plt.savefig("histogram_confs_weights.png")
-    plt.close()
+    
+    create_weights_and_num_pages_histogram(
+        data_pairs=[(word_bin_means.index.astype(str), word_bin_means.values),
+                    (textline_bin_means.index.astype(str), textline_bin_means.values)],
+        titles=['Mean Confidence per Word Count', 'Mean Confidence per Textline Count'],
+        xlabels=['Word Count (Weight)', 'Textline Count (Weight)'],
+        ylabels=['Mean Confidence Score', 'Mean Confidence Score'],
+        filename="histogram_confs_weights.png"
+    )
     
 def num_pages_evaluation(results_df):
-    results_df['num_pages'] = pd.to_numeric(results_df['num_pages'], errors='coerce')
-    results_df['mean_word'] = pd.to_numeric(results_df['mean_word'], errors='coerce')
-    results_df['mean_textline'] = pd.to_numeric(results_df['mean_textline'], errors='coerce')
-    results_df['weight_word'] = pd.to_numeric(results_df['weight_word'], errors='coerce')
-    results_df['weight_textline'] = pd.to_numeric(results_df['weight_textline'], errors='coerce')
+    cols = ['num_pages', 'mean_word', 'mean_textline', 'weight_word', 'weight_textline']
+    results_df[cols] = results_df[cols].apply(pd.to_numeric, errors='coerce')
     
     min_pages = results_df['num_pages'].min()
     max_pages = results_df['num_pages'].max()
@@ -744,30 +741,14 @@ def num_pages_evaluation(results_df):
         word_bin_means.append(wm_word)
         textline_bin_means.append(wm_textline)
         bin_labels.append(str(bin_label))
-
-    plt.figure(figsize=(36, 18))
-
-    plt.subplot(1, 2, 1)
-    plt.bar(bin_labels, word_bin_means)
-    plt.xlabel('Number of Pages', fontsize=18)
-    plt.ylabel('Weighted Mean Word Confidence', fontsize=18)
-    plt.title('Weighted Mean Word Confidence by Page Count', fontsize=22)
-    plt.xticks(rotation=45, ha='right')
-    plt.xlim(-0.5, len(word_bin_means) - 0.5)
-    plt.ylim(0, 1)
-
-    plt.subplot(1, 2, 2)
-    plt.bar(bin_labels, textline_bin_means)
-    plt.xlabel('Number of Pages', fontsize=18)
-    plt.ylabel('Weighted Mean Textline Confidence', fontsize=18)
-    plt.title('Weighted Mean Textline Confidence by Page Count', fontsize=22)
-    plt.xticks(rotation=45, ha='right')
-    plt.xlim(-0.5, len(textline_bin_means) - 0.5)
-    plt.ylim(0, 1)
-
-    plt.tight_layout(pad=2.0)
-    plt.savefig("histogram_weighted_means_by_page_count.png")
-    plt.close()
+        
+    create_weights_and_num_pages_histogram(
+        data_pairs=[(bin_labels, word_bin_means), (bin_labels, textline_bin_means)],
+        titles=['Weighted Mean Word Confidence by Page Count', 'Weighted Mean Textline Confidence by Page Count'],
+        xlabels=['Number of Pages', 'Number of Pages'],
+        ylabels=['Weighted Mean Word Confidence', 'Weighted Mean Textline Confidence'],
+        filename="histogram_weighted_means_by_page_count.png"
+    )
     
 def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
     if not os.path.exists(parent_dir):
