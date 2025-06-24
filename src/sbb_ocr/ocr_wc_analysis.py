@@ -46,15 +46,24 @@ def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_inf
     if weights is not None:
         df = pd.DataFrame({'bin': binned_data, 'weight': weights})
         bin_counts = df.groupby('bin', observed=False)['weight'].sum()
+        
+        # Error bars: sqrt(sum of squared weights per bin)
+        bin_errors = df.groupby('bin', observed=False)['weight'].apply(lambda w: np.sqrt(np.sum(w**2)))
     else:
         bin_counts = binned_data.value_counts().sort_index()
+        
+        # Error bars: sqrt(count)
+        bin_errors = np.sqrt(bin_counts)
 
     # Reindex to ensure all bins appear even if count is 0
     bin_counts = bin_counts.reindex(all_intervals, fill_value=0)
+    bin_errors = bin_errors.reindex(all_intervals, fill_value=0)
     bin_lefts = [interval.left for interval in bin_counts.index]
     bin_widths = [interval.right - interval.left for interval in bin_counts.index]
 
-    ax.bar(bin_lefts, bin_counts.values, width=bin_widths, align='edge', color=color, edgecolor='black', alpha=0.6)
+    ax.bar(bin_lefts, bin_counts.values, width=bin_widths, align='edge',
+           color=color, edgecolor='black', alpha=0.6,
+           yerr=bin_errors.values, capsize=4, error_kw={'elinewidth': 1, 'ecolor': 'gray'})
     ax.set_xlabel(xlabel, fontsize=11)
     ax.set_ylabel(ylabel, fontsize=11)
     ax.set_xlim(bins[0], bins[-1])
@@ -82,7 +91,7 @@ def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_inf
 
             right_bracket = "]"
 
-            bin_label = f"Bin {left_bracket}{left:.2f}, {right:.2f}{right_bracket}: {bin_counts[interval]}"
+            bin_label = f"Bin {left_bracket}{left:.2f}, {right:.2f}{right_bracket}: {bin_counts[interval]} \u00B1 {int(round(bin_errors[interval]))}"
             print(bin_label)
             logging.info(bin_label)
             
