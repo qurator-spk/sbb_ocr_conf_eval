@@ -1062,6 +1062,12 @@ def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
     fig.update_yaxes(range=[-0.01, 1.01])
     fig.update_layout(title=dict(text='WER(WC)', x=0.5, xanchor='center'))
     pyo.plot(fig, filename=plot_filename_inter, auto_open=False)
+    
+def filter_range(df, column, value_range):
+    if value_range[0] == 0:
+        return df[(df[column] >= value_range[0]) & (df[column] <= value_range[1])]
+    else:
+        return df[(df[column] > value_range[0]) & (df[column] <= value_range[1])]
 
 
 def generate_dataframes(
@@ -1340,14 +1346,7 @@ def plot_everything(
             
     if number_of_pages_range is not None:
         if aggregate_mode == "ppn":
-            if number_of_pages_range[0] == 0:
-                results_df = results_df[
-                    (results_df['num_pages'] >= number_of_pages_range[0]) &
-                    (results_df['num_pages'] <= number_of_pages_range[1])]
-            else:
-                results_df = results_df[
-                    (results_df['num_pages'] > number_of_pages_range[0]) &
-                    (results_df['num_pages'] <= number_of_pages_range[1])]
+            results_df = filter_range(results_df, 'num_pages', number_of_pages_range)
         else: 
             logging.info("\n'-npr' can only be used if '-a ppn' is also provided.")
             print("\n'-npr' can only be used if '-a ppn' is also provided.")
@@ -1382,45 +1381,17 @@ def plot_everything(
         results_df = results_df[(results_df['mean_textline'] == mean_textline_conf)]
             
     if mean_word_confs_range:
-        if mean_word_confs_range[0] == 0:
-            results_df = results_df[
-                (results_df['mean_word'] >= mean_word_confs_range[0]) &
-                (results_df['mean_word'] <= mean_word_confs_range[1])]
-        else:
-            results_df = results_df[
-                (results_df['mean_word'] > mean_word_confs_range[0]) &
-                (results_df['mean_word'] <= mean_word_confs_range[1])]
+        results_df = filter_range(results_df, 'mean_word', mean_word_confs_range)
             
     if mean_textline_confs_range:
         results_df = results_df.sort_values(by='mean_textline', ascending=True)
-        if mean_textline_confs_range[0] == 0:
-            results_df = results_df[
-                (results_df['mean_textline'] >= mean_textline_confs_range[0]) &
-                (results_df['mean_textline'] <= mean_textline_confs_range[1])]
-        else:
-            results_df = results_df[
-                (results_df['mean_textline'] > mean_textline_confs_range[0]) &
-                (results_df['mean_textline'] <= mean_textline_confs_range[1])]
+        results_df = filter_range(results_df, 'mean_textline', mean_textline_confs_range)
                 
     if weight_word_range:
-        if weight_word_range[0] == 0:
-            results_df = results_df[
-                (results_df['weight_word'] >= weight_word_range[0]) &
-                (results_df['weight_word'] <= weight_word_range[1])]
-        else:
-            results_df = results_df[
-                (results_df['weight_word'] > weight_word_range[0]) &
-                (results_df['weight_word'] <= weight_word_range[1])]
+        results_df = filter_range(results_df, 'weight_word', weight_word_range)
                 
     if weight_textline_range:
-        if weight_textline_range[0] == 0:
-            results_df = results_df[
-                (results_df['weight_textline'] >= weight_textline_range[0]) &
-                (results_df['weight_textline'] <= weight_textline_range[1])]
-        else:
-            results_df = results_df[
-                (results_df['weight_textline'] > weight_textline_range[0]) &
-                (results_df['weight_textline'] <= weight_textline_range[1])]
+        results_df = filter_range(results_df, 'weight_textline', weight_textline_range)
             
     if search_genre:
         # Escape special characters in the search_genre string
