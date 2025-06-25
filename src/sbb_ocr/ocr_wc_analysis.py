@@ -132,6 +132,19 @@ def weighted_percentile(data, weights, percentiles):
     # Interpolate the data at the percentile positions based on the normalized cumulative weights
     return np.interp(percentiles, normalized_cumsum, data)
     
+def weighted_standard_error_of_the_mean(data, weights):
+    data = np.array(data)
+    weights = np.array(weights)
+    
+    mean = weighted_mean(data, weights)
+    deviations = data - mean
+    pooled_std = weighted_std(deviations, weights)
+    
+    # Effective sample size
+    effective_n = np.sum(weights)**2 / np.sum(weights**2)
+    
+    return pooled_std / np.sqrt(effective_n)
+    
 def plot_density(ax, data, weights, xlabel, ylabel, density_color, stats_collector):
     ax.set_xlabel(xlabel, fontsize=11)
     ax.set_ylabel(ylabel, fontsize=11)
@@ -670,13 +683,19 @@ def dates_evaluation(metadata_df, results_df):
         logging.info(f"Invalid publication dates: {e}")
         print(f"Invalid publication dates.")
         return
-        
-def create_weights_and_num_pages_histogram(data_pairs, titles, xlabels, ylabels, filename):
+
+def create_weights_and_num_pages_histogram(data_pairs, titles, xlabels, ylabels, filename, errors_pairs=None):
     plt.figure(figsize=(36, 18))
 
     for i, (labels, values) in enumerate(data_pairs):
         plt.subplot(1, 2, i + 1)
-        plt.bar(labels, values)
+        
+        if errors_pairs is not None:
+            yerr = errors_pairs[i]
+            plt.bar(labels, values, yerr=yerr, capsize=5, alpha=0.7, edgecolor='black')
+        else:
+            plt.bar(labels, values, capsize=5, alpha=0.7, edgecolor='black')
+
         plt.xlabel(xlabels[i], fontsize=18)
         plt.ylabel(ylabels[i], fontsize=18)
         plt.title(titles[i], fontsize=22)
@@ -687,7 +706,7 @@ def create_weights_and_num_pages_histogram(data_pairs, titles, xlabels, ylabels,
     plt.tight_layout(pad=2.0)
     plt.savefig(filename)
     plt.close()
-        
+
 def weights_evaluation(results_df):
     cols = ['weight_word', 'weight_textline', 'mean_word', 'mean_textline']
     results_df[cols] = results_df[cols].apply(pd.to_numeric, errors='coerce')
@@ -737,27 +756,35 @@ def num_pages_evaluation(results_df):
 
     word_bin_means = []
     textline_bin_means = []
+    word_bin_errors = []
+    textline_bin_errors = []
     bin_labels = []
-
+    
     # Calculate weighted mean confidence scores per bin
     for bin_label, group in grouped:
         if len(group) > 0:
             wm_word = weighted_mean(group["mean_word"], group["weight_word"])
             wm_textline = weighted_mean(group["mean_textline"], group["weight_textline"])
+            word_se = weighted_standard_error_of_the_mean(group["mean_word"], group["weight_word"])
+            textline_se = weighted_standard_error_of_the_mean(group["mean_textline"], group["weight_textline"])
         else:
-            wm_word = np.nan
-            wm_textline = np.nan
+            wm_word = word_se = np.nan
+            wm_textline = textline_se = np.nan
+
         word_bin_means.append(wm_word)
         textline_bin_means.append(wm_textline)
+        word_bin_errors.append(word_se)
+        textline_bin_errors.append(textline_se)
         bin_labels.append(str(bin_label))
-        
+
     create_weights_and_num_pages_histogram(
         data_pairs=[(bin_labels, word_bin_means), (bin_labels, textline_bin_means)],
+        errors_pairs=[word_bin_errors, textline_bin_errors],
         titles=['Weighted Mean Word Confidence by Page Count', 'Weighted Mean Textline Confidence by Page Count'],
         xlabels=['Number of Pages', 'Number of Pages'],
         ylabels=['Weighted Mean Word Confidence', 'Weighted Mean Textline Confidence'],
         filename="histogram_weighted_means_by_page_count.png"
-    )
+    )    
     
 def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
     if not os.path.exists(parent_dir):
