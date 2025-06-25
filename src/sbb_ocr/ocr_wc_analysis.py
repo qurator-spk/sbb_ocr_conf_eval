@@ -288,20 +288,33 @@ def load_csv(csv_file):
 def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))
-        
-def create_weighted_means_barplot(plot_df, label_col, title, filename, ha):
+    
+def create_weighted_means_barplot(plot_df, results_df, groupby_col, label_col, title, filename, ha):
+    word_errors = []
+    textline_errors = []
+
+    for label in plot_df[label_col]:
+        group_ppns = results_df[results_df[groupby_col] == label]
+        word_se = weighted_standard_error_of_the_mean(group_ppns["mean_word"], group_ppns["weight_word"]) if len(group_ppns) > 1 else 0
+        textline_se = weighted_standard_error_of_the_mean(group_ppns["mean_textline"], group_ppns["weight_textline"]) if len(group_ppns) > 1 else 0
+        word_errors.append(word_se)
+        textline_errors.append(textline_se)
+
     x = np.arange(len(plot_df))
     width = 0.35
     plt.figure(figsize=(max(13, len(plot_df) * 0.5), 7))
-    plt.bar(x - width / 2, plot_df['Weighted_Mean_Word'], width, label='Weighted Mean Word', color='skyblue')
-    plt.bar(x + width / 2, plot_df['Weighted_Mean_Textline'], width, label='Weighted Mean Textline', color='salmon')
+    plt.bar(x - width / 2, plot_df['Weighted_Mean_Word'], width,
+            yerr=word_errors, capsize=5, label='Weighted Mean Word', color='skyblue')
+    plt.bar(x + width / 2, plot_df['Weighted_Mean_Textline'], width,
+            yerr=textline_errors, capsize=5, label='Weighted Mean Textline', color='salmon')
+
     plt.xlabel(label_col, fontsize=13)
     plt.ylabel('Confidence Score', fontsize=13)
     plt.title(title, fontsize=16, fontweight='bold')
     plt.xticks(x, plot_df[label_col], rotation=45, ha=ha)
     plt.tick_params(axis='x', length=10)
     plt.ylim(0, 1)
-    plt.xlim(-0.5, len(plot_df)-0.5)
+    plt.xlim(-0.5, len(plot_df) - 0.5)
     plt.legend()
     plt.tight_layout()
     plt.savefig(filename)
@@ -670,9 +683,13 @@ def dates_evaluation(metadata_df, results_df):
             'Weighted_Mean_Textline': weighted_mean_textline_list
         }).dropna()
         plot_df.to_csv(f"date_range_{min_year}-{max_year}_yearly_weighted_means.csv", index=False)
-
+        
+        results_df = results_df.merge(metadata_df[["PPN", "publication_date"]], how="left", left_on="ppn", right_on="PPN")
+        
         create_weighted_means_barplot(
             plot_df,
+            results_df=results_df,
+            groupby_col='publication_date',
             label_col='Year',
             title='Yearly Weighted Means of Word and Textline Confidence Scores',
             filename=f"date_range_{min_year}-{max_year}_yearly_weighted_means.png",
