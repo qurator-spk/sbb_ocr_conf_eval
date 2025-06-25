@@ -684,6 +684,25 @@ def dates_evaluation(metadata_df, results_df):
         print(f"Invalid publication dates.")
         return
 
+def compute_unweighted_stats(df, bin_col, value_col):
+    means = []
+    errors = []
+    labels = []
+    for label, group in df.groupby(bin_col, observed=False):
+        data = group[value_col]
+        if len(data) > 1:
+            mean = data.mean()
+            sem = data.std(ddof=1) / np.sqrt(len(data))
+        elif len(data) == 1:
+            mean = data.iloc[0]
+            sem = 0
+        else:
+            mean = sem = np.nan
+        means.append(mean)
+        errors.append(sem)
+        labels.append(str(label))
+    return labels, means, errors
+
 def create_weights_and_num_pages_histogram(data_pairs, titles, xlabels, ylabels, filename, errors_pairs=None):
     plt.figure(figsize=(36, 18))
 
@@ -727,13 +746,12 @@ def weights_evaluation(results_df):
     results_df['word_bin'] = pd.cut(results_df['weight_word'], bins=word_bins)
     results_df['textline_bin'] = pd.cut(results_df['weight_textline'], bins=textline_bins)
 
-    # Calculate mean confidence scores per bin
-    word_bin_means = results_df.groupby('word_bin', observed=False)['mean_word'].mean()
-    textline_bin_means = results_df.groupby('textline_bin', observed=False)['mean_textline'].mean()
-    
+    word_labels, word_means, word_errors = compute_unweighted_stats(results_df, 'word_bin', 'mean_word')
+    textline_labels, textline_means, textline_errors = compute_unweighted_stats(results_df, 'textline_bin', 'mean_textline')
+
     create_weights_and_num_pages_histogram(
-        data_pairs=[(word_bin_means.index.astype(str), word_bin_means.values),
-                    (textline_bin_means.index.astype(str), textline_bin_means.values)],
+        data_pairs=[(word_labels, word_means), (textline_labels, textline_means)],
+        errors_pairs=[word_errors, textline_errors],
         titles=['Mean Confidence per Word Count', 'Mean Confidence per Textline Count'],
         xlabels=['Word Count (Weight)', 'Textline Count (Weight)'],
         ylabels=['Mean Confidence Score', 'Mean Confidence Score'],
