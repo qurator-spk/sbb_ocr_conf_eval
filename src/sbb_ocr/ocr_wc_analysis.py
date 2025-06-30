@@ -304,7 +304,7 @@ def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))
     
-def create_weighted_means_barplot(plot_df, results_df, groupby_col, label_col, title, filename, ha):
+def create_weighted_means_dates_barplot(plot_df, results_df, groupby_col, label_col, title, filename, ha):
     word_errors = []
     textline_errors = []
 
@@ -371,20 +371,58 @@ def create_publication_count_horizontal_barplot(labels, counts, title, ylabel, f
     plt.tight_layout(pad=2.0)
     plt.savefig(filename)
     plt.close()
+
+def create_weighted_means_genre_and_subgenre_barplot(
+    plot_df,
+    label_col,
+    title,
+    filename,
+    ha,
+    word_errors,
+    textline_errors
+):
+    x = np.arange(len(plot_df))
+    width = 0.35
+
+    plt.figure(figsize=(max(13, len(plot_df) * 0.5), 7))
+    plt.bar(x - width / 2, plot_df['Weighted_Mean_Word'], width,
+            yerr=word_errors, capsize=5, label='Weighted Mean Word', color='skyblue')
+    plt.bar(x + width / 2, plot_df['Weighted_Mean_Textline'], width,
+            yerr=textline_errors, capsize=5, label='Weighted Mean Textline', color='salmon')
+
+    plt.xlabel(label_col, fontsize=13)
+    plt.ylabel('Confidence Score', fontsize=13)
+    plt.title(title, fontsize=16, fontweight='bold')
+    plt.xticks(x, plot_df[label_col], rotation=45, ha=ha)
+    plt.tick_params(axis='x', length=10)
+    plt.ylim(0, 1)
+    plt.xlim(-0.5, len(plot_df) - 0.5)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
     
 def process_weighted_means(data_dict, label_name, filename_prefix, counts_dict):
     labels = []
     mean_words = []
     mean_textlines = []
+    word_errors = []
+    textline_errors = []
 
     for label, data in data_dict.items():
         if not data["mean_word"] or not data["weight_word"]:
             continue
+
         wm_word = weighted_mean(data["mean_word"], data["weight_word"])
         wm_textline = weighted_mean(data["mean_textline"], data["weight_textline"])
+        word_se = weighted_standard_error_of_the_mean(data["mean_word"], data["weight_word"]) if len(data["mean_word"]) > 1 else 0
+        textline_se = weighted_standard_error_of_the_mean(data["mean_textline"], data["weight_textline"]) if len(data["mean_textline"]) > 1 else 0
+
         labels.append(label)
         mean_words.append(wm_word)
         mean_textlines.append(wm_textline)
+        word_errors.append(word_se)
+        textline_errors.append(textline_se)
 
     df = pd.DataFrame({
         label_name: labels,
@@ -397,15 +435,17 @@ def process_weighted_means(data_dict, label_name, filename_prefix, counts_dict):
     label_counts = df[label_name].map(lambda x: counts_dict.get(x, 0))
     df['Counts'] = label_counts
     df = df.sort_values(by='Counts', ascending=False).reset_index(drop=True)
-    
-    create_weighted_means_barplot(
-        df,
+
+    create_weighted_means_genre_and_subgenre_barplot(
+        plot_df=df,
         label_col=label_name,
         title=f'{label_name}-based Weighted Means of Word and Textline Confidence Scores',
         filename=f"{filename_prefix}_weighted_mean_scores.png",
-        ha='right'
+        ha='right',
+        word_errors=word_errors,
+        textline_errors=textline_errors
     )
- 
+
 def genre_evaluation(metadata_df, results_df, use_threshold=False):
     matching_ppn_mods = set(results_df["ppn"].unique())
     filtered_genres = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
@@ -701,7 +741,7 @@ def dates_evaluation(metadata_df, results_df):
         
         results_df = results_df.merge(metadata_df[["PPN", "publication_date"]], how="left", left_on="ppn", right_on="PPN")
         
-        create_weighted_means_barplot(
+        create_weighted_means_dates_barplot(
             plot_df,
             results_df=results_df,
             groupby_col='publication_date',
