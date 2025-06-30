@@ -856,12 +856,12 @@ def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
     results_df.to_csv(conf_filename, index=False)
     
 def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
-    for directory in [parent_dir, gt_dir, ocr_dir]:
-        if not os.path.exists(directory):
-            logging.info(f"Directory does not exist: {directory}")
-            print(f"Directory does not exist: {directory}")
-            return
-            
+    # Check if parent_dir exists
+    if not os.path.exists(parent_dir):
+        logging.info(f"Directory does not exist: {parent_dir}")
+        print(f"Directory does not exist: {parent_dir}")
+        return
+
     # Special characters excluded for safety reasons
     special_chars = [';', '&', '|', '`', '(', ')', '{', '}', '~', '>', '>>', '<', '\'', '\"', '\\', ' ', '$', '?', '*', '!', ':', '=', '#', '^']
     
@@ -885,8 +885,18 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
             
             if os.path.isdir(full_path) and ppn_name.startswith("PPN"):
                 progbar.set_description(f"Processing directory: {ppn_name}")
+                
                 # Change to the subdirectory
                 os.chdir(full_path)
+
+                # Check if gt_dir and ocr_dir exist in the current PPN subdirectory
+                if not os.path.exists(gt_dir) or not os.path.exists(ocr_dir):
+                    logging.info(f"Missing subdirectories in {ppn_name}: {gt_dir} or {ocr_dir}")
+                    print(f"Missing subdirectories in {ppn_name}: {gt_dir} or {ocr_dir}")
+                    os.chdir(parent_dir)
+                    progbar.update(1)
+                    return
+
                 command_string = f"ocrd-dinglehopper -I {gt_dir},{ocr_dir} -O {report_dir}"
                 command_list = command_string.split()
                 try:
@@ -894,7 +904,8 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
                 except subprocess.CalledProcessError as e:
                     logging.info(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
                     print(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
-                # Change to the parent directory
+                    
+                # Change back to the parent directory
                 os.chdir(parent_dir)
                 progbar.update(1)
     progbar.close()
