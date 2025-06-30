@@ -152,6 +152,10 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color, stats_collect
     ax.set_xticks(np.arange(0, 1.1, 0.1))
     
     try:
+        data = np.asarray(data)
+        weights = np.asarray(weights) if weights is not None else None
+        is_weighted = weights is not None
+        
         # Create a kernel density estimation (KDE) using the provided data and weights
         kde = gaussian_kde(data, weights=weights)
         x_range = np.linspace(0, 1, 100)
@@ -161,9 +165,9 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color, stats_collect
         ax.set_ylim(bottom=0, top=np.max(density_values) * 1.1)
         
         min_val, max_val = np.min(data), np.max(data)
-        mean = weighted_mean(data, weights) if weights is not None else np.mean(data)
-        std = weighted_std(data, weights) if weights is not None else np.std(data)
-        q25, q50, q75 = weighted_percentile(data, weights, [25, 50, 75])
+        mean = weighted_mean(data, weights) if is_weighted else np.mean(data)
+        std = weighted_std(data, weights) if is_weighted else np.std(data)
+        q25, q50, q75 = weighted_percentile(data, weights, [25, 50, 75]) if is_weighted else np.percentile(data, [25, 50, 75])
 
         ax.axvline(mean, color="black", linestyle="solid", linewidth=1, label="Mean")
         ax.axvline(q25, color="black", linestyle="dashed", linewidth=1, label="Q1: 25%")
@@ -178,7 +182,7 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color, stats_collect
         legend_loc = 'upper right' if max_density_x < 0.5 else 'upper left'
         ax.legend(loc=legend_loc)
         
-        header = f"{'Weighted ' if weights is not None else ''}Density Plot: {xlabel}"
+        header = f"{'Weighted ' if is_weighted else ''}Density Plot: {xlabel}"
         print(f"\n{header}")
         logging.info(f"\n{header}")
         
@@ -190,6 +194,17 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color, stats_collect
         stats_collector[header] = stats_df["Value"].values
         print(stats_df.to_string(index=False))
         logging.info(stats_df.to_string(index=False))
+        
+        if is_weighted:
+            uw_mean = np.mean(data)
+            uw_std = np.std(data)
+            uw_q25, uw_q50, uw_q75 = np.percentile(data, [25, 50, 75])
+            uw_stats_dict = {
+                'Statistic': ['Mean', 'Std Dev', 'Min', 'Q1: 25%', 'Q2: 50% (Median)', 'Q3: 75%', 'Max'],
+                'Value': [uw_mean, uw_std, min_val, uw_q25, uw_q50, uw_q75, max_val]
+            }
+            unweighted_header = f"Unweighted Density Plot: {xlabel}"
+            stats_collector[unweighted_header] = pd.DataFrame(uw_stats_dict)["Value"].values
         
     except LinAlgError as e:
         msg = (
