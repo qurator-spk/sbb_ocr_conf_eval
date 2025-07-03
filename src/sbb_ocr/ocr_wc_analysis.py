@@ -98,17 +98,28 @@ def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_inf
 def weighted_mean(data, weights):
     return np.average(data, weights=weights)
     
-def weighted_std(std_devs, weights):
-    std_devs = np.array(std_devs)
+def weighted_std(deviations, weights):
+    deviations = np.array(deviations)
     weights = np.array(weights)
-    variances = np.square(std_devs)
     
-    # Compute the weighted mean of variances
-    weighted_variance = weighted_mean(variances, weights)
+    # Compute weighted variance
+    weighted_variance = np.sum(weights * deviations**2) / np.sum(weights)
     
-    # Calculate the weighted pooled standard deviation
-    pooled_std = np.sqrt(weighted_variance)
-    return pooled_std
+    # Return standard deviation
+    return np.sqrt(weighted_variance)
+
+def weighted_standard_error_of_the_mean(data, weights):
+    data = np.array(data)
+    weights = np.array(weights)
+    
+    mean = weighted_mean(data, weights)
+    deviations = data - mean
+    std = weighted_std(deviations, weights)
+    
+    # Effective sample size
+    effective_n = np.sum(weights)**2 / np.sum(weights**2)
+    
+    return std / np.sqrt(effective_n)
     
 def weighted_percentile(data, weights, percentiles):
     data = np.array(data)
@@ -131,19 +142,6 @@ def weighted_percentile(data, weights, percentiles):
     
     # Interpolate the data at the percentile positions based on the normalized cumulative weights
     return np.interp(percentiles, normalized_cumsum, data)
-    
-def weighted_standard_error_of_the_mean(data, weights):
-    data = np.array(data)
-    weights = np.array(weights)
-    
-    mean = weighted_mean(data, weights)
-    deviations = data - mean
-    pooled_std = weighted_std(deviations, weights)
-    
-    # Effective sample size
-    effective_n = np.sum(weights)**2 / np.sum(weights**2)
-    
-    return pooled_std / np.sqrt(effective_n)
     
 def plot_density(ax, data, weights, xlabel, ylabel, density_color, stats_collector):
     ax.set_xlabel(xlabel, fontsize=11)
