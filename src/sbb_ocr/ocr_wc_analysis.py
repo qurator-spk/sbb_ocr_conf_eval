@@ -369,16 +369,8 @@ def create_publication_count_horizontal_barplot(labels, counts, title, ylabel, f
     plt.tight_layout(pad=2.0)
     plt.savefig(filename)
     plt.close()
-
-def create_weighted_means_genre_and_subgenre_barplot(
-    plot_df,
-    label_col,
-    title,
-    filename,
-    ha,
-    word_errors,
-    textline_errors
-):
+    
+def create_weighted_means_genre_and_subgenre_barplot(plot_df, label_col, title, filename, ha, word_errors, textline_errors):
     x = np.arange(len(plot_df))
     width = 0.35
 
@@ -401,12 +393,8 @@ def create_weighted_means_genre_and_subgenre_barplot(
     plt.close()
     
 def process_weighted_means(data_dict, label_name, filename_prefix, counts_dict):
-    labels = []
-    mean_words = []
-    mean_textlines = []
-    word_errors = []
-    textline_errors = []
-
+    # Create DataFrame first with all data
+    data_list = []
     for label, data in data_dict.items():
         if not data["mean_word"] or not data["weight_word"]:
             continue
@@ -416,23 +404,21 @@ def process_weighted_means(data_dict, label_name, filename_prefix, counts_dict):
         word_se = weighted_standard_error_of_the_mean(data["mean_word"], data["weight_word"]) if len(data["mean_word"]) > 1 else 0
         textline_se = weighted_standard_error_of_the_mean(data["mean_textline"], data["weight_textline"]) if len(data["mean_textline"]) > 1 else 0
 
-        labels.append(label)
-        mean_words.append(wm_word)
-        mean_textlines.append(wm_textline)
-        word_errors.append(word_se)
-        textline_errors.append(textline_se)
+        data_list.append({
+            label_name: label,
+            'Weighted_Mean_Word': wm_word,
+            'Weighted_Mean_Textline': wm_textline,
+            'Word_Error': word_se,
+            'Textline_Error': textline_se,
+            'Count': counts_dict.get(label, 0)
+        })
 
-    df = pd.DataFrame({
-        label_name: labels,
-        'Weighted_Mean_Word': mean_words,
-        'Weighted_Mean_Textline': mean_textlines
-    }).dropna()
-    df.to_csv(f"{filename_prefix}_weighted_mean_scores.csv", index=False)
-    
-    # Sort based on total counts
-    label_counts = df[label_name].map(lambda x: counts_dict.get(x, 0))
-    df['Counts'] = label_counts
-    df = df.sort_values(by='Counts', ascending=False).reset_index(drop=True)
+    # Create DataFrame and sort by count (descending) and then by label name (ascending)
+    df = pd.DataFrame(data_list)
+    df = df.sort_values(by=['Count', label_name], ascending=[False, True]).reset_index(drop=True)
+
+    df_save = df[[label_name, 'Weighted_Mean_Word', 'Weighted_Mean_Textline']].copy()
+    df_save.to_csv(f"{filename_prefix}_weighted_mean_scores.csv", index=False)
 
     create_weighted_means_genre_and_subgenre_barplot(
         plot_df=df,
@@ -440,17 +426,21 @@ def process_weighted_means(data_dict, label_name, filename_prefix, counts_dict):
         title=f'{label_name}-based Weighted Means of Word and Textline Confidence Scores',
         filename=f"{filename_prefix}_weighted_mean_scores.png",
         ha='right',
-        word_errors=word_errors,
-        textline_errors=textline_errors
+        word_errors=df['Word_Error'].tolist(),
+        textline_errors=df['Textline_Error'].tolist()
     )
-
+                
 def genre_evaluation(metadata_df, results_df, use_threshold=False):
     matching_ppn_mods = set(results_df["ppn"].unique())
     filtered_genres = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
 
     # Create dicts for fast access
     ppn_to_genres_raw = filtered_genres.groupby("PPN")["genre-aad"].apply(list).to_dict()
-    ppn_to_results = results_df.groupby("ppn").first().to_dict(orient="index")
+    
+    # Determine aggregation mode
+    is_ppn_page_mode = "ppn_page" in results_df.columns
+    if not is_ppn_page_mode:
+        ppn_to_results = results_df.groupby("ppn").first().to_dict(orient="index")
 
     genre_weighted_data = {}
     genre_counts = {}
@@ -462,8 +452,14 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
 
     for ppn in matching_ppn_mods:
         current_genres_raw_list = ppn_to_genres_raw.get(ppn, [])
-        result_entry = ppn_to_results.get(ppn)
-        if result_entry is None:
+        
+        # Get results based on aggregation mode
+        if is_ppn_page_mode:
+            ppn_results = results_df[results_df["ppn"] == ppn]
+        else:
+            ppn_results = pd.DataFrame([ppn_to_results.get(ppn)]) if ppn_to_results.get(ppn) is not None else pd.DataFrame()
+            
+        if ppn_results.empty:
             continue
 
         counted_genres = set()
@@ -505,22 +501,19 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
                         "mean_word": [], "weight_word": [],
                         "mean_textline": [], "weight_textline": []
                     }
-                subgenre_weighted_data[sub]["mean_word"].append(result_entry["mean_word"])
-                subgenre_weighted_data[sub]["weight_word"].append(result_entry["weight_word"])
-                subgenre_weighted_data[sub]["mean_textline"].append(result_entry["mean_textline"])
-                subgenre_weighted_data[sub]["weight_textline"].append(result_entry["weight_textline"])
+                
+                # Add all data for this subgenre
+                subgenre_weighted_data[sub]["mean_word"].extend(ppn_results["mean_word"].tolist())
+                subgenre_weighted_data[sub]["weight_word"].extend(ppn_results["weight_word"].tolist())
+                subgenre_weighted_data[sub]["mean_textline"].extend(ppn_results["mean_textline"].tolist())
+                subgenre_weighted_data[sub]["weight_textline"].extend(ppn_results["weight_textline"].tolist())
 
-            for genre in set(genres): # Avoid duplicates
+            for genre in set(genres):
                 if genre in counted_genres:
                     continue
 
                 genre_counts[genre] = genre_counts.get(genre, 0) + 1
                 counted_genres.add(genre)
-
-                mean_word = result_entry["mean_word"]
-                mean_textline = result_entry["mean_textline"]
-                weight_word = result_entry["weight_word"]
-                weight_textline = result_entry["weight_textline"]
 
                 if genre not in genre_weighted_data:
                     genre_weighted_data[genre] = {
@@ -528,10 +521,11 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
                         "mean_textline": [], "weight_textline": []
                     }
 
-                genre_weighted_data[genre]["mean_word"].append(mean_word)
-                genre_weighted_data[genre]["weight_word"].append(weight_word)
-                genre_weighted_data[genre]["mean_textline"].append(mean_textline)
-                genre_weighted_data[genre]["weight_textline"].append(weight_textline)
+                # Add all data for this genre
+                genre_weighted_data[genre]["mean_word"].extend(ppn_results["mean_word"].tolist())
+                genre_weighted_data[genre]["weight_word"].extend(ppn_results["weight_word"].tolist())
+                genre_weighted_data[genre]["mean_textline"].extend(ppn_results["mean_textline"].tolist())
+                genre_weighted_data[genre]["weight_textline"].extend(ppn_results["weight_textline"].tolist())
 
     logging.info(f"\nNumber of PPNs: {len(matching_ppn_mods)}")
     print(f"\nNumber of PPNs: {len(matching_ppn_mods)}")
@@ -546,8 +540,9 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
     logging.info(f"\nNumber of all unique genres (without subgenres): {len(all_genres_reduced)}")
     print(f"\nNumber of all unique genres (without subgenres): {len(all_genres_reduced)}")
 
+    # Sort genre counts by count (descending) and genre name (ascending)
     genre_counts_df = pd.DataFrame(list(genre_counts.items()), columns=['Genre', 'Count'])
-    genre_counts_df_sorted = genre_counts_df.sort_values(by='Count', ascending=False)
+    genre_counts_df_sorted = genre_counts_df.sort_values(by=['Count', 'Genre'], ascending=[False, True])
     genre_counts_df_sorted.to_csv("genre_publications.csv", index=False)
 
     if not genre_counts_df.empty:
@@ -556,8 +551,9 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         print("\nUnique genres and their counts:\n")
         print(genre_counts_df_sorted.to_string(index=False))
 
+    # Sort subgenre counts by count (descending) and subgenre name (ascending)
     subgenre_counts_df = pd.DataFrame(list(subgenre_counts.items()), columns=['Subgenre', 'Count'])
-    subgenre_counts_df_sorted = subgenre_counts_df.sort_values(by='Count', ascending=False)
+    subgenre_counts_df_sorted = subgenre_counts_df.sort_values(by=['Count', 'Subgenre'], ascending=[False, True])
     
     logging.info(f"\nNumber of all unique subgenres: {len(subgenre_counts_df_sorted)}")
     print(f"\nNumber of all unique subgenres: {len(subgenre_counts_df_sorted)}")
@@ -571,8 +567,12 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         
         genre_subgenre_summary = []
 
-        for genre, subgenre_dict in genre_to_subgenre_counts.items():
-            subgenre_str = "; ".join([f"{sub} ({count})" for sub, count in sorted(subgenre_dict.items(), key=lambda x: -x[1])])
+        # Sort genre-subgenre combinations
+        for genre in sorted(genre_to_subgenre_counts.keys()):
+            subgenre_dict = genre_to_subgenre_counts[genre]
+            # Sort subgenres by count (descending) and name (ascending)
+            sorted_items = sorted(subgenre_dict.items(), key=lambda x: (-x[1], x[0]))
+            subgenre_str = "; ".join([f"{sub} ({count})" for sub, count in sorted_items])
             genre_subgenre_summary.append((genre, subgenre_str))
 
         genre_subgenre_df = pd.DataFrame(genre_subgenre_summary, columns=["Genre", "Subgenres (with counts)"])
@@ -587,6 +587,7 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         print("\nGenre-subgenre combinations:\n")
         print(genre_subgenre_df_sorted.to_string(index=False))
         
+        # Use sorted values for subgenre plot
         subgenres, sub_counts = zip(*subgenre_counts_df_sorted.values)
         create_publication_count_horizontal_barplot(
             labels=subgenres,
@@ -596,7 +597,8 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
             filename='subgenre_publications.png'
         )
 
-    sorted_genre_counts = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)
+    # Sort genre counts for plotting
+    sorted_genre_counts = sorted(genre_counts.items(), key=lambda x: (-x[1], x[0]))
 
     if sorted_genre_counts:
         _, highest_count = sorted_genre_counts[0]
@@ -607,10 +609,8 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         plot_threshold = 0
     
     if use_threshold:
-        # Filter genres by threshold
         filtered_genre_counts = [(genre, count) for genre, count in sorted_genre_counts if count > plot_threshold]
     else:
-        # Include all genres
         filtered_genre_counts = sorted_genre_counts
 
     if not filtered_genre_counts:
@@ -631,17 +631,25 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         if len(subgenre_counts) >= 1:
             process_weighted_means(subgenre_weighted_data, label_name='Subgenre', filename_prefix='subgenre', counts_dict=subgenre_counts)
             
-            # Flatten and sort within genre in order to plot the genre-subgenre combinations
-            flattened_labels = []
-            flattened_counts = []
+            # Create flattened and sorted genre-subgenre combinations
+            flattened_data = []
             for genre in sorted(genre_to_subgenre_counts.keys()):
                 subgenre_dict = genre_to_subgenre_counts[genre]
                 
-                # Use descending order
-                sorted_subgenres = sorted(subgenre_dict.items(), key=lambda x: -x[1])
-                for subgenre, count in sorted_subgenres:
-                    flattened_labels.append(f"{genre}: {subgenre}")
-                    flattened_counts.append(count)
+                # Sort subgenres by count (descending) and name (ascending)
+                subgenre_items = list(subgenre_dict.items())
+                subgenre_items.sort(key=lambda x: (-x[1], x[0]))
+                
+                for subgenre, count in subgenre_items:
+                    flattened_data.append({
+                        'label': f"{genre}: {subgenre}",
+                        'count': count
+                    })
+
+            # Sort by count (descending) and full label (ascending) for ties
+            flattened_data.sort(key=lambda x: (-x['count'], x['label']))
+            flattened_labels = [item['label'] for item in flattened_data]
+            flattened_counts = [item['count'] for item in flattened_data]
 
             if flattened_labels and flattened_counts:
                 create_publication_count_horizontal_barplot(
