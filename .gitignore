@@ -36,9 +36,7 @@ subgenre_weighted_mean_scores.csv
 subgenre_weighted_mean_scores.png
 genre_subgenre_combinations.csv
 genre_subgenre_combinations.png
-histogram_confs_weights.png
-histogram_weighted_means_by_page_count.png
+barplot_confs_weights.png
+barplot_weighted_means_by_page_count.png
 density_plot_summary_statistics.csv
 density_plot*
-genre_*
-subgenre_*

@@ -781,7 +781,7 @@ def compute_unweighted_stats(df, bin_col, value_col):
         labels.append(str(label))
     return labels, means, errors
 
-def create_weights_and_num_pages_histogram(data_pairs, titles, xlabels, ylabels, filename, errors_pairs=None):
+def create_weights_and_num_pages_barplot(data_pairs, titles, xlabels, ylabels, filename, errors_pairs=None):
     plt.figure(figsize=(36, 18))
 
     for i, (labels, values) in enumerate(data_pairs):
@@ -827,13 +827,13 @@ def weights_evaluation(results_df):
     word_labels, word_means, word_errors = compute_unweighted_stats(results_df, 'word_bin', 'mean_word')
     textline_labels, textline_means, textline_errors = compute_unweighted_stats(results_df, 'textline_bin', 'mean_textline')
 
-    create_weights_and_num_pages_histogram(
+    create_weights_and_num_pages_barplot(
         data_pairs=[(word_labels, word_means), (textline_labels, textline_means)],
         errors_pairs=[word_errors, textline_errors],
         titles=['Mean Confidence per Word Count', 'Mean Confidence per Textline Count'],
         xlabels=['Word Count (Weight)', 'Textline Count (Weight)'],
         ylabels=['Mean Confidence Score', 'Mean Confidence Score'],
-        filename="histogram_confs_weights.png"
+        filename="barplot_confs_weights.png"
     )
     
 def num_pages_evaluation(results_df):
@@ -845,7 +845,7 @@ def num_pages_evaluation(results_df):
     print(f"\nNumber of pages range: {min_pages} - {max_pages}")
     logging.info(f"\nNumber of pages range: {min_pages} - {max_pages}")
 
-    bins = np.arange(0, results_df['num_pages'].max() + 10, 10)
+    bins = np.arange(0, results_df['num_pages'].max() + 20, 20)
     results_df['pages_bin'] = pd.cut(results_df['num_pages'], bins=bins)
 
     grouped = results_df.groupby('pages_bin', observed=False)
@@ -873,13 +873,13 @@ def num_pages_evaluation(results_df):
         textline_bin_errors.append(textline_se)
         bin_labels.append(str(bin_label))
 
-    create_weights_and_num_pages_histogram(
+    create_weights_and_num_pages_barplot(
         data_pairs=[(bin_labels, word_bin_means), (bin_labels, textline_bin_means)],
         errors_pairs=[word_bin_errors, textline_bin_errors],
         titles=['Weighted Mean Word Confidence by Page Count', 'Weighted Mean Textline Confidence by Page Count'],
         xlabels=['Number of Pages', 'Number of Pages'],
         ylabels=['Weighted Mean Word Confidence', 'Weighted Mean Textline Confidence'],
-        filename="histogram_weighted_means_by_page_count.png"
+        filename="barplot_weighted_means_by_page_count.png"
     )    
     
 def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
