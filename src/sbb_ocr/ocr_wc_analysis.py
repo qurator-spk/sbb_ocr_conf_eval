@@ -1113,50 +1113,61 @@ def merge_csv(conf_df, error_rates_df, wcwer_filename):
     
 def plot_wer_vs_wc(wcwer_csv, plot_filename):
     if not os.path.exists(wcwer_csv):
-            logging.info(f"File does not exist: {wcwer_csv}")
-            print(f"File does not exist: {wcwer_csv}")
-            return
+        logging.info(f"File does not exist: {wcwer_csv}")
+        print(f"File does not exist: {wcwer_csv}")
+        return
             
-    wcwer_df = pd.DataFrame(
-        load_csv_to_list(wcwer_csv)[1:],
-        columns=[
-            "ppn",
-            "ppn_page",
-            "mean_word",
-            "median_word",
-            "standard_deviation_word",
-            "mean_textline",
-            "median_textline",
-            "standard_deviation_textline",
-            "weight_word",
-            "weight_textline",
-            "gt",
-            "ocr",
-            "cer",
-            "wer",
-            "n_characters",
-            "n_words",
-        ],
-    )
-    
-    wcwer_df['mean_word'] = pd.to_numeric(wcwer_df['mean_word'])
-    wcwer_df['wer'] = pd.to_numeric(wcwer_df['wer'])
-    wcwer_df.sort_values(by='mean_word', ascending=True, inplace=True)
-    
-    ppn_pages_count = wcwer_df["ppn_page"].nunique()
-    plt.figure(figsize=(ppn_pages_count * 0.1, ppn_pages_count * 0.1)) 
-    plt.scatter(wcwer_df["mean_word"], wcwer_df["wer"], color='blue', marker='x', s=100)
-    plt.xlabel('Mean Word Confidence Score (WC)', fontsize=16)
-    plt.ylabel('Word Error Rate (WER)', fontsize=16)
-    plt.title('WER(WC)', fontsize=16)
-    plt.xticks(fontsize=13)
-    plt.yticks(fontsize=13)
-    plt.grid(linestyle='--', alpha=0.8)
-    plt.xlim(-0.01, 1.01)
-    plt.ylim(-0.01, 1.01)
-    plt.tight_layout(pad=1.0)
-    plt.savefig(plot_filename)
-    plt.close()
+    try:
+        # Read CSV file directly using pandas
+        wcwer_df = pd.read_csv(wcwer_csv)
+        
+        # Check if required columns exist
+        required_columns = ['mean_word', 'wer', 'ppn_page']
+        missing_columns = [col for col in required_columns if col not in wcwer_df.columns]
+        if missing_columns:
+            logging.info(f"Missing required columns: {missing_columns}")
+            print(f"Missing required columns: {missing_columns}")
+            return
+        
+        wcwer_df['mean_word'] = pd.to_numeric(wcwer_df['mean_word'], errors='coerce')
+        wcwer_df['wer'] = pd.to_numeric(wcwer_df['wer'], errors='coerce')
+        wcwer_df = wcwer_df.dropna(subset=['mean_word', 'wer'])
+        
+        if wcwer_df.empty:
+            logging.info("No valid data to plot after processing")
+            print("No valid data to plot after processing")
+            return
+        
+        # Sort values
+        wcwer_df.sort_values(by='mean_word', ascending=True, inplace=True)
+        
+        # Create plot
+        ppn_pages_count = wcwer_df["ppn_page"].nunique()
+        plt.figure(figsize=(ppn_pages_count * 0.1, ppn_pages_count * 0.1))
+        
+        plt.scatter(wcwer_df["mean_word"], wcwer_df["wer"], 
+                   color='blue', marker='x', s=100)
+        
+        plt.xlabel('Mean Word Confidence Score (WC)', fontsize=16)
+        plt.ylabel('Word Error Rate (WER)', fontsize=16)
+        plt.title('WER(WC)', fontsize=16)
+        plt.xticks(fontsize=13)
+        plt.yticks(fontsize=13)
+        plt.grid(linestyle='--', alpha=0.8)
+        plt.xlim(-0.01, 1.01)
+        plt.ylim(-0.01, 1.01)
+        plt.tight_layout(pad=1.0)
+        plt.savefig(plot_filename)
+        plt.close()
+        
+        print(f"Plot saved as: {plot_filename}")
+        
+    except pd.errors.EmptyDataError:
+        logging.info("CSV file is empty")
+        print("CSV file is empty")
+    except Exception as e:
+        logging.info(f"Error processing CSV file: {str(e)}")
+        print(f"Error processing CSV file: {str(e)}")
     
 def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
     if not os.path.exists(wcwer_csv_inter):
