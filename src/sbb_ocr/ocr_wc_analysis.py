@@ -972,26 +972,29 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
     progbar.close()
     
 def generate_error_rates(parent_dir_error, report_dir_error, error_rates_filename):
-    for directory in [parent_dir_error, report_dir_error]:
-        if not os.path.exists(directory):
-            logging.info(f"Directory does not exist: {directory}")
-            print(f"Directory does not exist: {directory}")
-            return
+    # Check if parent directory exists
+    if not os.path.exists(parent_dir_error):
+        logging.info(f"Directory does not exist: {parent_dir_error}")
+        print(f"Directory does not exist: {parent_dir_error}")
+        return
     
     data = []
     valid_directory_count = 0
-    os.chdir(parent_dir_error)
-    for ppn_name in os.listdir():
+    
+    # Count valid directories first
+    for ppn_name in os.listdir(parent_dir_error):
         full_path = os.path.join(parent_dir_error, ppn_name)
         if os.path.isdir(full_path) and ppn_name.startswith("PPN"):
             valid_directory_count += 1
 
     with tqdm(total=valid_directory_count) as progbar:
-        for ppn_name in os.listdir():
+        for ppn_name in os.listdir(parent_dir_error):
             full_path = os.path.join(parent_dir_error, ppn_name)
 
             if os.path.isdir(full_path) and ppn_name.startswith("PPN"):
                 progbar.set_description(f"Processing directory: {ppn_name}")
+                
+                # Construct path to evaluation directory
                 eval_dir = os.path.join(full_path, report_dir_error)
 
                 if os.path.exists(eval_dir) and os.path.isdir(eval_dir):
@@ -999,53 +1002,73 @@ def generate_error_rates(parent_dir_error, report_dir_error, error_rates_filenam
                         if json_file.endswith(".json"):
                             json_path = os.path.join(eval_dir, json_file)
                             
-                            with open(json_path, 'r') as f:
-                                json_data = json.load(f)
+                            try:
+                                with open(json_path, 'r') as f:
+                                    json_data = json.load(f)
+                                    
+                                gt = json_data.get('gt', None)
+                                ocr = json_data.get('ocr', None)
+                                n_characters = json_data.get('n_characters', None)
+                                n_words = json_data.get('n_words', None)
+                                cer = json_data.get('cer', None)
+                                wer = json_data.get('wer', None)
                                 
-                            gt = json_data.get('gt', None)
-                            ocr = json_data.get('ocr', None)
-                            n_characters = json_data.get('n_characters', None)
-                            n_words = json_data.get('n_words', None)
-                            cer = json_data.get('cer', None)
-                            wer = json_data.get('wer', None)
-                            
-                            # Set invalid error rates to 1
-                            if cer is None or cer == "inf" or cer == "infinity" or float(cer) > 1:
-                                cer = 1.0
-                            else:
-                                cer = float(cer)
+                                # Set invalid error rates to 1
+                                if cer is None or cer == "inf" or cer == "infinity" or float(cer) > 1:
+                                    cer = 1.0
+                                else:
+                                    cer = float(cer)
 
-                            if wer is None or wer == "inf" or wer == "infinity" or float(wer) > 1:
-                                wer = 1.0
-                            else:
-                                wer = float(wer)
-                                
-                            page = gt.split('/')[-1].replace(".page", "")
-                            ppn_page = f'{ppn_name}_{page}'
+                                if wer is None or wer == "inf" or wer == "infinity" or float(wer) > 1:
+                                    wer = 1.0
+                                else:
+                                    wer = float(wer)
+                                    
+                                # Extract page number from gt path
+                                if gt:
+                                    page = gt.split('/')[-1].replace(".page", "")
+                                    ppn_page = f'{ppn_name}_{page}'
 
-                            ppn_name_data = {
-                                'ppn': ppn_name,
-                                'ppn_page': ppn_page,
-                                'gt': gt,
-                                'ocr': ocr,
-                                'cer': cer,
-                                'wer': wer,
-                                'n_characters': n_characters,
-                                'n_words': n_words
-                            }
-                            
-                            data.append(ppn_name_data)
+                                    ppn_name_data = {
+                                        'ppn': ppn_name,
+                                        'ppn_page': ppn_page,
+                                        'gt': gt,
+                                        'ocr': ocr,
+                                        'cer': cer,
+                                        'wer': wer,
+                                        'n_characters': n_characters,
+                                        'n_words': n_words
+                                    }
+                                    
+                                    data.append(ppn_name_data)
+                            except json.JSONDecodeError as e:
+                                logging.info(f"Error reading JSON file {json_path}: {e}")
+                                print(f"Error reading JSON file {json_path}: {e}")
+                                continue
+                else:
+                    logging.info(f"Evaluation directory not found for {ppn_name}: {eval_dir}")
+                    print(f"Evaluation directory not found for {ppn_name}: {eval_dir}")
+                
                 progbar.update(1)
     progbar.close()
 
-    error_rates_df = pd.DataFrame(data)
-    error_rates_df.sort_values(by='ppn_page', ascending=True, inplace=True)
-    logging.info("\nResults:\n")
-    logging.info(error_rates_df)
-    print("\nResults:\n")
-    print(error_rates_df)
-    os.chdir(os.pardir)
-    error_rates_df.to_csv(error_rates_filename, index=False)
+    if data:
+        # Create DataFrame and save results
+        error_rates_df = pd.DataFrame(data)
+        error_rates_df.sort_values(by='ppn_page', ascending=True, inplace=True)
+        
+        # Save to current directory
+        output_path = os.path.join(os.getcwd(), error_rates_filename)
+        error_rates_df.to_csv(output_path, index=False)
+        
+        logging.info("\nResults:\n")
+        logging.info(error_rates_df)
+        print("\nResults:\n")
+        print(error_rates_df)
+        print(f"\nResults saved to: {output_path}")
+    else:
+        logging.info("No data found to process")
+        print("No data found to process")
     
 def merge_csv(conf_df, error_rates_df, wcwer_filename):
     for filename in [conf_df, error_rates_df]:
