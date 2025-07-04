@@ -1071,52 +1071,45 @@ def generate_error_rates(parent_dir_error, report_dir_error, error_rates_filenam
         print("No data found to process")
     
 def merge_csv(conf_df, error_rates_df, wcwer_filename):
+    # Check if files exist
     for filename in [conf_df, error_rates_df]:
         if not os.path.exists(filename):
             logging.info(f"File does not exist: {filename}")
             print(f"File does not exist: {filename}")
             return
     
-    ppn_conf_df = pd.DataFrame(
-        load_csv_to_list(conf_df)[1:],
-        columns=[
-            "ppn",
-            "ppn_page",
-            "mean_word",
-            "median_word",
-            "standard_deviation_word",
-            "mean_textline",
-            "median_textline",
-            "standard_deviation_textline",
-            "weight_word",
-            "weight_textline",
-        ],
-    )
-
-    ppn_error_rates_df = pd.DataFrame(
-        load_csv_to_list(error_rates_df)[1:],
-        columns=[
-            "ppn",
-            "ppn_page",
-            "gt",
-            "ocr",
-            "cer",
-            "wer",
-            "n_characters",
-            "n_words",
-        ],
-    )
-    ppn_error_rates_df.drop(columns=["ppn"], inplace=True)
-    ppn_conf_df = ppn_conf_df[ppn_conf_df['ppn_page'].isin(ppn_error_rates_df['ppn_page'])]
-    
-    # Merge confidence scores data with the error rates data
-    wcwer_df = pd.merge(ppn_conf_df, ppn_error_rates_df, on='ppn_page', how='inner')
-    wcwer_df.sort_values(by='ppn_page', ascending=True, inplace=True)
-    logging.info("\nResults:\n")
-    logging.info(wcwer_df)
-    print("\nResults:\n")
-    print(wcwer_df)
-    wcwer_df.to_csv(wcwer_filename, index=False)
+    try:
+        # Read the confidence scores CSV
+        ppn_conf_df = pd.read_csv(conf_df)
+        
+        # Read the error rates CSV
+        ppn_error_rates_df = pd.read_csv(error_rates_df)
+        
+        # Drop the redundant 'ppn' column from error rates
+        if 'ppn' in ppn_error_rates_df.columns:
+            ppn_error_rates_df.drop(columns=["ppn"], inplace=True)
+        
+        # Filter confidence scores to only include pages that exist in error rates
+        ppn_conf_df = ppn_conf_df[ppn_conf_df['ppn_page'].isin(ppn_error_rates_df['ppn_page'])]
+        
+        # Merge confidence scores data with the error rates data
+        wcwer_df = pd.merge(ppn_conf_df, ppn_error_rates_df, on='ppn_page', how='inner')
+        wcwer_df.sort_values(by='ppn_page', ascending=True, inplace=True)
+        
+        logging.info("\nResults:\n")
+        logging.info(wcwer_df)
+        print("\nResults:\n")
+        print(wcwer_df)
+        
+        wcwer_df.to_csv(wcwer_filename, index=False)
+        print(f"\nMerged data saved to: {wcwer_filename}")
+        
+    except pd.errors.EmptyDataError:
+        logging.info("One or both CSV files are empty")
+        print("One or both CSV files are empty")
+    except Exception as e:
+        logging.info(f"Error processing CSV files: {str(e)}")
+        print(f"Error processing CSV files: {str(e)}")
     
 def plot_wer_vs_wc(wcwer_csv, plot_filename):
     if not os.path.exists(wcwer_csv):
