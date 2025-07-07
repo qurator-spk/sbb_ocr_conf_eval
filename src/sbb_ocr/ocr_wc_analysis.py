@@ -1202,6 +1202,10 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         mse_poly_train = np.mean((y_train - y_pred_poly_train) ** 2)
         mse_poly_test = np.mean((y_test - y_pred_poly_test) ** 2)
         
+        # Generate formulas
+        linear_formula = f"WER = {linear_model.coef_[0]:.3f} * WC + {linear_model.intercept_:.3f}"
+        poly_formula = f"WER = {poly_model.coef_[2]:.3f} * WC^2 + {poly_model.coef_[1]:.3f} * WC + {poly_model.coef_[0]:.3f}"
+        
         stats_data = {
             'Metric': [
                 'Number of Training Points',
@@ -1212,12 +1216,14 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
                 'Linear Regression R^2 (Test)',
                 'Linear Regression MSE (Train)',
                 'Linear Regression MSE (Test)',
+                'Linear Regression Formula',
                 'Linear Regression Slope',
                 'Linear Regression Intercept',
                 'Polynomial Regression R^2 (Train)',
                 'Polynomial Regression R^2 (Test)',
                 'Polynomial Regression MSE (Train)',
                 'Polynomial Regression MSE (Test)',
+                'Polynomial Regression Formula',
                 'Polynomial Coefficient (x^2)',
                 'Polynomial Coefficient (x)',
                 'Polynomial Coefficient (intercept)'
@@ -1231,12 +1237,14 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
                 linear_r2_test,
                 mse_linear_train,
                 mse_linear_test,
+                linear_formula,
                 linear_model.coef_[0],
                 linear_model.intercept_,
                 poly_r2_train,
                 poly_r2_test,
                 mse_poly_train,
                 mse_poly_test,
+                poly_formula,
                 poly_model.coef_[2],
                 poly_model.coef_[1],
                 poly_model.coef_[0]
@@ -1367,12 +1375,19 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         
         print("\nStatistical Analysis:")
         print(stats_df.to_string(index=False))
+        print("\nRegression Formulas:")
+        print(f"Linear Regression: {linear_formula}")
+        print(f"Polynomial Regression: {poly_formula}")
         print(f"\nFiles saved:")
         print(f"Statistical analysis: {stats_filename}")
         print(f"Interactive plot (HTML): {plot_filename}")
         print(f"Static plot (PNG): {static_image}")
+        
         logging.info("\nStatistical Analysis:")
         logging.info(stats_df.to_string(index=False))
+        logging.info("\nRegression Formulas:")
+        logging.info(f"Linear Regression: {linear_formula}")
+        logging.info(f"Polynomial Regression: {poly_formula}")
         logging.info(f"\nFiles saved:")
         logging.info(f"Statistical analysis: {stats_filename}")
         logging.info(f"Interactive plot (HTML): {plot_filename}")
