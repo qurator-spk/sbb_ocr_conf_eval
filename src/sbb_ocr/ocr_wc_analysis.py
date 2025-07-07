@@ -15,8 +15,13 @@ import logging
 from datetime import datetime
 import plotly.express as px
 import plotly.offline as pyo
+import plotly.graph_objects as go
 import re
 from matplotlib.ticker import MaxNLocator
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.model_selection import train_test_split
+from scipy.stats import spearmanr
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
 
@@ -1167,7 +1172,7 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
     except Exception as e:
         logging.info(f"Error processing CSV file: {str(e)}")
         print(f"Error processing CSV file: {str(e)}")
-    
+        
 def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
     if not os.path.exists(wcwer_csv_inter):
         logging.info(f"File does not exist: {wcwer_csv_inter}")
@@ -1194,46 +1199,212 @@ def plot_wer_vs_wc_interactive(wcwer_csv_inter, plot_filename_inter):
             print("No valid data to plot after processing")
             return
         
+        X = wcwer_df['mean_word'].values.reshape(-1, 1)
+        y = wcwer_df['wer'].values
+        
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+        
+        # Calculate correlations on training data
+        pearson_corr = np.corrcoef(X_train.flatten(), y_train)[0, 1]
+        spearman_corr = spearmanr(X_train.flatten(), y_train)[0]
+        
+        # Linear regression on training data
+        linear_model = LinearRegression()
+        linear_model.fit(X_train, y_train)
+        linear_r2_train = linear_model.score(X_train, y_train)
+        linear_r2_test = linear_model.score(X_test, y_test)
+        
+        # Calculate MSE for linear regression
+        y_pred_linear_train = linear_model.predict(X_train)
+        y_pred_linear_test = linear_model.predict(X_test)
+        mse_linear_train = np.mean((y_train - y_pred_linear_train) ** 2)
+        mse_linear_test = np.mean((y_test - y_pred_linear_test) ** 2)
+        
+        # Polynomial regression (degree 2) on training data
+        poly = PolynomialFeatures(degree=2)
+        X_poly_train = poly.fit_transform(X_train)
+        X_poly_test = poly.transform(X_test)
+        
+        poly_model = LinearRegression()
+        poly_model.fit(X_poly_train, y_train)
+        poly_r2_train = poly_model.score(X_poly_train, y_train)
+        poly_r2_test = poly_model.score(X_poly_test, y_test)
+        
+        # Calculate MSE for polynomial regression
+        y_pred_poly_train = poly_model.predict(X_poly_train)
+        y_pred_poly_test = poly_model.predict(X_poly_test)
+        mse_poly_train = np.mean((y_train - y_pred_poly_train) ** 2)
+        mse_poly_test = np.mean((y_test - y_pred_poly_test) ** 2)
+        
+        stats_data = {
+            'Metric': [
+                'Number of Training Points',
+                'Number of Test Points',
+                'Pearson Correlation Coefficient (Train)',
+                'Spearman Correlation Coefficient (Train)',
+                'Linear Regression R^2 (Train)',
+                'Linear Regression R^2 (Test)',
+                'Linear Regression MSE (Train)',
+                'Linear Regression MSE (Test)',
+                'Linear Regression Slope',
+                'Linear Regression Intercept',
+                'Polynomial Regression R^2 (Train)',
+                'Polynomial Regression R^2 (Test)',
+                'Polynomial Regression MSE (Train)',
+                'Polynomial Regression MSE (Test)',
+                'Polynomial Coefficient (x^2)',
+                'Polynomial Coefficient (x)',
+                'Polynomial Coefficient (intercept)'
+            ],
+            'Value': [
+                len(X_train),
+                len(X_test),
+                pearson_corr,
+                spearman_corr,
+                linear_r2_train,
+                linear_r2_test,
+                mse_linear_train,
+                mse_linear_test,
+                linear_model.coef_[0],
+                linear_model.intercept_,
+                poly_r2_train,
+                poly_r2_test,
+                mse_poly_train,
+                mse_poly_test,
+                poly_model.coef_[2],
+                poly_model.coef_[1],
+                poly_model.coef_[0]
+            ]
+        }
+        
+        stats_df = pd.DataFrame(stats_data)
+        
+        # Save statistical analysis to CSV
+        stats_filename = plot_filename_inter.replace('.html', '_statistics.csv')
+        stats_df.to_csv(stats_filename, index=False)
+        
+        # Generate points for regression lines
+        X_smooth = np.linspace(0, 1, 100).reshape(-1, 1)
+        y_linear = linear_model.predict(X_smooth)
+        y_poly = poly_model.predict(poly.transform(X_smooth))
+        
         # Create interactive plot
-        fig = px.scatter(
-            wcwer_df,
-            x="mean_word",
-            y="wer",
-            title="WER(WC)",
-            labels={
-                "mean_word": "Mean Word Confidence Score (WC)",
-                "wer": "Word Error Rate (WER)",
-            },
-            template="plotly_white",
-            hover_name="ppn_page",
-        )
-
-        # Show information about the PPN_PAGE on hover
-        fig.update_traces(
+        fig = go.Figure()
+        
+        # Add training scatter plot
+        fig.add_trace(go.Scatter(
+            x=X_train.flatten(),
+            y=y_train,
+            mode='markers',
+            name='Training Points',
             marker=dict(
                 size=10,
-                color="blue",
-                line=dict(width=2, color="DarkSlateGrey"),
+                color='blue',
+                line=dict(width=2, color='DarkSlateGrey')
             ),
             hovertemplate=(
                 "PPN Page: %{hovertext}<br>"
-                "Mean Word Confidence: %{x}<br>"
-                "WER: %{y}<extra></extra>"
+                "Mean Word Confidence: %{x:.3f}<br>" +
+                "WER: %{y:.3f}"
             ),
-            hovertext=wcwer_df["ppn_page"],
-        )
-
+            hovertext=wcwer_df["ppn_page"]
+        ))
+        
+        # Add test scatter plot
+        fig.add_trace(go.Scatter(
+            x=X_test.flatten(),
+            y=y_test,
+            mode='markers',
+            name='Test Points',
+            marker=dict(
+                size=10,
+                color='orange',
+                line=dict(width=2, color='DarkSlateGrey')
+            ),
+            hovertemplate=(
+                "PPN Page: %{hovertext}<br>"
+                "Mean Word Confidence: %{x:.3f}<br>" +
+                "WER: %{y:.3f}"
+            ),
+            hovertext=wcwer_df["ppn_page"]
+        ))
+        
+        # Add linear regression line
+        fig.add_trace(go.Scatter(
+            x=X_smooth.flatten(),
+            y=y_linear,
+            mode='lines',
+            name=f'Linear Regression (Test R^2 = {linear_r2_test:.3f}, MSE = {mse_linear_test:.3f})',
+            line=dict(color='red', dash='solid')
+        ))
+        
+        # Add polynomial regression line
+        fig.add_trace(go.Scatter(
+            x=X_smooth.flatten(),
+            y=y_poly,
+            mode='lines',
+            name=f'Polynomial Regression (Test R^2 = {poly_r2_test:.3f}, MSE = {mse_poly_test:.3f})',
+            line=dict(color='green', dash='dash')
+        ))
+        
         # Update layout
-        fig.update_xaxes(range=[-0.01, 1.01])
-        fig.update_yaxes(range=[-0.01, 1.01])
         fig.update_layout(
-            title=dict(text='WER(WC)', x=0.5, xanchor='center'),
+            title=dict(
+                text=f'WER vs WC',
+                x=0.5,
+                xanchor='center'
+            ),
+            xaxis_title="Mean Word Confidence Score (WC)",
+            yaxis_title="Word Error Rate (WER)",
             width=1000,
-            height=800
+            height=1000,
+            template="plotly_white",
+            showlegend=True,
+            legend=dict(
+                yanchor="top",
+                y=0.99,
+                xanchor="left",
+                x=0.01
+            )
         )
         
+        fig.update_xaxes(range=[-0.01, 1.01])
+        fig.update_yaxes(range=[-0.01, 1.01])
+        
+        # Save interactive plot
         pyo.plot(fig, filename=plot_filename_inter, auto_open=False)
-        print(f"Interactive plot saved as: {plot_filename_inter}")
+        
+        # Create and save static plot
+        plt.figure(figsize=(12, 12))
+        plt.scatter(X_train, y_train, color='blue', marker='x', s=100, label='Training Points')
+        plt.scatter(X_test, y_test, color='orange', marker='x', s=100, label='Test Points')
+        plt.plot(X_smooth, y_linear, color='red', 
+                label=f'Linear Regression (Test R^2 = {linear_r2_test:.3f}, MSE = {mse_linear_test:.3f})')
+        plt.plot(X_smooth, y_poly, color='green', linestyle='--', 
+                label=f'Polynomial Regression (Test R^2 = {poly_r2_test:.3f}, MSE = {mse_poly_test:.3f})')
+        plt.xlabel('Mean Word Confidence Score (WC)', fontsize=12)
+        plt.ylabel('Word Error Rate (WER)', fontsize=12)
+        plt.title('WER vs WC', fontsize=14)
+        plt.xlim(-0.01, 1.01)
+        plt.ylim(-0.01, 1.01)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.legend(loc='upper right')
+        static_image = plot_filename_inter.replace('.html', '.png')
+        plt.savefig(static_image, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print("\nStatistical Analysis:")
+        print(stats_df.to_string(index=False))
+        print(f"\nFiles saved:")
+        print(f"Statistical analysis: {stats_filename}")
+        print(f"Interactive plot (HTML): {plot_filename_inter}")
+        print(f"Static plot (PNG): {static_image}")
+        logging.info("\nStatistical Analysis:")
+        logging.info(stats_df.to_string(index=False))
+        logging.info(f"\nFiles saved:")
+        logging.info(f"Statistical analysis: {stats_filename}")
+        logging.info(f"Interactive plot (HTML): {plot_filename_inter}")
+        logging.info(f"Static plot (PNG): {static_image}")
         
     except pd.errors.EmptyDataError:
         logging.info("CSV file is empty")
