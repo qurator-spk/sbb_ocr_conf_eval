@@ -132,8 +132,7 @@ Options:
        -d,      --dinglehopper                      Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)
        -e,      --error-rates                       Generate a CSV with error rates created by ocrd-dinglehopper, specify <PARENT_DIRECTORY> <REPORT_DIRECTORY> <ERROR_RATES_CSV> (optional)
        -m,      --merge-csv                         Generate a CSV with confidence scores and error rates by merging <CONF_CSV> and <ERROR_RATES_CSV>, specify <CONF_CSV> <ERROR_RATES_CSV> <MERGED_CSV> (optional)
-       -p,      --plot                              Make a scatter plot of the mean word confidence score (WC) and the word error rate (WER) based on a <MERGED_CSV>, specify <MERGED_CSV> <PLOT_FILE>
-       -pi      --plot-interactive                  Make an interactive scatter plot (<HTML_FILE>) of the mean word confidence score (WC) and the word error rate (WER) based on a <MERGED_CSV>, specify <MERGED_CSV> <HTML_FILE>
+       -p,      --plot                              Generate an interactive scatter plot (<HTML_FILE>) showing the relationship between mean word confidence (WC) and word error rate (WER) based on <MERGED_CSV>, and perform a regression analysis., specify <MERGED_CSV> <HTML_PLOT_FILE>
        -log,    --use-logging                       Save all log messages to log_evaluate_{TIMESTAMP}.txt (optional)
 
     create-metadata:
