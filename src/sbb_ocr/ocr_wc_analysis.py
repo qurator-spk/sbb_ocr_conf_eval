@@ -1115,15 +1115,15 @@ def merge_csv(conf_df, error_rates_df, wcwer_filename):
     except Exception as e:
         logging.info(f"Error processing CSV files: {str(e)}")
         print(f"Error processing CSV files: {str(e)}")
-    
-def plot_wer_vs_wc(wcwer_csv_inter, plot_filename_inter):
-    if not os.path.exists(wcwer_csv_inter):
-        logging.info(f"File does not exist: {wcwer_csv_inter}")
-        print(f"File does not exist: {wcwer_csv_inter}")
+      
+def plot_wer_vs_wc(wcwer_csv, plot_filename):
+    if not os.path.exists(wcwer_csv):
+        logging.info(f"File does not exist: {wcwer_csv}")
+        print(f"File does not exist: {wcwer_csv}")
         return
             
     try:
-        wcwer_df = pd.read_csv(wcwer_csv_inter)
+        wcwer_df = pd.read_csv(wcwer_csv)
         
         # Check if required columns exist
         required_columns = ['mean_word', 'wer', 'ppn_page']
@@ -1223,7 +1223,7 @@ def plot_wer_vs_wc(wcwer_csv_inter, plot_filename_inter):
         stats_df = pd.DataFrame(stats_data)
         
         # Save statistical analysis to CSV
-        stats_filename = plot_filename_inter.replace('.html', '_statistics.csv')
+        stats_filename = plot_filename.replace('.html', '_statistics.csv')
         stats_df.to_csv(stats_filename, index=False)
         
         # Generate points for regression lines
@@ -1305,9 +1305,12 @@ def plot_wer_vs_wc(wcwer_csv_inter, plot_filename_inter):
             showlegend=True,
             legend=dict(
                 yanchor="top",
-                y=0.99,
-                xanchor="left",
-                x=0.01
+                y=0.98,
+                xanchor="right",
+                x=0.98,
+                bgcolor="rgba(255, 255, 255, 0.8)",  # Semi-transparent white background
+                bordercolor="Black",
+                borderwidth=1
             )
         )
         
@@ -1315,7 +1318,7 @@ def plot_wer_vs_wc(wcwer_csv_inter, plot_filename_inter):
         fig.update_yaxes(range=[-0.01, 1.01])
         
         # Save interactive plot
-        pyo.plot(fig, filename=plot_filename_inter, auto_open=False)
+        pyo.plot(fig, filename=plot_filename, auto_open=False)
         
         # Create and save static plot
         plt.figure(figsize=(12, 12))
@@ -1331,8 +1334,11 @@ def plot_wer_vs_wc(wcwer_csv_inter, plot_filename_inter):
         plt.xlim(-0.01, 1.01)
         plt.ylim(-0.01, 1.01)
         plt.grid(True, linestyle='--', alpha=0.7)
-        plt.legend(loc='upper right')
-        static_image = plot_filename_inter.replace('.html', '.png')
+        plt.legend(loc='upper right', 
+                  bbox_to_anchor=(0.98, 0.98),
+                  framealpha=0.8,  # Semi-transparent background
+                  edgecolor='black')
+        static_image = plot_filename.replace('.html', '.png')
         plt.savefig(static_image, dpi=300, bbox_inches='tight')
         plt.close()
         
@@ -1340,13 +1346,13 @@ def plot_wer_vs_wc(wcwer_csv_inter, plot_filename_inter):
         print(stats_df.to_string(index=False))
         print(f"\nFiles saved:")
         print(f"Statistical analysis: {stats_filename}")
-        print(f"Interactive plot (HTML): {plot_filename_inter}")
+        print(f"Interactive plot (HTML): {plot_filename}")
         print(f"Static plot (PNG): {static_image}")
         logging.info("\nStatistical Analysis:")
         logging.info(stats_df.to_string(index=False))
         logging.info(f"\nFiles saved:")
         logging.info(f"Statistical analysis: {stats_filename}")
-        logging.info(f"Interactive plot (HTML): {plot_filename_inter}")
+        logging.info(f"Interactive plot (HTML): {plot_filename}")
         logging.info(f"Static plot (PNG): {static_image}")
         
     except pd.errors.EmptyDataError:
@@ -1355,12 +1361,6 @@ def plot_wer_vs_wc(wcwer_csv_inter, plot_filename_inter):
     except Exception as e:
         logging.info(f"Error processing CSV file: {str(e)}")
         print(f"Error processing CSV file: {str(e)}")
-    
-def filter_range(df, column, value_range):
-    if value_range[0] == 0:
-        return df[(df[column] >= value_range[0]) & (df[column] <= value_range[1])]
-    else:
-        return df[(df[column] > value_range[0]) & (df[column] <= value_range[1])]
 
 
 def generate_dataframes(
