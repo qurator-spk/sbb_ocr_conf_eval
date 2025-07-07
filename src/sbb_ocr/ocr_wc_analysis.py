@@ -1202,9 +1202,19 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         mse_poly_train = np.mean((y_train - y_pred_poly_train) ** 2)
         mse_poly_test = np.mean((y_test - y_pred_poly_test) ** 2)
         
-        # Generate formulas
-        linear_formula = f"WER = {linear_model.coef_[0]:.3f} * WC + {linear_model.intercept_:.3f}"
-        poly_formula = f"WER = {poly_model.coef_[2]:.3f} * WC^2 + {poly_model.coef_[1]:.3f} * WC + {poly_model.coef_[0]:.3f}"
+        # Generate formulas with quotes to preserve plus signs
+        linear_formula = f'"WER = {linear_model.coef_[0]:.3f} * WC + {linear_model.intercept_:.3f}"'
+        
+        # Handle positive and negative coefficients for polynomial formula
+        x2_coef = poly_model.coef_[2]
+        x_coef = poly_model.coef_[1]
+        const_coef = poly_model.coef_[0]
+        
+        poly_formula = f'"WER = {x2_coef:.3f} * WC^2 {" + " if x_coef >= 0 else " - "}{abs(x_coef):.3f} * WC {" + " if const_coef >= 0 else " - "}{abs(const_coef):.3f}"'
+        
+        # Unquoted versions for printing
+        print_linear_formula = f"WER = {linear_model.coef_[0]:.3f} * WC + {linear_model.intercept_:.3f}"
+        print_poly_formula = f"WER = {x2_coef:.3f} * WC^2 {' + ' if x_coef >= 0 else ' - '}{abs(x_coef):.3f} * WC {' + ' if const_coef >= 0 else ' - '}{abs(const_coef):.3f}"
         
         stats_data = {
             'Metric': [
@@ -1376,8 +1386,8 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         print("\nStatistical Analysis:")
         print(stats_df.to_string(index=False))
         print("\nRegression Formulas:")
-        print(f"Linear Regression: {linear_formula}")
-        print(f"Polynomial Regression: {poly_formula}")
+        print(f"Linear Regression: {print_linear_formula}")
+        print(f"Polynomial Regression: {print_poly_formula}")
         print(f"\nFiles saved:")
         print(f"Statistical analysis: {stats_filename}")
         print(f"Interactive plot (HTML): {plot_filename}")
@@ -1386,8 +1396,8 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         logging.info("\nStatistical Analysis:")
         logging.info(stats_df.to_string(index=False))
         logging.info("\nRegression Formulas:")
-        logging.info(f"Linear Regression: {linear_formula}")
-        logging.info(f"Polynomial Regression: {poly_formula}")
+        logging.info(f"Linear Regression: {print_linear_formula}")
+        logging.info(f"Polynomial Regression: {print_poly_formula}")
         logging.info(f"\nFiles saved:")
         logging.info(f"Statistical analysis: {stats_filename}")
         logging.info(f"Interactive plot (HTML): {plot_filename}")
