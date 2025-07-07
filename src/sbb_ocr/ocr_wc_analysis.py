@@ -1125,6 +1125,25 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
     try:
         wcwer_df = pd.read_csv(wcwer_csv)
         
+        # Map column names based on CSV format
+        if 'image_name' in wcwer_df.columns:
+            column_mapping = {
+                'image_name': 'ppn_page',
+                'conf': 'mean_word',
+                'cer': 'cer',
+                'wer': 'wer'
+            }
+        else:
+            column_mapping = {
+                'ppn_page': 'ppn_page',
+                'mean_word': 'mean_word',
+                'cer': 'cer',
+                'wer': 'wer'
+            }
+        
+        # Rename columns to standard format
+        wcwer_df = wcwer_df.rename(columns=column_mapping)
+        
         # Check if required columns exist
         required_columns = ['mean_word', 'wer', 'ppn_page']
         missing_columns = [col for col in required_columns if col not in wcwer_df.columns]
@@ -1141,6 +1160,10 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
             logging.info("No valid data to plot after processing")
             print("No valid data to plot after processing")
             return
+
+        # Extract ppn from ppn_page if it doesn't exist
+        if 'ppn' not in wcwer_df.columns:
+            wcwer_df['ppn'] = wcwer_df['ppn_page'].str.split('_').str[0]
         
         X = wcwer_df['mean_word'].values.reshape(-1, 1)
         y = wcwer_df['wer'].values
