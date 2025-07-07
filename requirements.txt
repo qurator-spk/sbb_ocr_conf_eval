@@ -8,3 +8,5 @@ numpy
 scipy
 matplotlib
 plotly
+tqdm
+scikit-learn
