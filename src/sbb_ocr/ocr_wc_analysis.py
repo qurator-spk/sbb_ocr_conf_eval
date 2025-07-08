@@ -22,6 +22,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import train_test_split
 from scipy.stats import spearmanr
+from scipy import stats
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
 
@@ -1115,7 +1116,228 @@ def merge_csv(conf_df, error_rates_df, wcwer_filename):
     except Exception as e:
         logging.info(f"Error processing CSV files: {str(e)}")
         print(f"Error processing CSV files: {str(e)}")
-      
+        
+def calculate_regression_statistics(X, y, wcwer_df):
+    # Train-test split with index tracking
+    indices = np.arange(len(X))
+    X_train, X_test, y_train, y_test, train_indices, test_indices = train_test_split(
+        X, y, indices, test_size=0.3, random_state=1
+    )
+    
+    # Extract corresponding page identifiers for later reference
+    train_ppn_pages = wcwer_df.iloc[train_indices]["ppn_page"].values
+    test_ppn_pages = wcwer_df.iloc[test_indices]["ppn_page"].values
+    
+    # Calculate correlation coefficients
+    pearson_corr_train = np.corrcoef(X_train.flatten(), y_train)[0, 1]  # [0,1] gets (linear) correlation from 2x2 matrix
+    spearman_corr_train = spearmanr(X_train.flatten(), y_train)[0]  # [0] gets (monotonic) correlation coefficient
+    
+    pearson_corr_test = np.corrcoef(X_test.flatten(), y_test)[0, 1]
+    spearman_corr_test = spearmanr(X_test.flatten(), y_test)[0]
+    
+    # Linear regression
+    linear_model = LinearRegression()
+    linear_model.fit(X_train, y_train)
+    
+    # Calculate R^2 (coefficient of determination) for model evaluation
+    linear_r2_train = linear_model.score(X_train, y_train)
+    linear_r2_test = linear_model.score(X_test, y_test)
+    
+    # Make predictions and calculate Mean Squared Error (MSE)
+    y_pred_linear_train = linear_model.predict(X_train)
+    y_pred_linear_test = linear_model.predict(X_test)
+    mse_linear_train = np.mean((y_train - y_pred_linear_train) ** 2)
+    mse_linear_test = np.mean((y_test - y_pred_linear_test) ** 2)
+    
+    # Calculate p-values for linear regression coefficients
+    n = len(X_train)  # Sample size
+    # Add column of ones for intercept term
+    X_with_intercept = np.column_stack([np.ones(n), X_train])
+    
+    # Calculate residuals (actual - predicted) and MSE
+    residuals_linear = y_train - y_pred_linear_train
+    mse_linear = np.sum(residuals_linear**2) / (n - 2)  # Divide by (n-2) for degrees of freedom
+    
+    # Calculate variance-covariance matrix for parameter estimates
+    var_matrix_linear = mse_linear * np.linalg.inv(X_with_intercept.T @ X_with_intercept)
+    
+    # Extract standard errors from diagonal of variance-covariance matrix
+    se_slope = np.sqrt(var_matrix_linear[1,1])
+    se_intercept = np.sqrt(var_matrix_linear[0,0])
+    
+    # Calculate t-statistics and two-tailed p-values
+    t_stat_slope = linear_model.coef_[0] / se_slope
+    t_stat_intercept = linear_model.intercept_ / se_intercept
+    
+    p_value_slope = 2 * (1 - stats.t.cdf(abs(t_stat_slope), n - 2))
+    p_value_intercept = 2 * (1 - stats.t.cdf(abs(t_stat_intercept), n - 2))
+    
+    # Generate smooth points for plotting regression line
+    X_smooth = np.linspace(0, 1, 100).reshape(-1, 1)  # 100 points between 0 and 1
+    y_linear = linear_model.predict(X_smooth)
+    
+    # Calculate confidence intervals for linear regression
+    X_smooth_with_intercept = np.column_stack([np.ones(len(X_smooth)), X_smooth])
+    # Standard error of prediction
+    se_pred_linear = np.sqrt(
+        mse_linear * np.diag(
+            X_smooth_with_intercept @ np.linalg.inv(X_with_intercept.T @ X_with_intercept) @ X_smooth_with_intercept.T
+        )
+    )
+    
+    # Calculate 95% confidence intervals using t-distribution
+    t_value = stats.t.ppf(0.975, n - 2)  # 97.5th percentile for two-tailed test
+    ci_linear_lower = y_linear - t_value * se_pred_linear
+    ci_linear_upper = y_linear + t_value * se_pred_linear
+    
+    # Polynomial regression
+    poly = PolynomialFeatures(degree=2)  # Creates terms: 1, x, x^2
+    X_poly_train = poly.fit_transform(X_train)
+    X_poly_test = poly.transform(X_test)
+    
+    poly_model = LinearRegression()
+    poly_model.fit(X_poly_train, y_train)
+    
+    # Calculate R^2 for polynomial model
+    poly_r2_train = poly_model.score(X_poly_train, y_train)
+    poly_r2_test = poly_model.score(X_poly_test, y_test)
+    
+    # Calculate MSE for polynomial model
+    y_pred_poly_train = poly_model.predict(X_poly_train)
+    y_pred_poly_test = poly_model.predict(X_poly_test)
+    mse_poly_train = np.mean((y_train - y_pred_poly_train) ** 2)
+    mse_poly_test = np.mean((y_test - y_pred_poly_test) ** 2)
+    
+    # Calculate p-values for polynomial coefficients
+    residuals_poly = y_train - y_pred_poly_train
+    mse_poly = np.sum(residuals_poly**2) / (n - 3)  # 3 parameters: constant, x, x^2
+    
+    # Calculate variance-covariance matrix for polynomial coefficients
+    var_matrix_poly = mse_poly * np.linalg.inv(X_poly_train.T @ X_poly_train)
+    
+    # Calculate standard errors and t-statistics for polynomial coefficients
+    se_poly = np.sqrt(np.diag(var_matrix_poly))
+    t_stats_poly = poly_model.coef_ / se_poly
+    p_values_poly = [2 * (1 - stats.t.cdf(abs(t), n - 3)) for t in t_stats_poly]
+    
+    # Calculate confidence intervals for polynomial regression
+    X_smooth_poly = poly.transform(X_smooth)
+    y_poly = poly_model.predict(X_smooth_poly)
+    
+    # Standard error of prediction for polynomial model
+    se_pred_poly = np.sqrt(
+        mse_poly * np.diag(
+            X_smooth_poly @ np.linalg.inv(X_poly_train.T @ X_poly_train) @ X_smooth_poly.T
+        )
+    )
+    
+    # 95% confidence intervals for polynomial regression
+    t_value_poly = stats.t.ppf(0.975, n - 3)
+    ci_poly_lower = y_poly - t_value_poly * se_pred_poly
+    ci_poly_upper = y_poly + t_value_poly * se_pred_poly
+    
+    # Create formatted equation strings with coefficients and p-values
+    linear_formula = f'"WER = {linear_model.coef_[0]:.3f} (p={p_value_slope:.7f}) * WC + {linear_model.intercept_:.3f} (p={p_value_intercept:.7f})"'
+    
+    # Extract polynomial coefficients
+    x2_coef = poly_model.coef_[2]  # Coefficient of x^2
+    x_coef = poly_model.coef_[1]   # Coefficient of x
+    const_coef = poly_model.coef_[0]  # Intercept
+    
+    # Create polynomial formula with proper sign handling
+    poly_formula = f'"WER = {x2_coef:.3f} (p={p_values_poly[2]:.7f}) * WC^2 {" + " if x_coef >= 0 else " - "}{abs(x_coef):.3f} (p={p_values_poly[1]:.7f}) * WC {" + " if const_coef >= 0 else " - "}{abs(const_coef):.3f} (p={p_values_poly[0]:.7f})"'
+    
+    # Create unquoted versions for printing
+    print_linear_formula = f"WER = {linear_model.coef_[0]:.3f} (p={p_value_slope:.7f}) * WC + {linear_model.intercept_:.3f} (p={p_value_intercept:.7f})"
+    print_poly_formula = f"WER = {x2_coef:.3f} (p={p_values_poly[2]:.7f}) * WC^2 {' + ' if x_coef >= 0 else ' - '}{abs(x_coef):.3f} (p={p_values_poly[1]:.7f}) * WC {' + ' if const_coef >= 0 else ' - '}{abs(const_coef):.3f} (p={p_values_poly[0]:.7f})"
+    
+    stats_data = {
+        'Metric': [
+            'Number of Training Points',
+            'Number of Test Points',
+            'Pearson Correlation Coefficient (Train)',
+            'Pearson Correlation Coefficient (Test)',
+            'Spearman Correlation Coefficient (Train)',
+            'Spearman Correlation Coefficient (Test)',
+            'Linear Regression R^2 (Train)',
+            'Linear Regression R^2 (Test)',
+            'Linear Regression MSE (Train)',
+            'Linear Regression MSE (Test)',
+            'Linear Regression Formula',
+            'Linear Regression Slope',
+            'Linear Regression Slope p-value',
+            'Linear Regression Intercept',
+            'Linear Regression Intercept p-value',
+            'Polynomial Regression R^2 (Train)',
+            'Polynomial Regression R^2 (Test)',
+            'Polynomial Regression MSE (Train)',
+            'Polynomial Regression MSE (Test)',
+            'Polynomial Regression Formula',
+            'Polynomial Coefficient (x^2)',
+            'Polynomial Coefficient (x^2) p-value',
+            'Polynomial Coefficient (x)',
+            'Polynomial Coefficient (x) p-value',
+            'Polynomial Coefficient (intercept)',
+            'Polynomial Coefficient (intercept) p-value'
+        ],
+        'Value': [
+            len(X_train),
+            len(X_test),
+            pearson_corr_train,
+            pearson_corr_test,
+            spearman_corr_train,
+            spearman_corr_test,
+            linear_r2_train,
+            linear_r2_test,
+            mse_linear_train,
+            mse_linear_test,
+            linear_formula,
+            linear_model.coef_[0],
+            p_value_slope,
+            linear_model.intercept_,
+            p_value_intercept,
+            poly_r2_train,
+            poly_r2_test,
+            mse_poly_train,
+            mse_poly_test,
+            poly_formula,
+            poly_model.coef_[2],
+            p_values_poly[2],
+            poly_model.coef_[1],
+            p_values_poly[1],
+            poly_model.coef_[0],
+            p_values_poly[0]
+        ]
+    }
+    
+    stats_df = pd.DataFrame(stats_data)
+    
+    return {
+        'X_train': X_train,
+        'X_test': X_test,
+        'y_train': y_train,
+        'y_test': y_test,
+        'train_ppn_pages': train_ppn_pages,
+        'test_ppn_pages': test_ppn_pages,
+        'linear_model': linear_model,
+        'poly_model': poly_model,
+        'poly': poly,
+        'stats_df': stats_df,
+        'print_linear_formula': print_linear_formula,
+        'print_poly_formula': print_poly_formula,
+        'linear_r2_test': linear_r2_test,
+        'poly_r2_test': poly_r2_test,
+        'mse_linear_test': mse_linear_test,
+        'mse_poly_test': mse_poly_test,
+        'X_smooth': X_smooth,
+        'ci_linear_lower': ci_linear_lower,
+        'ci_linear_upper': ci_linear_upper,
+        'ci_poly_lower': ci_poly_lower,
+        'ci_poly_upper': ci_poly_upper,
+        'y_linear': y_linear,
+        'y_poly': y_poly
+    }
+    
 def plot_wer_vs_wc(wcwer_csv, plot_filename):
     if not os.path.exists(wcwer_csv):
         logging.info(f"File does not exist: {wcwer_csv}")
@@ -1168,112 +1390,59 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         X = wcwer_df['mean_word'].values.reshape(-1, 1)
         y = wcwer_df['wer'].values
         
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+        stats_results = calculate_regression_statistics(X, y, wcwer_df)
+        stats_df = stats_results['stats_df']
+        X_train = stats_results['X_train']
+        X_test = stats_results['X_test']
+        y_train = stats_results['y_train']
+        y_test = stats_results['y_test']
+        train_ppn_pages = stats_results['train_ppn_pages']
+        test_ppn_pages = stats_results['test_ppn_pages']
+        linear_model = stats_results['linear_model']
+        poly_model = stats_results['poly_model']
+        poly = stats_results['poly']
+        print_linear_formula = stats_results['print_linear_formula']
+        print_poly_formula = stats_results['print_poly_formula']
+        linear_r2_test = stats_results['linear_r2_test']
+        poly_r2_test = stats_results['poly_r2_test']
+        mse_linear_test = stats_results['mse_linear_test']
+        mse_poly_test = stats_results['mse_poly_test']
+        X_smooth = stats_results['X_smooth']
+        ci_linear_lower = stats_results['ci_linear_lower']
+        ci_linear_upper = stats_results['ci_linear_upper']
+        ci_poly_lower = stats_results['ci_poly_lower']
+        ci_poly_upper = stats_results['ci_poly_upper']
         
-        # Calculate correlations on training data
-        pearson_corr = np.corrcoef(X_train.flatten(), y_train)[0, 1]
-        spearman_corr = spearmanr(X_train.flatten(), y_train)[0]
-        
-        # Linear regression on training data
-        linear_model = LinearRegression()
-        linear_model.fit(X_train, y_train)
-        linear_r2_train = linear_model.score(X_train, y_train)
-        linear_r2_test = linear_model.score(X_test, y_test)
-        
-        # Calculate MSE for linear regression
-        y_pred_linear_train = linear_model.predict(X_train)
-        y_pred_linear_test = linear_model.predict(X_test)
-        mse_linear_train = np.mean((y_train - y_pred_linear_train) ** 2)
-        mse_linear_test = np.mean((y_test - y_pred_linear_test) ** 2)
-        
-        # Polynomial regression (degree 2) on training data
-        poly = PolynomialFeatures(degree=2)
-        X_poly_train = poly.fit_transform(X_train)
-        X_poly_test = poly.transform(X_test)
-        
-        poly_model = LinearRegression()
-        poly_model.fit(X_poly_train, y_train)
-        poly_r2_train = poly_model.score(X_poly_train, y_train)
-        poly_r2_test = poly_model.score(X_poly_test, y_test)
-        
-        # Calculate MSE for polynomial regression
-        y_pred_poly_train = poly_model.predict(X_poly_train)
-        y_pred_poly_test = poly_model.predict(X_poly_test)
-        mse_poly_train = np.mean((y_train - y_pred_poly_train) ** 2)
-        mse_poly_test = np.mean((y_test - y_pred_poly_test) ** 2)
-        
-        # Generate formulas with quotes to preserve plus signs
-        linear_formula = f'"WER = {linear_model.coef_[0]:.3f} * WC + {linear_model.intercept_:.3f}"'
-        
-        # Handle positive and negative coefficients for polynomial formula
-        x2_coef = poly_model.coef_[2]
-        x_coef = poly_model.coef_[1]
-        const_coef = poly_model.coef_[0]
-        
-        poly_formula = f'"WER = {x2_coef:.3f} * WC^2 {" + " if x_coef >= 0 else " - "}{abs(x_coef):.3f} * WC {" + " if const_coef >= 0 else " - "}{abs(const_coef):.3f}"'
-        
-        # Unquoted versions for printing
-        print_linear_formula = f"WER = {linear_model.coef_[0]:.3f} * WC + {linear_model.intercept_:.3f}"
-        print_poly_formula = f"WER = {x2_coef:.3f} * WC^2 {' + ' if x_coef >= 0 else ' - '}{abs(x_coef):.3f} * WC {' + ' if const_coef >= 0 else ' - '}{abs(const_coef):.3f}"
-        
-        stats_data = {
-            'Metric': [
-                'Number of Training Points',
-                'Number of Test Points',
-                'Pearson Correlation Coefficient (Train)',
-                'Spearman Correlation Coefficient (Train)',
-                'Linear Regression R^2 (Train)',
-                'Linear Regression R^2 (Test)',
-                'Linear Regression MSE (Train)',
-                'Linear Regression MSE (Test)',
-                'Linear Regression Formula',
-                'Linear Regression Slope',
-                'Linear Regression Intercept',
-                'Polynomial Regression R^2 (Train)',
-                'Polynomial Regression R^2 (Test)',
-                'Polynomial Regression MSE (Train)',
-                'Polynomial Regression MSE (Test)',
-                'Polynomial Regression Formula',
-                'Polynomial Coefficient (x^2)',
-                'Polynomial Coefficient (x)',
-                'Polynomial Coefficient (intercept)'
-            ],
-            'Value': [
-                len(X_train),
-                len(X_test),
-                pearson_corr,
-                spearman_corr,
-                linear_r2_train,
-                linear_r2_test,
-                mse_linear_train,
-                mse_linear_test,
-                linear_formula,
-                linear_model.coef_[0],
-                linear_model.intercept_,
-                poly_r2_train,
-                poly_r2_test,
-                mse_poly_train,
-                mse_poly_test,
-                poly_formula,
-                poly_model.coef_[2],
-                poly_model.coef_[1],
-                poly_model.coef_[0]
-            ]
-        }
-        
-        stats_df = pd.DataFrame(stats_data)
-        
-        # Save statistical analysis to CSV
         stats_filename = plot_filename.replace('.html', '_statistics.csv')
         stats_df.to_csv(stats_filename, index=False)
         
-        # Generate points for regression lines
-        X_smooth = np.linspace(0, 1, 100).reshape(-1, 1)
+        # Generate regression lines
         y_linear = linear_model.predict(X_smooth)
         y_poly = poly_model.predict(poly.transform(X_smooth))
         
         # Create interactive plot
         fig = go.Figure()
+        
+        # Add confidence intervals
+        fig.add_trace(go.Scatter(
+            x=np.concatenate([X_smooth.flatten(), X_smooth.flatten()[::-1]]),
+            y=np.concatenate([ci_linear_upper, ci_linear_lower[::-1]]),
+            fill='toself',
+            fillcolor='rgba(255,0,0,0.1)',
+            line=dict(color='rgba(255,0,0,0)'),
+            name='Linear 95% CI',
+            showlegend=True
+        ))
+        
+        fig.add_trace(go.Scatter(
+            x=np.concatenate([X_smooth.flatten(), X_smooth.flatten()[::-1]]),
+            y=np.concatenate([ci_poly_upper, ci_poly_lower[::-1]]),
+            fill='toself',
+            fillcolor='rgba(0,255,0,0.1)',
+            line=dict(color='rgba(0,255,0,0)'),
+            name='Polynomial 95% CI',
+            showlegend=True
+        ))
         
         # Add training scatter plot
         fig.add_trace(go.Scatter(
@@ -1287,11 +1456,11 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
                 line=dict(width=2, color='DarkSlateGrey')
             ),
             hovertemplate=(
-                "PPN Page: %{hovertext}<br>"
+                "PPN Page: %{customdata}<br>"
                 "Mean Word Confidence: %{x:.3f}<br>" +
                 "WER: %{y:.3f}"
             ),
-            hovertext=wcwer_df["ppn_page"]
+            customdata=train_ppn_pages
         ))
         
         # Add test scatter plot
@@ -1306,14 +1475,14 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
                 line=dict(width=2, color='DarkSlateGrey')
             ),
             hovertemplate=(
-                "PPN Page: %{hovertext}<br>"
+                "PPN Page: %{customdata}<br>"
                 "Mean Word Confidence: %{x:.3f}<br>" +
                 "WER: %{y:.3f}"
             ),
-            hovertext=wcwer_df["ppn_page"]
+            customdata=test_ppn_pages
         ))
         
-        # Add linear regression line
+        # Add regression lines
         fig.add_trace(go.Scatter(
             x=X_smooth.flatten(),
             y=y_linear,
@@ -1322,7 +1491,6 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
             line=dict(color='red', dash='solid')
         ))
         
-        # Add polynomial regression line
         fig.add_trace(go.Scatter(
             x=X_smooth.flatten(),
             y=y_poly,
@@ -1349,7 +1517,7 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
                 y=0.98,
                 xanchor="right",
                 x=0.98,
-                bgcolor="rgba(255, 255, 255, 0.8)",  # Semi-transparent white background
+                bgcolor="rgba(255, 255, 255, 0.8)",
                 bordercolor="Black",
                 borderwidth=1
             )
@@ -1363,12 +1531,31 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         
         # Create and save static plot
         plt.figure(figsize=(12, 12))
+        
+        # Add confidence intervals
+        plt.fill_between(X_smooth.flatten(), 
+                        ci_linear_lower, 
+                        ci_linear_upper, 
+                        color='red', 
+                        alpha=0.1, 
+                        label='Linear 95% CI')
+        plt.fill_between(X_smooth.flatten(), 
+                        ci_poly_lower, 
+                        ci_poly_upper, 
+                        color='green', 
+                        alpha=0.1, 
+                        label='Polynomial 95% CI')
+        
+        # Add scatter plots
         plt.scatter(X_train, y_train, color='blue', marker='x', s=100, label='Training Points')
         plt.scatter(X_test, y_test, color='orange', marker='x', s=100, label='Test Points')
+        
+        # Add regression lines
         plt.plot(X_smooth, y_linear, color='red', 
                 label=f'Linear Regression (Test R^2 = {linear_r2_test:.3f}, MSE = {mse_linear_test:.3f})')
         plt.plot(X_smooth, y_poly, color='green', linestyle='--', 
                 label=f'Polynomial Regression (Test R^2 = {poly_r2_test:.3f}, MSE = {mse_poly_test:.3f})')
+        
         plt.xlabel('Mean Word Confidence Score (WC)', fontsize=12)
         plt.ylabel('Word Error Rate (WER)', fontsize=12)
         plt.title('WER vs WC', fontsize=14)
@@ -1377,8 +1564,9 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         plt.grid(True, linestyle='--', alpha=0.7)
         plt.legend(loc='upper right', 
                   bbox_to_anchor=(0.98, 0.98),
-                  framealpha=0.8,  # Semi-transparent background
+                  framealpha=0.8,
                   edgecolor='black')
+        
         static_image = plot_filename.replace('.html', '.png')
         plt.savefig(static_image, dpi=300, bbox_inches='tight')
         plt.close()
@@ -1386,8 +1574,8 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         print("\nStatistical Analysis:")
         print(stats_df.to_string(index=False))
         print("\nRegression Formulas:")
-        print(f"Linear Regression: {print_linear_formula}")
-        print(f"Polynomial Regression: {print_poly_formula}")
+        print(f"Linear: {print_linear_formula}")
+        print(f"Polynomial: {print_poly_formula}")
         print(f"\nFiles saved:")
         print(f"Statistical analysis: {stats_filename}")
         print(f"Interactive plot (HTML): {plot_filename}")
@@ -1396,8 +1584,8 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         logging.info("\nStatistical Analysis:")
         logging.info(stats_df.to_string(index=False))
         logging.info("\nRegression Formulas:")
-        logging.info(f"Linear Regression: {print_linear_formula}")
-        logging.info(f"Polynomial Regression: {print_poly_formula}")
+        logging.info(f"Linear: {print_linear_formula}")
+        logging.info(f"Polynomial: {print_poly_formula}")
         logging.info(f"\nFiles saved:")
         logging.info(f"Statistical analysis: {stats_filename}")
         logging.info(f"Interactive plot (HTML): {plot_filename}")
