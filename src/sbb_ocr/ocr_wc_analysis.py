@@ -1513,10 +1513,10 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
             template="plotly_white",
             showlegend=True,
             legend=dict(
-                yanchor="top",
-                y=0.98,
-                xanchor="right",
-                x=0.98,
+                yanchor="bottom",
+                y=0.02,
+                xanchor="left",
+                x=0.02,
                 bgcolor="rgba(255, 255, 255, 0.8)",
                 bordercolor="Black",
                 borderwidth=1
@@ -1562,8 +1562,8 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         plt.xlim(-0.01, 1.01)
         plt.ylim(-0.01, 1.01)
         plt.grid(True, linestyle='--', alpha=0.7)
-        plt.legend(loc='upper right', 
-                  bbox_to_anchor=(0.98, 0.98),
+        plt.legend(loc='lower left',
+                  bbox_to_anchor=(0.02, 0.02),
                   framealpha=0.8,
                   edgecolor='black')
         
