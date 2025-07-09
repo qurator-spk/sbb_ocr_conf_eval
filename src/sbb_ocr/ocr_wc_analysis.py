@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np 
 from numpy.linalg import LinAlgError
 import matplotlib.pyplot as plt  
-from scipy.stats import gaussian_kde  
+from scipy.stats import gaussian_kde, spearmanr
 from tqdm import tqdm  
 import json
 from rich import print
@@ -21,7 +21,6 @@ from matplotlib.ticker import MaxNLocator
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import train_test_split
-from scipy.stats import spearmanr
 from scipy import stats
 
 csv.field_size_limit(10**9)  # Set the CSV field size limit
@@ -1718,7 +1717,8 @@ def generate_dataframes(
     
     # "originInfo-publication0_dateIssued" changed to "publication_date"
     # "genre-aad" changed to "genre"
-    metadata_df = pd.DataFrame(load_csv_to_list(metadata_csv)[1:], columns=["PPN", "genre", "publication_date"])
+    # "SprachcodesWinIBW" changed to "language"
+    metadata_df = pd.DataFrame(load_csv_to_list(metadata_csv)[1:], columns=["PPN", "genre", "publication_date", "language"])
     
     if check_value_errors:
         value_error_df = pd.DataFrame(value_error_pages, columns=["ppn", "ppn_page"])
@@ -1985,7 +1985,7 @@ def plot_everything(
                 filtered_results_df = results_df[['ppn', 'ppn_page', 'mean_word', 'mean_textline', 'weight_word', 'weight_textline']]
             elif aggregate_mode == 'ppn':
                 filtered_results_df = results_df[['ppn', 'num_pages', 'mean_word', 'mean_textline', 'weight_word', 'weight_textline']]
-            metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre']]
+            metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre', "language"]]
             filtered_results_df = filtered_results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
             filtered_results_df.drop(columns=['PPN'], inplace=True)
             logging.info(filtered_results_df.to_string(index=False))
@@ -2016,7 +2016,7 @@ def plot_everything(
         print("\nThere are no results matching the applied filters.")
         return
 
-    metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre']]
+    metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre', 'language']]
     results_df = results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
     results_df.drop(columns=['PPN'], inplace=True)
     results_df_description = results_df.describe(include='all')
