@@ -22,7 +22,8 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Number of rows: ***46.506*** (without header row)
 - Number of columns: ***3***
 - PPNs in `PPN` column
-- Genres in `genre-aad` column 
+- Genres in `genre` column 
+  - Original name: `genre-aad`
   - Empty strings changed to `Unbekannt`
   - Slashes changed to commas
   - Genre-subgenre separation by dots changed to colons
