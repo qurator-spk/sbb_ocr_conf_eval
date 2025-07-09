@@ -1766,6 +1766,13 @@ def generate_dataframes(
                            .strip()
     )
     
+    # Replace '$b' with ', ' and 'de' with 'ger' in the language column
+    metadata_df['language'] = metadata_df['language'].apply(
+        lambda lang: lang.replace("$b", ", ")
+                         .replace("de", "ger")
+                         .strip()
+    )
+    
     if check_raw_genres:
         metadata_df_unique = metadata_df["genre"].unique()
         metadata_df_unique_df = pd.DataFrame(metadata_df_unique, columns=["genre"])
