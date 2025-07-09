@@ -127,6 +127,7 @@ Options:
        -cve     --check-value-errors                Check the CSV_FILEs for ValueErrors and save them to value_error_pages.csv (optional)
        -cd      --check-duplicates                  Check the CSV_FILEs for duplicates and save them to duplicates.csv (optional)
        -crg     --check-raw-genres                  Check the METADATA_FILE for all raw genres and save them to genres_raw.csv (optional)
+       -crl,    --check-raw-languages               Check the METADATA_FILE for all raw languages and save them to languages_raw.csv (optional)
        -hi      --histogram-info                    Show detailed information about histogram bins (optional)
    
     evaluate:
