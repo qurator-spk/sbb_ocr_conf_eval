@@ -98,12 +98,12 @@ Options:
        -g,      --genre                             Choose a GENRE to be evaluated (optional)
        -sg,     --subgenre                          Choose a SUBGENRE to be evaluated (optional)
        -ge,     --show-genre-evaluation             Evaluate the genres in the CSV_FILEs (optional)
-       -d       --search-date                       Filter the data for a specific publication year, specify <YEAR> (optional)
+       -d,      --search-date                       Filter the data for a specific publication year, specify <YEAR> (optional)
        -dr,     --date-range                        Choose a publication date range for filtering the data, specify <YEAR_START> <YEAR_END> (optional)
-       -ppn     --search-ppn                        Filter the data for a specific PPN, specify <PPN> (optional)
+       -ppn,    --search-ppn                        Filter the data for a specific PPN, specify <PPN> (optional)
        -de,     --show-dates-evaluation             Evaluate the publication dates in the CSV_FILEs (optional)
-       -wc      --mean-word-conf                    Filter the data for a specific mean word confidence score, specify <MEAN_WORD> (optional)
-       -tc      --mean-textline-conf                Filter the data for a specific mean textline confidence score, specify <MEAN_TEXTLINE> (optional)
+       -wc,     --mean-word-conf                    Filter the data for a specific mean word confidence score, specify <MEAN_WORD> (optional)
+       -tc,     --mean-textline-conf                Filter the data for a specific mean textline confidence score, specify <MEAN_TEXTLINE> (optional)
        -wcr,    --mean-word-confs-range             Choose a mean word confidence score range for filtering data, specify <MEAN_WORD_START MEAN_WORD_END> (optional)
        -tcr,    --mean-textline-confs-range         Choose a mean textline confidence score range for filtering data, specify <MEAN_TEXTLINE_START MEAN_TEXTLINE_END> (optional)
        -bmw,    --best-mean-word-confs              Choose a number of PPNs or PPN_PAGEs with the best mean word scores, specify <NUMBER_OF> (optional)
@@ -124,11 +124,11 @@ Options:
        -npr,    --number-of-pages-range             Choose a number of PPN_PAGEs range for filtering data, specify <NUMBER_START> <NUMBER_END> (optional)
        -ppndir, --ppn-directory                     Generate a CSV with confidence scores from the names of PPN subdirectories in a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <CONF_CSV> (optional)
        -log,    --use-logging                       Save all log messages to log_plot_{TIMESTAMP}.txt (optional)
-       -cve     --check-value-errors                Check the CSV_FILEs for ValueErrors and save them to value_error_pages.csv (optional)
-       -cd      --check-duplicates                  Check the CSV_FILEs for duplicates and save them to duplicates.csv (optional)
-       -crg     --check-raw-genres                  Check the METADATA_FILE for all raw genres and save them to genres_raw.csv (optional)
+       -cve,    --check-value-errors                Check the CSV_FILEs for ValueErrors and save them to value_error_pages.csv (optional)
+       -cd,     --check-duplicates                  Check the CSV_FILEs for duplicates and save them to duplicates.csv (optional)
+       -crg,    --check-raw-genres                  Check the METADATA_FILE for all raw genres and save them to genres_raw.csv (optional)
        -crl,    --check-raw-languages               Check the METADATA_FILE for all raw languages and save them to languages_raw.csv (optional)
-       -hi      --histogram-info                    Show detailed information about histogram bins (optional)
+       -hi,     --histogram-info                    Show detailed information about histogram bins (optional)
    
     evaluate:
        -d,      --dinglehopper                      Perform ocrd-dinglehopper on a <PARENT_DIRECTORY>, specify <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY> (optional)
@@ -148,6 +148,11 @@ Options:
        --format                                     Whether to output csv or json
        --output                                     Print to this file
 ```
+
+## Extra information
+
+Codes for the Representation of Names of Languages (alpha-3/ISO 639-2 Code):
+https://www.loc.gov/standards/iso639-2/php/code_list.php
 
 ## Extra installation
 
