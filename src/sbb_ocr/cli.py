@@ -42,6 +42,7 @@ def cli():
 @click.option('-cve', '--check-value-errors', 'check_value_errors', is_flag=True, default=False, help="Check the CSV_FILES for ValueErrors and save them to value_error_pages.csv (optional)")
 @click.option('-cd', '--check-duplicates', 'check_duplicates', is_flag=True, default=False, help="Check the CSV_FILES for duplicates and save them to duplicates.csv (optional)")
 @click.option('-crg', '--check-raw-genres', 'check_raw_genres', is_flag=True, default=False, help="Check the METADATA_FILE for all raw genres and save them to genres_raw.csv (optional)")
+@click.option('-crl', '--check-raw-languages', 'check_raw_languages', is_flag=True, default=False, help="Check the METADATA_FILE for all raw languages and save them to languages_raw.csv (optional)")
 @click.option('-hi', '--histogram-info', 'histogram_info', is_flag=True, default=False, help="Show detailed information about histogram bins (optional)")
 @click.option('-ppn', '--search-ppn', 'search_ppn', type=str, help='Filter the data for a specific PPN, specify <PPN> (optional)')
 @click.option('-a', '--aggregate-mode', 'aggregate_mode', default='ppn_page', type=click.Choice(['ppn_page', 'ppn']), help="Choose between aggregation by PPN or PPN_PAGE (default is set to PPN_PAGE)")
@@ -86,6 +87,7 @@ def plot_cli(
     check_value_errors,
     check_duplicates,
     check_raw_genres,
+    check_raw_languages,
     histogram_info,
     aggregate_mode,
     weighting_method,
@@ -158,6 +160,7 @@ def plot_cli(
         check_value_errors=check_value_errors,
         check_duplicates=check_duplicates,
         check_raw_genres=check_raw_genres,
+        check_raw_languages=check_raw_languages,
         histogram_info=histogram_info,
         aggregate_mode=aggregate_mode,
         weighting_method=weighting_method,

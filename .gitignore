@@ -26,6 +26,7 @@ statistics_results.jpg
 value_error_pages.csv
 duplicates.csv
 genres_raw.csv
+language_raw.csv
 genre_publications.csv
 genre_publications.png
 genre_weighted_mean_scores.csv

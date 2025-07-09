@@ -1604,6 +1604,7 @@ def generate_dataframes(
     check_value_errors: bool = False,
     check_duplicates: bool = False,
     check_raw_genres: bool = False,
+    check_raw_languages: bool = False,
     aggregate_mode: str = "ppn_page"
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
@@ -1773,6 +1774,15 @@ def generate_dataframes(
         logging.info(metadata_df_unique_df.to_string(index=False))
         print(metadata_df_unique_df.to_string(index=False))
         metadata_df_unique_df.to_csv("genres_raw.csv", index=False)
+        
+    if check_raw_languages:
+        metadata_df_unique = metadata_df["language"].unique()
+        metadata_df_unique_df = pd.DataFrame(metadata_df_unique, columns=["language"])
+        logging.info(f"\nAll raw languages in {metadata_csv}: \n")
+        print(f"\nAll raw languages in {metadata_csv}: \n")
+        logging.info(metadata_df_unique_df.to_string(index=False))
+        print(metadata_df_unique_df.to_string(index=False))
+        metadata_df_unique_df.to_csv("language_raw.csv", index=False)
     
     if check_duplicates:
         ppn_page_counts = results_df['ppn_page'].value_counts()
@@ -1839,6 +1849,7 @@ def plot_everything(
     check_value_errors: bool = False,
     check_duplicates: bool = False,
     check_raw_genres: bool = False,
+    check_raw_languages: bool = False,
     aggregate_mode='ppn_page',
     weighting_method: str = "both",
     search_weight_word=None,
@@ -1859,6 +1870,7 @@ def plot_everything(
         check_value_errors=check_value_errors,
         check_duplicates=check_duplicates,
         check_raw_genres=check_raw_genres,
+        check_raw_languages=check_raw_languages,
         aggregate_mode=aggregate_mode
     )
             
