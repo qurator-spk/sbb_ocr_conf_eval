@@ -441,7 +441,7 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
     filtered_genres = metadata_df[metadata_df["PPN"].isin(matching_ppn_mods)]
 
     # Create dicts for fast access
-    ppn_to_genres_raw = filtered_genres.groupby("PPN")["genre-aad"].apply(list).to_dict()
+    ppn_to_genres_raw = filtered_genres.groupby("PPN")["genre"].apply(list).to_dict()
     
     # Determine aggregation mode
     is_ppn_page_mode = "ppn_page" in results_df.columns
@@ -1717,7 +1717,8 @@ def generate_dataframes(
         ])
     
     # "originInfo-publication0_dateIssued" changed to "publication_date"
-    metadata_df = pd.DataFrame(load_csv_to_list(metadata_csv)[1:], columns=["PPN", "genre-aad", "publication_date"])
+    # "genre-aad" changed to "genre"
+    metadata_df = pd.DataFrame(load_csv_to_list(metadata_csv)[1:], columns=["PPN", "genre", "publication_date"])
     
     if check_value_errors:
         value_error_df = pd.DataFrame(value_error_pages, columns=["ppn", "ppn_page"])
@@ -1738,24 +1739,24 @@ def generate_dataframes(
     metadata_df.loc[metadata_df["publication_date"].isin(["", "18XX"]), "publication_date"] = "2025"
     
     # Change all genres that are empty strings to "Unbekannt"
-    metadata_df.loc[metadata_df["genre-aad"].isin([""]), "genre-aad"] = "{'Unbekannt'}"
+    metadata_df.loc[metadata_df["genre"].isin([""]), "genre"] = "{'Unbekannt'}"
     
     # Change the genre separation from slashes to commas
-    metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(
+    metadata_df['genre'] = metadata_df['genre'].apply(
         lambda genre: "{" + genre.strip().strip("{ }")
                                  .replace("  / ", "', '")
                                  .replace(" / ", "', '") + "}"
     )
 
     # Fill incomplete genre names
-    metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(
+    metadata_df['genre'] = metadata_df['genre'].apply(
         lambda genre: genre.replace("'Ars'", "'Ars moriendi'")
                            .replace("'moriendi'", "'Ars moriendi'")
                            .strip()
     )
     
     # Merge loose subgenres with their genre
-    metadata_df['genre-aad'] = metadata_df['genre-aad'].apply(
+    metadata_df['genre'] = metadata_df['genre'].apply(
         lambda genre: genre.replace("'jur.'", "'Kommentar:jur.'")
                            .replace("'hist.'", "'Kommentar:hist.'")
                            .replace("'theol.'", "'Kommentar:theol.'")
@@ -1765,8 +1766,8 @@ def generate_dataframes(
     )
     
     if check_raw_genres:
-        metadata_df_unique = metadata_df["genre-aad"].unique()
-        metadata_df_unique_df = pd.DataFrame(metadata_df_unique, columns=["genre-aad"])
+        metadata_df_unique = metadata_df["genre"].unique()
+        metadata_df_unique_df = pd.DataFrame(metadata_df_unique, columns=["genre"])
         logging.info(f"\nAll raw genres in {metadata_csv}: \n")
         print(f"\nAll raw genres in {metadata_csv}: \n")
         logging.info(metadata_df_unique_df.to_string(index=False))
@@ -1790,7 +1791,7 @@ def generate_dataframes(
 
         # Exclude PPN_PAGEs that are not duplicated
         filtered_df = results_df[~results_df['ppn_page'].isin(non_duplicated_ppn_pages)]
-        metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre-aad']]
+        metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre']]
         filtered_df = filtered_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
         filtered_df.drop(columns=['PPN'], inplace=True)
         filtered_df = filtered_df.sort_values(by='ppn_page', ascending=True)
@@ -1926,13 +1927,13 @@ def plot_everything(
         # Escape special characters in the search_genre string
         escaped_genre = re.escape(search_genre)
         pattern = r"\{\s*[^}]*?\b" + escaped_genre + r"\b[^}]*?\}"
-        results_df = results_df[results_df["ppn"].isin(metadata_df.loc[metadata_df["genre-aad"].str.match(pattern, na=False), "PPN"])]
+        results_df = results_df[results_df["ppn"].isin(metadata_df.loc[metadata_df["genre"].str.match(pattern, na=False), "PPN"])]
         
     if search_subgenre:
         escaped_subgenre = re.escape(search_subgenre)
         pattern = r":[\s]*" + escaped_subgenre + r"(?!\w)"
         results_df = results_df[results_df["ppn"].isin(
-            metadata_df.loc[metadata_df["genre-aad"].str.contains(pattern, na=False), "PPN"]
+            metadata_df.loc[metadata_df["genre"].str.contains(pattern, na=False), "PPN"]
         )]
         
     if use_top_ppns_word:
@@ -1984,7 +1985,7 @@ def plot_everything(
                 filtered_results_df = results_df[['ppn', 'ppn_page', 'mean_word', 'mean_textline', 'weight_word', 'weight_textline']]
             elif aggregate_mode == 'ppn':
                 filtered_results_df = results_df[['ppn', 'num_pages', 'mean_word', 'mean_textline', 'weight_word', 'weight_textline']]
-            metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre-aad']]
+            metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre']]
             filtered_results_df = filtered_results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
             filtered_results_df.drop(columns=['PPN'], inplace=True)
             logging.info(filtered_results_df.to_string(index=False))
@@ -2015,7 +2016,7 @@ def plot_everything(
         print("\nThere are no results matching the applied filters.")
         return
 
-    metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre-aad']]
+    metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre']]
     results_df = results_df.merge(metadata_filtered, left_on='ppn', right_on='PPN')
     results_df.drop(columns=['PPN'], inplace=True)
     results_df_description = results_df.describe(include='all')
