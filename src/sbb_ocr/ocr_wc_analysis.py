@@ -766,6 +766,88 @@ def dates_evaluation(metadata_df, results_df):
         logging.info(f"Invalid publication dates: {e}")
         print(f"Invalid publication dates.")
         return
+        
+def languages_evaluation(metadata_df, results_df):
+    matching_ppns = set(results_df["ppn"].unique())
+    filtered_languages = metadata_df[metadata_df["PPN"].isin(matching_ppns)]
+    ppn_to_languages = filtered_languages.groupby("PPN")["language"].first().to_dict()
+
+    # Determine aggregation mode
+    is_ppn_page_mode = "ppn_page" in results_df.columns
+    if not is_ppn_page_mode:
+        ppn_to_results = results_df.groupby("ppn").first().to_dict(orient="index")
+
+    language_combination_counts = {}
+    language_combination_data = {}
+
+    for ppn in matching_ppns:
+        lang_string = ppn_to_languages.get(ppn)
+        if not lang_string or lang_string.strip() == "":
+            continue
+
+        # Normalize the language combination (e.g. "lat, ger" same as "ger, lat")
+        languages = sorted([lang.strip() for lang in lang_string.split(",") if lang.strip()])
+        if not languages:
+            continue
+
+        normalized_lang = ", ".join(languages)
+
+        # Get results for one PPN (either ppn_page mode or aggregated)
+        if is_ppn_page_mode:
+            ppn_results = results_df[results_df["ppn"] == ppn]
+        else:
+            record = ppn_to_results.get(ppn)
+            if record:
+                ppn_results = pd.DataFrame([record])
+            else:
+                continue
+
+        if ppn_results.empty:
+            continue
+
+        # Count publication
+        language_combination_counts[normalized_lang] = language_combination_counts.get(normalized_lang, 0) + 1
+
+        # Initialize if new combination
+        if normalized_lang not in language_combination_data:
+            language_combination_data[normalized_lang] = {
+                "mean_word": [], "weight_word": [],
+                "mean_textline": [], "weight_textline": []
+            }
+
+        language_combination_data[normalized_lang]["mean_word"].extend(ppn_results["mean_word"].tolist())
+        language_combination_data[normalized_lang]["weight_word"].extend(ppn_results["weight_word"].tolist())
+        language_combination_data[normalized_lang]["mean_textline"].extend(ppn_results["mean_textline"].tolist())
+        language_combination_data[normalized_lang]["weight_textline"].extend(ppn_results["weight_textline"].tolist())
+
+    print(f"\nNumber of unique language combinations: {len(language_combination_counts)}")
+
+    # Sort for display
+    sorted_lang_counts = sorted(language_combination_counts.items(), key=lambda x: (-x[1], x[0]))
+    lang_combos, lang_counts = zip(*sorted_lang_counts) if sorted_lang_counts else ([], [])
+
+    language_counts_df = pd.DataFrame(list(language_combination_counts.items()), columns=['Language_Combination', 'Count'])
+    language_counts_df_sorted = language_counts_df.sort_values(by=['Count', 'Language_Combination'], ascending=[False, True])
+    language_counts_df_sorted.to_csv("language_combination_publications.csv", index=False)
+
+    print("\nUnique language combinations and their counts:\n")
+    print(language_counts_df_sorted.to_string(index=False))
+
+    if lang_combos and lang_counts:
+        create_publication_count_horizontal_barplot(
+            labels=lang_combos,
+            counts=lang_counts,
+            title="Counts of Language Combinations",
+            ylabel="Languages",
+            filename="language_combination_publications.png"
+        )
+
+    process_weighted_means(
+        data_dict=language_combination_data,
+        label_name='Language_Combination',
+        filename_prefix='language_combination',
+        counts_dict=language_combination_counts
+    )
 
 def compute_unweighted_stats(df, bin_col, value_col):
     means = []
@@ -1867,7 +1949,8 @@ def plot_everything(
     show_weights_evaluation=False,
     search_number_of_pages=False,
     number_of_pages_range: Optional[Tuple[int, int]] = None,
-    show_number_of_pages_evaluation=False
+    show_number_of_pages_evaluation=False,
+    show_languages_evaluation=False
 ):
     if use_logging:
         setup_logging("plot")
@@ -2029,6 +2112,9 @@ def plot_everything(
     
     if show_weights_evaluation:
         weights_evaluation(results_df)
+        
+    if show_languages_evaluation:
+        languages_evaluation(metadata_df, results_df)
     
     if show_number_of_pages_evaluation:
         if aggregate_mode == "ppn":
