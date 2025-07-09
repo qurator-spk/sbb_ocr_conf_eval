@@ -105,6 +105,7 @@ Options:
        -d,      --search-date                       Filter the data for a specific publication year, specify <YEAR> (optional)
        -dr,     --date-range                        Choose a publication date range for filtering the data, specify <YEAR_START> <YEAR_END> (optional)
        -l,      --search-language                   Filter the data for a specific language, specify <LANGUAGE> (optional)
+       -le,     --show-languages-evaluation         Evaluate the languages in the CSV_FILES (optional)
        -ppn,    --search-ppn                        Filter the data for a specific PPN, specify <PPN> (optional)
        -de,     --show-dates-evaluation             Evaluate the publication dates in the CSV_FILEs (optional)
        -wc,     --mean-word-conf                    Filter the data for a specific mean word confidence score, specify <MEAN_WORD> (optional)
