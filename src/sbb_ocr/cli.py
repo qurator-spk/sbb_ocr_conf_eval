@@ -19,6 +19,7 @@ def cli():
 @click.option('-g', '--genre', 'search_genre', help='Choose a GENRE to be evaluated (optional)')
 @click.option('-sg', '--subgenre', 'search_subgenre', help='Choose a SUBGENRE to be evaluated (optional)')
 @click.option('-m', '--metadata', 'metadata_csv', default="metadata.csv", help='METADATA_FILE with the PPN metadata (default is metadata.csv)')
+@click.option('-l', '--search-language', 'search_language', type=str, help='Filter the data for a specific language, specify <LANGUAGE> (optional)')
 @click.option('-d', '--search-date', 'search_date', type=int, help='Filter the data for a specific publication year, specify <YEAR> (optional)')
 @click.option('-dr', '--date-range', nargs=2, type=(int, int), help='Choose a publication date range for filtering the data, specify <YEAR_START> <YEAR_END> (optional)')
 @click.option('-topw', '--top-ppns-word', type=int, help='Choose a number of top PPNs or PPN_PAGEs with mean word scores between 0.95 and 1.0, specify <NUMBER_OF> (optional)')
@@ -65,6 +66,7 @@ def plot_cli(
     plot_file,
     search_ppn,
     search_date,
+    search_language,
     date_range,
     top_ppns_word,
     bottom_ppns_word,
@@ -128,6 +130,7 @@ def plot_cli(
         search_subgenre=search_subgenre,
         plot_file=plot_file,
         search_ppn=search_ppn,
+        search_language=search_language,
         search_date=search_date,
         date_range=date_range,
         use_top_ppns_word=(top_ppns_word is not None),

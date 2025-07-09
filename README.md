@@ -32,6 +32,10 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Publication dates in `publication_date` column
   - Original name: `originInfo-publication0_dateIssued`
   - Elements that are not 4 digits changed to `2025`
+- Languages in `languages` column:
+  - Original name: `SprachcodesWinIBW` (from Jörgs `metadata_Augmented-2025-07-08.csv`)
+  - Replaced `$b` with `, `
+  - Replaced `de` with `ger`
 - Projects: ***missing***
 - Titlepages: ***missing***
 - Source: Created from `metadata.csv` (47.716 rows) by dropping 1210 PPNs that are NOT in CSV_FILEs (46.506 rows)

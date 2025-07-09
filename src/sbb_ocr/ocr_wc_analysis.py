@@ -1824,6 +1824,7 @@ def plot_everything(
     plot_file="statistics_results.jpg",
     search_ppn=None,
     search_date=None,
+    search_language=None,
     date_range: Optional[Tuple[int, int]] = None,
     use_top_ppns_word=False,
     use_bottom_ppns_word=False,
@@ -1953,6 +1954,13 @@ def plot_everything(
         pattern = r":[\s]*" + escaped_subgenre + r"(?!\w)"
         results_df = results_df[results_df["ppn"].isin(
             metadata_df.loc[metadata_df["genre"].str.contains(pattern, na=False), "PPN"]
+        )]
+        
+    if search_language:
+        escaped_lang = re.escape(search_language)
+        pattern = r'(^|[\s,])' + escaped_lang + r'($|[\s,])'
+        results_df = results_df[results_df["ppn"].isin(
+            metadata_df.loc[metadata_df["language"].str.contains(pattern, na=False), "PPN"]
         )]
         
     if use_top_ppns_word:
