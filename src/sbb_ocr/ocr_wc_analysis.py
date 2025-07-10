@@ -785,8 +785,8 @@ def languages_evaluation(metadata_df, results_df):
         if not lang_string or lang_string.strip() == "":
             continue
 
-        # Normalize the language combination (e.g. "lat, ger" same as "ger, lat")
-        languages = sorted([lang.strip() for lang in lang_string.split(",") if lang.strip()])
+        # Normalize the language combination (e.g. "lat, ger" same as "ger, lat") without duplicates
+        languages = sorted(set(lang.strip() for lang in lang_string.split(",") if lang.strip()))
         if not languages:
             continue
 
