@@ -959,14 +959,14 @@ def languages_evaluation(metadata_df, results_df):
         if not lang_string or lang_string.strip() == "":
             continue
 
-        # Normalize the language combination (e.g. "lat, ger" same as "ger, lat") without duplicates
+        # Normalize the language combination
         languages = sorted(set(lang.strip() for lang in lang_string.split(",") if lang.strip()))
         if not languages:
             continue
 
         normalized_lang = ", ".join(languages)
 
-        # Get results for one PPN (either ppn_page mode or aggregated)
+        # Get results for one PPN
         if is_ppn_page_mode:
             ppn_results = results_df[results_df["ppn"] == ppn]
         else:
@@ -994,16 +994,23 @@ def languages_evaluation(metadata_df, results_df):
         language_combination_data[normalized_lang]["mean_textline"].extend(ppn_results["mean_textline"].tolist())
         language_combination_data[normalized_lang]["weight_textline"].extend(ppn_results["weight_textline"].tolist())
 
+    logging.info(f"\nNumber of unique language combinations: {len(language_combination_counts)}")
     print(f"\nNumber of unique language combinations: {len(language_combination_counts)}")
 
     # Sort for display
     sorted_lang_counts = sorted(language_combination_counts.items(), key=lambda x: (-x[1], x[0]))
     lang_combos, lang_counts = zip(*sorted_lang_counts) if sorted_lang_counts else ([], [])
 
-    language_counts_df = pd.DataFrame(list(language_combination_counts.items()), columns=['Language_Combination', 'Count'])
-    language_counts_df_sorted = language_counts_df.sort_values(by=['Count', 'Language_Combination'], ascending=[False, True])
+    language_counts_df = pd.DataFrame(list(language_combination_counts.items()), 
+                                    columns=['Language_Combination', 'Count'])
+    language_counts_df_sorted = language_counts_df.sort_values(
+        by=['Count', 'Language_Combination'], 
+        ascending=[False, True]
+    )
     language_counts_df_sorted.to_csv("language_combination_publications.csv", index=False)
 
+    logging.info("\nUnique language combinations and their counts:\n")
+    logging.info(language_counts_df_sorted.to_string(index=False))
     print("\nUnique language combinations and their counts:\n")
     print(language_counts_df_sorted.to_string(index=False))
 
@@ -1016,12 +1023,12 @@ def languages_evaluation(metadata_df, results_df):
             filename="language_combination_publications.png"
         )
 
-    process_weighted_means(
-        data_dict=language_combination_data,
-        label_name='Language_Combination',
-        filename_prefix='language_combination',
-        counts_dict=language_combination_counts
-    )
+        process_weighted_means(
+            data_dict=language_combination_data,
+            label_name='Language_Combination',
+            filename_prefix='language_combination',
+            counts_dict=language_combination_counts
+        )
 
 def compute_unweighted_stats(df, bin_col, value_col):
     means = []
