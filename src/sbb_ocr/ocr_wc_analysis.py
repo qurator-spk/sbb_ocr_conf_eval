@@ -1045,7 +1045,7 @@ def create_weights_and_num_pages_barplot(data_pairs, titles, xlabels, ylabels, f
         plt.xlabel(xlabels[i], fontsize=18)
         plt.ylabel(ylabels[i], fontsize=18)
         plt.title(titles[i], fontsize=22)
-        plt.xticks(rotation=45, ha='right', fontsize=14, weight='bold')
+        plt.xticks(rotation=45, ha='right', fontsize=13, weight='bold')
         plt.yticks(fontsize=14, weight='bold')
         plt.xlim(-0.5, len(values) - 0.5)
         plt.ylim(0, 1)
