@@ -307,37 +307,6 @@ def load_csv_to_list(csv_file):
     with open(csv_file, 'r') as f:
         return list(csv.reader(f))
     
-def create_weighted_means_dates_barplot(plot_df, results_df, groupby_col, label_col, title, filename, ha):
-    word_errors = []
-    textline_errors = []
-
-    for label in plot_df[label_col]:
-        group_ppns = results_df[results_df[groupby_col] == label]
-        word_se = weighted_standard_error_of_the_mean(group_ppns["mean_word"], group_ppns["weight_word"]) if len(group_ppns) > 1 else 0
-        textline_se = weighted_standard_error_of_the_mean(group_ppns["mean_textline"], group_ppns["weight_textline"]) if len(group_ppns) > 1 else 0
-        word_errors.append(word_se)
-        textline_errors.append(textline_se)
-
-    x = np.arange(len(plot_df))
-    width = 0.35
-    plt.figure(figsize=(max(13, len(plot_df) * 0.5), 7))
-    plt.bar(x - width / 2, plot_df['Weighted_Mean_Word'], width,
-            yerr=word_errors, capsize=5, label='Weighted Mean Word', color='skyblue')
-    plt.bar(x + width / 2, plot_df['Weighted_Mean_Textline'], width,
-            yerr=textline_errors, capsize=5, label='Weighted Mean Textline', color='salmon')
-
-    plt.xlabel(label_col, fontsize=13)
-    plt.ylabel('Confidence Score', fontsize=13)
-    plt.title(title, fontsize=16, fontweight='bold')
-    plt.xticks(x, plot_df[label_col], rotation=45, ha=ha)
-    plt.tick_params(axis='x', length=10)
-    plt.ylim(0, 1)
-    plt.xlim(-0.5, len(plot_df) - 0.5)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(filename)
-    plt.close()
-    
 def extract_genre_and_subgenre(x):
     parts = x.split(':', 1)
     genre = parts[0]
@@ -384,6 +353,84 @@ def add_labels(ax, bars, errors):
         ax.text(label_x, bar.get_y() + bar.get_height()/2,
                f'{width:.2f}', ha='left', va='center',
                fontsize=8, weight='bold')
+               
+def create_weighted_means_dates_barplot(plot_df, results_df, groupby_col, label_col, title, filename):
+    word_errors = []
+    textline_errors = []
+    for label in plot_df[label_col]:
+        group_ppns = results_df[results_df[groupby_col] == label]
+        word_se = weighted_standard_error_of_the_mean(group_ppns["mean_word"], group_ppns["weight_word"]) if len(group_ppns) > 1 else 0
+        textline_se = weighted_standard_error_of_the_mean(group_ppns["mean_textline"], group_ppns["weight_textline"]) if len(group_ppns) > 1 else 0
+        word_errors.append(word_se)
+        textline_errors.append(textline_se)
+
+    y = np.arange(len(plot_df))[::-1]  # Reverse for top-to-bottom order
+    height = 0.35
+    
+    # Calculate figure size based on number of items
+    fig_height = max(8, len(plot_df) * 0.4)
+    plt.figure(figsize=(12, fig_height))
+    
+    ax = plt.gca()
+    
+    bars2 = ax.barh(y - height/2, plot_df['Weighted_Mean_Textline'], height,
+                    xerr=textline_errors, capsize=5, label='Textline Confidence',
+                    color='salmon', alpha=0.7,
+                    error_kw={'elinewidth': 1.5, 'capthick': 1.5})
+    
+    bars1 = ax.barh(y + height/2, plot_df['Weighted_Mean_Word'], height,
+                    xerr=word_errors, capsize=5, label='Word Confidence',
+                    color='skyblue', alpha=0.7,
+                    error_kw={'elinewidth': 1.5, 'capthick': 1.5})
+
+    # Add count information to labels
+    year_counts = results_df.groupby(groupby_col).size()
+    labels = [f"{year} (n={year_counts[year]})" for year in plot_df[label_col]]
+    
+    ax.set_xlabel('Confidence Score', fontsize=14)
+    ax.set_ylabel(label_col, fontsize=14)
+    ax.set_title(title, fontsize=16, pad=16, fontweight='bold')
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels, fontsize=10)
+    ax.grid(axis='x', linestyle='--', alpha=0.3)
+    
+    # Set x-axis limits
+    max_value = max(
+        max(plot_df['Weighted_Mean_Word'] + word_errors),
+        max(plot_df['Weighted_Mean_Textline'] + textline_errors)
+    )
+    ax.set_xlim(0, max(1.0, max_value + 0.1))
+    
+    # Add extra space at the bottom for legend
+    ax.set_ylim(-1.5, len(plot_df) - 0.5)
+    
+    # Add value labels
+    add_labels(ax, bars1, word_errors)
+    add_labels(ax, bars2, textline_errors)
+    
+    handles, labels = ax.get_legend_handles_labels()
+    legend = ax.legend(handles[::-1], labels[::-1], ncol=2, fontsize=10, framealpha=1,
+                      bbox_to_anchor=(0.5, 0), loc='lower center',
+                      bbox_transform=ax.transAxes)
+    
+    plt.tight_layout()
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.close()
+
+    df_save = plot_df[[label_col, 'Weighted_Mean_Word', 'Weighted_Mean_Textline']].copy()
+    df_save['Word_Error'] = word_errors
+    df_save['Textline_Error'] = textline_errors
+    
+    # Add total weights for each year
+    df_save['weight_word'] = 0
+    df_save['weight_textline'] = 0
+    
+    for idx, year in enumerate(df_save[label_col]):
+        year_data = results_df[results_df[groupby_col] == year]
+        df_save.at[idx, 'weight_word'] = year_data['weight_word'].sum()
+        df_save.at[idx, 'weight_textline'] = year_data['weight_textline'].sum()
+    
+    df_save.to_csv(filename.replace('.png', '.csv'), index=False)
 
 def create_weighted_means_genre_and_subgenre_barplot(plot_df, label_col, title, filename, word_errors, textline_errors):
     # Sort by count (descending), but keep "Other" at the bottom
@@ -877,7 +924,6 @@ def dates_evaluation(metadata_df, results_df):
             'Weighted_Mean_Word': weighted_mean_word_list,
             'Weighted_Mean_Textline': weighted_mean_textline_list
         }).dropna()
-        plot_df.to_csv(f"date_range_{min_year}-{max_year}_yearly_weighted_means.csv", index=False)
         
         results_df = results_df.merge(metadata_df[["PPN", "publication_date"]], how="left", left_on="ppn", right_on="PPN")
         
@@ -887,8 +933,7 @@ def dates_evaluation(metadata_df, results_df):
             groupby_col='publication_date',
             label_col='Year',
             title='Yearly Weighted Means of Word and Textline Confidence Scores',
-            filename=f"date_range_{min_year}-{max_year}_yearly_weighted_means.png",
-            ha='center'
+            filename=f"date_range_{min_year}-{max_year}_yearly_weighted_means.png"
         )
         
     except ValueError as e:
