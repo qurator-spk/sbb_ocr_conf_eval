@@ -1030,25 +1030,6 @@ def languages_evaluation(metadata_df, results_df):
             counts_dict=language_combination_counts
         )
 
-def compute_unweighted_stats(df, bin_col, value_col):
-    means = []
-    errors = []
-    labels = []
-    for label, group in df.groupby(bin_col, observed=False):
-        data = group[value_col]
-        if len(data) > 1:
-            mean = data.mean()
-            sem = data.std(ddof=1) / np.sqrt(len(data))
-        elif len(data) == 1:
-            mean = data.iloc[0]
-            sem = 0
-        else:
-            mean = sem = np.nan
-        means.append(mean)
-        errors.append(sem)
-        labels.append(str(label))
-    return labels, means, errors
-
 def create_weights_and_num_pages_barplot(data_pairs, titles, xlabels, ylabels, filename, errors_pairs=None):
     plt.figure(figsize=(36, 18))
 
@@ -1071,6 +1052,34 @@ def create_weights_and_num_pages_barplot(data_pairs, titles, xlabels, ylabels, f
     plt.tight_layout(pad=2.0)
     plt.savefig(filename)
     plt.close()
+    
+def compute_unweighted_stats(df, bin_col, value_col):
+    stats_data = []
+    for label, group in df.groupby(bin_col, observed=False):
+        data = group[value_col]
+        if len(data) > 1:
+            mean = data.mean()
+            sem = data.std(ddof=1) / np.sqrt(len(data))
+            count = len(data)
+        elif len(data) == 1:
+            mean = data.iloc[0]
+            sem = 0
+            count = 1
+        else:
+            mean = sem = count = np.nan
+        
+        stats_data.append({
+            'Bin': str(label),
+            'Mean': mean,
+            'Error': sem,
+            'Count': count
+        })
+    
+    stats_df = pd.DataFrame(stats_data)
+    return (stats_df['Bin'].tolist(), 
+            stats_df['Mean'].tolist(), 
+            stats_df['Error'].tolist(), 
+            stats_df)
 
 def weights_evaluation(results_df):
     cols = ['weight_word', 'weight_textline', 'mean_word', 'mean_textline']
@@ -1092,8 +1101,16 @@ def weights_evaluation(results_df):
     results_df['word_bin'] = pd.cut(results_df['weight_word'], bins=word_bins)
     results_df['textline_bin'] = pd.cut(results_df['weight_textline'], bins=textline_bins)
 
-    word_labels, word_means, word_errors = compute_unweighted_stats(results_df, 'word_bin', 'mean_word')
-    textline_labels, textline_means, textline_errors = compute_unweighted_stats(results_df, 'textline_bin', 'mean_textline')
+    word_labels, word_means, word_errors, word_stats_df = compute_unweighted_stats(
+        results_df, 'word_bin', 'mean_word')
+    textline_labels, textline_means, textline_errors, textline_stats_df = compute_unweighted_stats(
+        results_df, 'textline_bin', 'mean_textline')
+
+    word_stats_df.columns = ['Word_Count_Bin', 'Mean_Word_Confidence', 'Word_Confidence_Error', 'Count']
+    textline_stats_df.columns = ['Textline_Count_Bin', 'Mean_Textline_Confidence', 'Textline_Confidence_Error', 'Count']
+    
+    word_stats_df.to_csv("word_weight_confidence_stats.csv", index=False)
+    textline_stats_df.to_csv("textline_weight_confidence_stats.csv", index=False)
 
     create_weights_and_num_pages_barplot(
         data_pairs=[(word_labels, word_means), (textline_labels, textline_means)],
@@ -1103,7 +1120,7 @@ def weights_evaluation(results_df):
         ylabels=['Mean Confidence Score', 'Mean Confidence Score'],
         filename="barplot_confs_weights.png"
     )
-    
+
 def num_pages_evaluation(results_df):
     cols = ['num_pages', 'mean_word', 'mean_textline', 'weight_word', 'weight_textline']
     results_df[cols] = results_df[cols].apply(pd.to_numeric, errors='coerce')
@@ -1118,11 +1135,12 @@ def num_pages_evaluation(results_df):
 
     grouped = results_df.groupby('pages_bin', observed=False)
 
+    stats_data = []
+    bin_labels = []
     word_bin_means = []
     textline_bin_means = []
     word_bin_errors = []
     textline_bin_errors = []
-    bin_labels = []
     
     # Calculate weighted mean confidence scores per bin
     for bin_label, group in grouped:
@@ -1131,15 +1149,28 @@ def num_pages_evaluation(results_df):
             wm_textline = weighted_mean(group["mean_textline"], group["weight_textline"])
             word_se = weighted_standard_error_of_the_mean(group["mean_word"], group["weight_word"])
             textline_se = weighted_standard_error_of_the_mean(group["mean_textline"], group["weight_textline"])
+            count = len(group)
         else:
-            wm_word = word_se = np.nan
-            wm_textline = textline_se = np.nan
+            wm_word = word_se = wm_textline = textline_se = np.nan
+            count = 0
 
+        stats_data.append({
+            'Pages_Bin': str(bin_label),
+            'Weighted_Mean_Word': wm_word,
+            'Word_Error': word_se,
+            'Weighted_Mean_Textline': wm_textline,
+            'Textline_Error': textline_se,
+            'Count': count
+        })
+
+        bin_labels.append(str(bin_label))
         word_bin_means.append(wm_word)
         textline_bin_means.append(wm_textline)
         word_bin_errors.append(word_se)
         textline_bin_errors.append(textline_se)
-        bin_labels.append(str(bin_label))
+
+    stats_df = pd.DataFrame(stats_data)
+    stats_df.to_csv("page_count_confidence_stats.csv", index=False)
 
     create_weights_and_num_pages_barplot(
         data_pairs=[(bin_labels, word_bin_means), (bin_labels, textline_bin_means)],
@@ -1148,7 +1179,7 @@ def num_pages_evaluation(results_df):
         xlabels=['Number of Pages', 'Number of Pages'],
         ylabels=['Weighted Mean Word Confidence', 'Weighted Mean Textline Confidence'],
         filename="barplot_weighted_means_by_page_count.png"
-    )    
+    )
     
 def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
     if not os.path.exists(parent_dir):

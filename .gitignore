@@ -49,3 +49,6 @@ language_combination_publications.csv
 language_combination_publications.png
 language_combination_weighted_mean_scores.csv
 language_combination_weighted_mean_scores.png
+page_count_confidence_stats.csv
+textline_weight_confidence_stats.csv
+word_weight_confidence_stats.csv
