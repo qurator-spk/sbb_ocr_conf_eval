@@ -43,7 +43,9 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 
 ## Analysis results
 
-Location: `T:\QURATOR\OCR_Auswertung`
+Current location: `T:\QURATOR\OCR_Auswertung`
+
+(Future location: `K:\IDM\IDM-Aktenablage\5_IT\56_IT-Anwendungen_IT-Verfahren\5668_MenschMaschineKultur\OCR_Auswertung`)
 
 
 ## Installation
