@@ -1110,8 +1110,8 @@ def weights_evaluation(results_df):
     word_stats_df.columns = ['Word_Count_Bin', 'Mean_Word_Confidence', 'Word_Confidence_Error', 'Count']
     textline_stats_df.columns = ['Textline_Count_Bin', 'Mean_Textline_Confidence', 'Textline_Confidence_Error', 'Count']
     
-    word_stats_df.to_csv("word_weight_confidence_stats.csv", index=False)
-    textline_stats_df.to_csv("textline_weight_confidence_stats.csv", index=False)
+    word_stats_df.to_csv("barplot_confs_weights_words.csv", index=False)
+    textline_stats_df.to_csv("barplot_confs_weights_textlines.csv", index=False)
 
     create_weights_and_num_pages_barplot(
         data_pairs=[(word_labels, word_means), (textline_labels, textline_means)],
@@ -1171,7 +1171,7 @@ def num_pages_evaluation(results_df):
         textline_bin_errors.append(textline_se)
 
     stats_df = pd.DataFrame(stats_data)
-    stats_df.to_csv("page_count_confidence_stats.csv", index=False)
+    stats_df.to_csv("barplot_weighted_means_by_page_count.csv", index=False)
 
     create_weights_and_num_pages_barplot(
         data_pairs=[(bin_labels, word_bin_means), (bin_labels, textline_bin_means)],
