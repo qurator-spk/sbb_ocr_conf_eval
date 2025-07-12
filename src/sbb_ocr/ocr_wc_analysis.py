@@ -375,7 +375,18 @@ def create_publication_count_horizontal_barplot(labels, counts, title, ylabel, f
     plt.savefig(filename)
     plt.close()
     
+def add_labels(ax, bars, errors):
+    for idx, bar in enumerate(bars):
+        width = bar.get_width()
+        error = errors[idx]
+        # Position labels after error bars
+        label_x = width + error + 0.02
+        ax.text(label_x, bar.get_y() + bar.get_height()/2,
+               f'{width:.2f}', ha='left', va='center',
+               fontsize=8, weight='bold')
+
 def create_weighted_means_genre_and_subgenre_barplot(plot_df, label_col, title, filename, word_errors, textline_errors):
+    # Sort by count (descending), but keep "Other" at the bottom
     plot_df = plot_df.copy()
     other_row = plot_df[plot_df[label_col] == 'Other (sum of all n < 20)']
     main_rows = plot_df[plot_df[label_col] != 'Other (sum of all n < 20)']
@@ -421,18 +432,8 @@ def create_weighted_means_genre_and_subgenre_barplot(plot_df, label_col, title, 
     ax.set_ylim(-1.5, len(plot_df) - 0.5)
     
     # Add value labels on the bars
-    def add_labels(bars, errors):
-        for idx, bar in enumerate(bars):
-            width = bar.get_width()
-            error = errors[idx]
-            # Position labels after error bars
-            label_x = width + error + 0.02
-            ax.text(label_x, bar.get_y() + bar.get_height()/2,
-                   f'{width:.2f}', ha='left', va='center',
-                   fontsize=8, weight='bold')
-    
-    add_labels(bars1, word_errors)
-    add_labels(bars2, textline_errors)
+    add_labels(ax, bars1, word_errors)
+    add_labels(ax, bars2, textline_errors)
     
     handles, labels = ax.get_legend_handles_labels()
     legend = ax.legend(handles[::-1], labels[::-1], ncol=2, fontsize=10, framealpha=1,
@@ -444,6 +445,7 @@ def create_weighted_means_genre_and_subgenre_barplot(plot_df, label_col, title, 
     plt.close()
 
 def process_weighted_means(data_dict, label_name, filename_prefix, counts_dict):
+    # Create DataFrame first with all data
     data_list = []
     other_data = {
         "mean_word": [],
@@ -502,8 +504,29 @@ def process_weighted_means(data_dict, label_name, filename_prefix, counts_dict):
     df = pd.DataFrame(data_list)
     df = df.sort_values(by=['Count'], ascending=[False]).reset_index(drop=True)
 
-    # Save data to CSV
-    df_save = df[[label_name, 'Weighted_Mean_Word', 'Weighted_Mean_Textline', 'Count']].copy()
+    df_save = df[[
+        label_name, 
+        'Weighted_Mean_Word', 
+        'Word_Error',
+        'Weighted_Mean_Textline', 
+        'Textline_Error',
+        'Count'
+    ]].copy()
+    
+    # Add total weights (sum of weights for each category)
+    df_save['weight_word'] = 0
+    df_save['weight_textline'] = 0
+    
+    # Calculate total weights for each category
+    for idx, row in df_save.iterrows():
+        label = row[label_name]
+        if label == 'Other (sum of all n < 20)':
+            df_save.at[idx, 'weight_word'] = sum(other_data["weight_word"])
+            df_save.at[idx, 'weight_textline'] = sum(other_data["weight_textline"])
+        else:
+            df_save.at[idx, 'weight_word'] = sum(data_dict[label]["weight_word"])
+            df_save.at[idx, 'weight_textline'] = sum(data_dict[label]["weight_textline"])
+    
     df_save.to_csv(f"{filename_prefix}_weighted_mean_scores.csv", index=False)
 
     create_weighted_means_genre_and_subgenre_barplot(
