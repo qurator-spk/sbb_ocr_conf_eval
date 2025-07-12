@@ -375,62 +375,142 @@ def create_publication_count_horizontal_barplot(labels, counts, title, ylabel, f
     plt.savefig(filename)
     plt.close()
     
-def create_weighted_means_genre_and_subgenre_barplot(plot_df, label_col, title, filename, ha, word_errors, textline_errors):
-    x = np.arange(len(plot_df))
-    width = 0.35
-
-    plt.figure(figsize=(max(13, len(plot_df) * 0.5), 7))
-    plt.bar(x - width / 2, plot_df['Weighted_Mean_Word'], width,
-            yerr=word_errors, capsize=5, label='Weighted Mean Word', color='skyblue')
-    plt.bar(x + width / 2, plot_df['Weighted_Mean_Textline'], width,
-            yerr=textline_errors, capsize=5, label='Weighted Mean Textline', color='salmon')
-
-    plt.xlabel(label_col, fontsize=13)
-    plt.ylabel('Confidence Score', fontsize=13)
-    plt.title(title, fontsize=16, fontweight='bold')
-    plt.xticks(x, plot_df[label_col], rotation=45, ha=ha)
-    plt.tick_params(axis='x', length=10)
-    plt.ylim(0, 1)
-    plt.xlim(-0.5, len(plot_df) - 0.5)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(filename)
-    plt.close()
+def create_weighted_means_genre_and_subgenre_barplot(plot_df, label_col, title, filename, word_errors, textline_errors):
+    plot_df = plot_df.copy()
+    other_row = plot_df[plot_df[label_col] == 'Other (sum of all n < 20)']
+    main_rows = plot_df[plot_df[label_col] != 'Other (sum of all n < 20)']
+    main_rows = main_rows.sort_values('Count', ascending=False)
+    plot_df = pd.concat([main_rows, other_row]).reset_index(drop=True)
     
+    y = np.arange(len(plot_df))[::-1]  # Reverse the y-axis to put "Other" at bottom
+    height = 0.35
+    
+    # Calculate figure size based on number of items
+    fig_height = max(8, len(plot_df) * 0.4)
+    plt.figure(figsize=(12, fig_height))
+    
+    ax = plt.gca()
+    bars2 = ax.barh(y - height/2, plot_df['Weighted_Mean_Textline'], height,
+                    xerr=textline_errors, capsize=5, label='Textline Confidence',
+                    color='salmon', alpha=0.7,
+                    error_kw={'elinewidth': 1.5, 'capthick': 1.5})
+    
+    bars1 = ax.barh(y + height/2, plot_df['Weighted_Mean_Word'], height,
+                    xerr=word_errors, capsize=5, label='Word Confidence',
+                    color='skyblue', alpha=0.7,
+                    error_kw={'elinewidth': 1.5, 'capthick': 1.5})
+
+    # Add count information to labels
+    labels = [f"{label} (n={count})" for label, count in zip(plot_df[label_col], plot_df['Count'])]
+    
+    ax.set_xlabel('Confidence Score', fontsize=14)
+    ax.set_ylabel(label_col, fontsize=14)
+    ax.set_title(title, fontsize=16, pad=16, fontweight='bold')
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels, fontsize=10)
+    ax.grid(axis='x', linestyle='--', alpha=0.3)
+    
+    # Set x-axis limits
+    max_value = max(
+        max(plot_df['Weighted_Mean_Word'] + word_errors),
+        max(plot_df['Weighted_Mean_Textline'] + textline_errors)
+    )
+    ax.set_xlim(0, max(1.0, max_value + 0.1))
+    
+    # Add extra space at the bottom for legend
+    ax.set_ylim(-1.5, len(plot_df) - 0.5)
+    
+    # Add value labels on the bars
+    def add_labels(bars, errors):
+        for idx, bar in enumerate(bars):
+            width = bar.get_width()
+            error = errors[idx]
+            # Position labels after error bars
+            label_x = width + error + 0.02
+            ax.text(label_x, bar.get_y() + bar.get_height()/2,
+                   f'{width:.2f}', ha='left', va='center',
+                   fontsize=8, weight='bold')
+    
+    add_labels(bars1, word_errors)
+    add_labels(bars2, textline_errors)
+    
+    handles, labels = ax.get_legend_handles_labels()
+    legend = ax.legend(handles[::-1], labels[::-1], ncol=2, fontsize=10, framealpha=1,
+                      bbox_to_anchor=(0.5, 0), loc='lower center',
+                      bbox_transform=ax.transAxes)
+    
+    plt.tight_layout()
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.close()
+
 def process_weighted_means(data_dict, label_name, filename_prefix, counts_dict):
-    # Create DataFrame first with all data
     data_list = []
+    other_data = {
+        "mean_word": [],
+        "weight_word": [],
+        "mean_textline": [],
+        "weight_textline": [],
+        "count": 0,
+        "num_genres": 0  # Counter for number of combined genres
+    }
+    
+    # First pass: separate into main categories and "Other"
     for label, data in data_dict.items():
         if not data["mean_word"] or not data["weight_word"]:
             continue
+            
+        count = counts_dict.get(label, 0)
+        
+        if count < 20:
+            other_data["mean_word"].extend(data["mean_word"])
+            other_data["weight_word"].extend(data["weight_word"])
+            other_data["mean_textline"].extend(data["mean_textline"])
+            other_data["weight_textline"].extend(data["weight_textline"])
+            other_data["count"] += count
+            other_data["num_genres"] += 1
+        else:
+            wm_word = weighted_mean(data["mean_word"], data["weight_word"])
+            wm_textline = weighted_mean(data["mean_textline"], data["weight_textline"])
+            word_se = weighted_standard_error_of_the_mean(data["mean_word"], data["weight_word"]) if len(data["mean_word"]) > 1 else 0
+            textline_se = weighted_standard_error_of_the_mean(data["mean_textline"], data["weight_textline"]) if len(data["mean_textline"]) > 1 else 0
 
-        wm_word = weighted_mean(data["mean_word"], data["weight_word"])
-        wm_textline = weighted_mean(data["mean_textline"], data["weight_textline"])
-        word_se = weighted_standard_error_of_the_mean(data["mean_word"], data["weight_word"]) if len(data["mean_word"]) > 1 else 0
-        textline_se = weighted_standard_error_of_the_mean(data["mean_textline"], data["weight_textline"]) if len(data["mean_textline"]) > 1 else 0
-
+            data_list.append({
+                label_name: label,
+                'Weighted_Mean_Word': wm_word,
+                'Weighted_Mean_Textline': wm_textline,
+                'Word_Error': word_se,
+                'Textline_Error': textline_se,
+                'Count': count
+            })
+    
+    # Add "Other" category if it contains data
+    if other_data["mean_word"]:
+        wm_word = weighted_mean(other_data["mean_word"], other_data["weight_word"])
+        wm_textline = weighted_mean(other_data["mean_textline"], other_data["weight_textline"])
+        word_se = weighted_standard_error_of_the_mean(other_data["mean_word"], other_data["weight_word"])
+        textline_se = weighted_standard_error_of_the_mean(other_data["mean_textline"], other_data["weight_textline"])
+        
         data_list.append({
-            label_name: label,
+            label_name: f'Other (sum of all n < 20)',
             'Weighted_Mean_Word': wm_word,
             'Weighted_Mean_Textline': wm_textline,
             'Word_Error': word_se,
             'Textline_Error': textline_se,
-            'Count': counts_dict.get(label, 0)
+            'Count': other_data["count"]
         })
 
-    # Create DataFrame and sort by count (descending) and then by label name (ascending)
     df = pd.DataFrame(data_list)
-    df = df.sort_values(by=['Count', label_name], ascending=[False, True]).reset_index(drop=True)
+    df = df.sort_values(by=['Count'], ascending=[False]).reset_index(drop=True)
 
-    df_save = df[[label_name, 'Weighted_Mean_Word', 'Weighted_Mean_Textline']].copy()
+    # Save data to CSV
+    df_save = df[[label_name, 'Weighted_Mean_Word', 'Weighted_Mean_Textline', 'Count']].copy()
     df_save.to_csv(f"{filename_prefix}_weighted_mean_scores.csv", index=False)
 
     create_weighted_means_genre_and_subgenre_barplot(
         plot_df=df,
         label_col=label_name,
-        title=f'{label_name}-based Weighted Means of Word and Textline Confidence Scores',
+        title=f'{label_name}-based Confidence Scores',
         filename=f"{filename_prefix}_weighted_mean_scores.png",
-        ha='right',
         word_errors=df['Word_Error'].tolist(),
         textline_errors=df['Textline_Error'].tolist()
     )
@@ -454,6 +534,7 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
     genre_to_subgenre_counts = {}
     count_multiple_genres = 0
     count_single_genres = 0
+    genre_subgenre_weighted_data = {}
 
     for ppn in matching_ppn_mods:
         current_genres_raw_list = ppn_to_genres_raw.get(ppn, [])
@@ -497,6 +578,19 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
                     if subgenre not in genre_to_subgenre_counts[genre]:
                         genre_to_subgenre_counts[genre][subgenre] = 0
                     genre_to_subgenre_counts[genre][subgenre] += 1
+                    
+                    combo_key = f"{genre}: {subgenre}"
+                    if combo_key not in genre_subgenre_weighted_data:
+                        genre_subgenre_weighted_data[combo_key] = {
+                            "mean_word": [], "weight_word": [],
+                            "mean_textline": [], "weight_textline": []
+                        }
+                    
+                    # Add data for genre-subgenre combination
+                    genre_subgenre_weighted_data[combo_key]["mean_word"].extend(ppn_results["mean_word"].tolist())
+                    genre_subgenre_weighted_data[combo_key]["weight_word"].extend(ppn_results["weight_word"].tolist())
+                    genre_subgenre_weighted_data[combo_key]["mean_textline"].extend(ppn_results["mean_textline"].tolist())
+                    genre_subgenre_weighted_data[combo_key]["weight_textline"].extend(ppn_results["weight_textline"].tolist())
                 
             for sub in subgenres:
                 subgenre_counts[sub] = subgenre_counts.get(sub, 0) + 1
@@ -657,6 +751,9 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
             flattened_counts = [item['count'] for item in flattened_data]
 
             if flattened_labels and flattened_counts:
+                # Create counts dictionary for genre-subgenre combinations
+                genre_subgenre_counts = {item['label']: item['count'] for item in flattened_data}  # NEW
+
                 create_publication_count_horizontal_barplot(
                     labels=flattened_labels,
                     counts=flattened_counts,
@@ -664,6 +761,15 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
                     ylabel='Genre: Subgenre',
                     filename='genre_subgenre_combinations.png'
                 )
+                
+                # Process weighted means for genre-subgenre combinations
+                if genre_subgenre_weighted_data:
+                    process_weighted_means(
+                        genre_subgenre_weighted_data,
+                        label_name='Genre-Subgenre',
+                        filename_prefix='genre_subgenre',
+                        counts_dict=genre_subgenre_counts
+                    )
         
 def dates_evaluation(metadata_df, results_df):
     matching_ppn_mods = set(results_df["ppn"].unique())
