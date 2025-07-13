@@ -14,13 +14,13 @@ Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive`
 - Number of unique genres (without subgenres): ***215***
 - Number of unique years: ***507***
 - Earliest year: ***1456***
-- Latest year: ***2025*** (significant till ***2000***)
+- Latest year: ***2025*** (significant until ***2000***)
 - Number od duplicates: ***1194***
 - Number of pages without confidence scores: ***308.839***
-- Number of pages range: 1 - 991
-- Number of words range: 2 - 671.392
-- Number of textlines range: 2 - 55.679
-- Number of unique language combinations: 77
+- Number of pages range: ***1*** - ***991***
+- Number of words range: ***2*** - ***671.392***
+- Number of textlines range: ***2*** - ***55.679***
+- Number of unique language combinations: ***77***
 
 
 `metadata.csv`:
