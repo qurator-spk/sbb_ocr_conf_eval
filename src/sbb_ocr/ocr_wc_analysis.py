@@ -1900,7 +1900,7 @@ def generate_dataframes(
     check_duplicates: bool = False,
     check_raw_genres: bool = False,
     check_raw_languages: bool = False,
-    aggregate_mode: str = "ppn_page"
+    aggregate_mode: str = "ppn"
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     for file in csv_files:
@@ -2153,7 +2153,7 @@ def plot_everything(
     check_duplicates: bool = False,
     check_raw_genres: bool = False,
     check_raw_languages: bool = False,
-    aggregate_mode='ppn_page',
+    aggregate_mode='ppn',
     weighting_method: str = "both",
     search_weight_word=None,
     search_weight_textline=None,
