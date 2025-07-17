@@ -1842,7 +1842,7 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         
         # Add scatter plots
         plt.scatter(X_train, y_train, color='blue', marker='x', s=100, label='Training Points')
-        plt.scatter(X_test, y_test, color='orange', marker='x', s=100, label='Test Points')
+        plt.scatter(X_test, y_test, color='darkorange', marker='x', s=100, label='Test Points')
         
         # Add regression lines
         plt.plot(X_smooth, y_linear, color='red', 
@@ -1850,11 +1850,11 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         plt.plot(X_smooth, y_poly, color='green', linestyle='--', 
                 label=f'Polynomial Regression (Test R^2 = {poly_r2_test:.3f}, MSE = {mse_poly_test:.3f})')
         
-        plt.xlabel('Mean Word Confidence Score (WC)', fontsize=16)
-        plt.ylabel('Word Error Rate (WER)', fontsize=16)
+        plt.xlabel('Mean Word Confidence Score (WC)', fontsize=18)
+        plt.ylabel('Word Error Rate (WER)', fontsize=18)
         plt.title('WER vs WC', fontsize=18)
-        plt.xticks(fontsize=15)
-        plt.yticks(fontsize=15)
+        plt.xticks(fontsize=16)
+        plt.yticks(fontsize=16)
         plt.xlim(-0.01, 1.01)
         plt.ylim(-0.01, 1.01)
         plt.grid(True, linestyle='--', alpha=0.7)
@@ -1862,7 +1862,7 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
                   bbox_to_anchor=(0.02, 0.02),
                   framealpha=0.8,
                   edgecolor='black',
-                  fontsize=12)
+                  fontsize=13)
         
         static_image = plot_filename.replace('.html', '.png')
         plt.savefig(static_image, dpi=300, bbox_inches='tight')
