@@ -1861,7 +1861,8 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         plt.legend(loc='lower left',
                   bbox_to_anchor=(0.02, 0.02),
                   framealpha=0.8,
-                  edgecolor='black')
+                  edgecolor='black',
+                  fontsize=12)
         
         static_image = plot_filename.replace('.html', '.png')
         plt.savefig(static_image, dpi=300, bbox_inches='tight')
