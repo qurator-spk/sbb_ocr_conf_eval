@@ -1531,7 +1531,7 @@ def calculate_regression_statistics(X, y, wcwer_df):
     ci_poly_upper = y_poly + t_value_poly * se_pred_poly
     
     # Create formatted equation strings with coefficients and p-values
-    linear_formula = f'"WER = {linear_model.coef_[0]:.3f} (p={p_value_slope:.7f}) * WC + {linear_model.intercept_:.3f} (p={p_value_intercept:.7f})"'
+    linear_formula = f'"WER = {linear_model.coef_[0]:.3f} (p={p_value_slope:.3f}) * WC + {linear_model.intercept_:.3f} (p={p_value_intercept:.3f})"'
     
     # Extract polynomial coefficients
     x2_coef = poly_model.coef_[2]  # Coefficient of x^2
@@ -1539,11 +1539,11 @@ def calculate_regression_statistics(X, y, wcwer_df):
     const_coef = poly_model.coef_[0]  # Intercept
     
     # Create polynomial formula with proper sign handling
-    poly_formula = f'"WER = {x2_coef:.3f} (p={p_values_poly[2]:.7f}) * WC^2 {" + " if x_coef >= 0 else " - "}{abs(x_coef):.3f} (p={p_values_poly[1]:.7f}) * WC {" + " if const_coef >= 0 else " - "}{abs(const_coef):.3f} (p={p_values_poly[0]:.7f})"'
+    poly_formula = f'"WER = {x2_coef:.3f} (p={p_values_poly[2]:.3f}) * WC^2 {" + " if x_coef >= 0 else " - "}{abs(x_coef):.3f} (p={p_values_poly[1]:.3f}) * WC {" + " if const_coef >= 0 else " - "}{abs(const_coef):.3f} (p={p_values_poly[0]:.3f})"'
     
     # Create unquoted versions for printing
-    print_linear_formula = f"WER = {linear_model.coef_[0]:.3f} (p={p_value_slope:.7f}) * WC + {linear_model.intercept_:.3f} (p={p_value_intercept:.7f})"
-    print_poly_formula = f"WER = {x2_coef:.3f} (p={p_values_poly[2]:.7f}) * WC^2 {' + ' if x_coef >= 0 else ' - '}{abs(x_coef):.3f} (p={p_values_poly[1]:.7f}) * WC {' + ' if const_coef >= 0 else ' - '}{abs(const_coef):.3f} (p={p_values_poly[0]:.7f})"
+    print_linear_formula = f"WER = {linear_model.coef_[0]:.3f} (p={p_value_slope:.3f}) * WC + {linear_model.intercept_:.3f} (p={p_value_intercept:.3f})"
+    print_poly_formula = f"WER = {x2_coef:.3f} (p={p_values_poly[2]:.3f}) * WC^2 {' + ' if x_coef >= 0 else ' - '}{abs(x_coef):.3f} (p={p_values_poly[1]:.3f}) * WC {' + ' if const_coef >= 0 else ' - '}{abs(const_coef):.3f} (p={p_values_poly[0]:.3f})"
     
     stats_data = {
         'Metric': [
@@ -1577,30 +1577,30 @@ def calculate_regression_statistics(X, y, wcwer_df):
         'Value': [
             len(X_train),
             len(X_test),
-            pearson_corr_train,
-            pearson_corr_test,
-            spearman_corr_train,
-            spearman_corr_test,
-            linear_r2_train,
-            linear_r2_test,
-            mse_linear_train,
-            mse_linear_test,
+            round(pearson_corr_train, 3),
+            round(pearson_corr_test, 3),
+            round(spearman_corr_train, 3),
+            round(spearman_corr_test, 3),
+            round(linear_r2_train, 3),
+            round(linear_r2_test, 3),
+            round(mse_linear_train, 3),
+            round(mse_linear_test, 3),
             linear_formula,
-            linear_model.coef_[0],
-            p_value_slope,
-            linear_model.intercept_,
-            p_value_intercept,
-            poly_r2_train,
-            poly_r2_test,
-            mse_poly_train,
-            mse_poly_test,
+            round(linear_model.coef_[0], 3),
+            round(p_value_slope, 3),
+            round(linear_model.intercept_, 3),
+            round(p_value_intercept, 3),
+            round(poly_r2_train, 3),
+            round(poly_r2_test, 3),
+            round(mse_poly_train, 3),
+            round(mse_poly_test, 3),
             poly_formula,
-            poly_model.coef_[2],
-            p_values_poly[2],
-            poly_model.coef_[1],
-            p_values_poly[1],
-            poly_model.coef_[0],
-            p_values_poly[0]
+            round(poly_model.coef_[2], 3),
+            round(p_values_poly[2], 3),
+            round(poly_model.coef_[1], 3),
+            round(p_values_poly[1], 3),
+            round(poly_model.coef_[0], 3),
+            round(p_values_poly[0], 3)
         ]
     }
     
