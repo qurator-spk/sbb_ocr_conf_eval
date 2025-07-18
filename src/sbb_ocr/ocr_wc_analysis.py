@@ -1410,7 +1410,7 @@ def merge_csv(conf_df, error_rates_df, wcwer_filename):
     except Exception as e:
         logging.info(f"Error processing CSV files: {str(e)}")
         print(f"Error processing CSV files: {str(e)}")
-        
+    
 def calculate_regression_statistics(X, y, wcwer_df):
     # Train-test split with index tracking
     indices = np.arange(len(X))
@@ -1423,8 +1423,8 @@ def calculate_regression_statistics(X, y, wcwer_df):
     test_ppn_pages = wcwer_df.iloc[test_indices]["ppn_page"].values
     
     # Calculate correlation coefficients
-    pearson_corr_train = np.corrcoef(X_train.flatten(), y_train)[0, 1]  # [0,1] gets (linear) correlation from 2x2 matrix
-    spearman_corr_train = spearmanr(X_train.flatten(), y_train)[0]  # [0] gets (monotonic) correlation coefficient
+    pearson_corr_train = np.corrcoef(X_train.flatten(), y_train)[0, 1]
+    spearman_corr_train = spearmanr(X_train.flatten(), y_train)[0]
     
     pearson_corr_test = np.corrcoef(X_test.flatten(), y_test)[0, 1]
     spearman_corr_test = spearmanr(X_test.flatten(), y_test)[0]
@@ -1433,63 +1433,56 @@ def calculate_regression_statistics(X, y, wcwer_df):
     linear_model = LinearRegression()
     linear_model.fit(X_train, y_train)
     
-    # Calculate R^2 (coefficient of determination) for model evaluation
+    # Calculate R^2 for linear model
     linear_r2_train = linear_model.score(X_train, y_train)
     linear_r2_test = linear_model.score(X_test, y_test)
     
-    # Make predictions and calculate Mean Squared Error (MSE)
+    # Make predictions and calculate MSE
     y_pred_linear_train = linear_model.predict(X_train)
     y_pred_linear_test = linear_model.predict(X_test)
     mse_linear_train = np.mean((y_train - y_pred_linear_train) ** 2)
     mse_linear_test = np.mean((y_test - y_pred_linear_test) ** 2)
     
     # Calculate p-values for linear regression coefficients
-    n = len(X_train)  # Sample size
-    # Add column of ones for intercept term
+    n = len(X_train)
     X_with_intercept = np.column_stack([np.ones(n), X_train])
     
-    # Calculate residuals (actual - predicted) and MSE
     residuals_linear = y_train - y_pred_linear_train
-    mse_linear = np.sum(residuals_linear**2) / (n - 2)  # Divide by (n-2) for degrees of freedom
+    mse_linear = np.sum(residuals_linear**2) / (n - 2)
     
-    # Calculate variance-covariance matrix for parameter estimates
     var_matrix_linear = mse_linear * np.linalg.inv(X_with_intercept.T @ X_with_intercept)
     
-    # Extract standard errors from diagonal of variance-covariance matrix
     se_slope = np.sqrt(var_matrix_linear[1,1])
     se_intercept = np.sqrt(var_matrix_linear[0,0])
     
-    # Calculate t-statistics and two-tailed p-values
     t_stat_slope = linear_model.coef_[0] / se_slope
     t_stat_intercept = linear_model.intercept_ / se_intercept
     
     p_value_slope = 2 * (1 - stats.t.cdf(abs(t_stat_slope), n - 2))
     p_value_intercept = 2 * (1 - stats.t.cdf(abs(t_stat_intercept), n - 2))
     
-    # Generate smooth points for plotting regression line
-    X_smooth = np.linspace(0, 1, 100).reshape(-1, 1)  # 100 points between 0 and 1
+    # Generate points for plotting
+    X_smooth = np.linspace(0, 1, 100).reshape(-1, 1)
     y_linear = linear_model.predict(X_smooth)
     
     # Calculate confidence intervals for linear regression
     X_smooth_with_intercept = np.column_stack([np.ones(len(X_smooth)), X_smooth])
-    # Standard error of prediction
     se_pred_linear = np.sqrt(
         mse_linear * np.diag(
             X_smooth_with_intercept @ np.linalg.inv(X_with_intercept.T @ X_with_intercept) @ X_smooth_with_intercept.T
         )
     )
     
-    # Calculate 95% confidence intervals using t-distribution
-    t_value = stats.t.ppf(0.975, n - 2)  # 97.5th percentile for two-tailed test
+    t_value = stats.t.ppf(0.975, n - 2)
     ci_linear_lower = y_linear - t_value * se_pred_linear
     ci_linear_upper = y_linear + t_value * se_pred_linear
     
     # Polynomial regression
-    poly = PolynomialFeatures(degree=2)  # Creates terms: 1, x, x^2
+    poly = PolynomialFeatures(degree=2)
     X_poly_train = poly.fit_transform(X_train)
     X_poly_test = poly.transform(X_test)
     
-    poly_model = LinearRegression()
+    poly_model = LinearRegression(fit_intercept=False)
     poly_model.fit(X_poly_train, y_train)
     
     # Calculate R^2 for polynomial model
@@ -1504,46 +1497,58 @@ def calculate_regression_statistics(X, y, wcwer_df):
     
     # Calculate p-values for polynomial coefficients
     residuals_poly = y_train - y_pred_poly_train
-    mse_poly = np.sum(residuals_poly**2) / (n - 3)  # 3 parameters: constant, x, x^2
+    n = len(X_train)
+    p = 3  # number of parameters in quadratic regression
+    degrees_of_freedom = n - p
     
-    # Calculate variance-covariance matrix for polynomial coefficients
-    var_matrix_poly = mse_poly * np.linalg.inv(X_poly_train.T @ X_poly_train)
+    # Calculate sum of squared residuals and MSE
+    ss_residual = np.sum(residuals_poly**2)
+    mse = ss_residual / degrees_of_freedom
     
-    # Calculate standard errors and t-statistics for polynomial coefficients
-    se_poly = np.sqrt(np.diag(var_matrix_poly))
-    t_stats_poly = poly_model.coef_ / se_poly
-    p_values_poly = [2 * (1 - stats.t.cdf(abs(t), n - 3)) for t in t_stats_poly]
+    # Calculate variance-covariance matrix and standard errors
+    try:
+        cov_matrix = mse * np.linalg.inv(X_poly_train.T @ X_poly_train)
+        se = np.sqrt(np.diag(cov_matrix))
+        t_stats = poly_model.coef_ / se
+        p_values_poly = [2 * (1 - stats.t.cdf(abs(t), degrees_of_freedom)) for t in t_stats]
+    except np.linalg.LinAlgError:
+        p_values_poly = [0.0, 0.0, 0.0]
     
     # Calculate confidence intervals for polynomial regression
     X_smooth_poly = poly.transform(X_smooth)
     y_poly = poly_model.predict(X_smooth_poly)
     
-    # Standard error of prediction for polynomial model
     se_pred_poly = np.sqrt(
-        mse_poly * np.diag(
+        mse * np.diag(
             X_smooth_poly @ np.linalg.inv(X_poly_train.T @ X_poly_train) @ X_smooth_poly.T
         )
     )
     
-    # 95% confidence intervals for polynomial regression
-    t_value_poly = stats.t.ppf(0.975, n - 3)
+    t_value_poly = stats.t.ppf(0.975, degrees_of_freedom)
     ci_poly_lower = y_poly - t_value_poly * se_pred_poly
     ci_poly_upper = y_poly + t_value_poly * se_pred_poly
     
-    # Create formatted equation strings with coefficients and p-values
-    linear_formula = f'"WER = {linear_model.coef_[0]:.3f} (p={p_value_slope:.3f}) * WC + {linear_model.intercept_:.3f} (p={p_value_intercept:.3f})"'
+    # Create linear formula
+    linear_formula = f'"WER = {linear_model.coef_[0]:.3f} (p={p_value_slope:.3f}) * WC +{linear_model.intercept_:.3f} (p={p_value_intercept:.3f})"'
+    print_linear_formula = f"WER = {linear_model.coef_[0]:.3f} (p={p_value_slope:.3f}) * WC +{linear_model.intercept_:.3f} (p={p_value_intercept:.3f})"
     
     # Extract polynomial coefficients
-    x2_coef = poly_model.coef_[2]  # Coefficient of x^2
-    x_coef = poly_model.coef_[1]   # Coefficient of x
-    const_coef = poly_model.coef_[0]  # Intercept
+    const_coef = poly_model.coef_[0]
+    x_coef = poly_model.coef_[1]
+    x2_coef = poly_model.coef_[2]
     
-    # Create polynomial formula with proper sign handling
-    poly_formula = f'"WER = {x2_coef:.3f} (p={p_values_poly[2]:.3f}) * WC^2 {" + " if x_coef >= 0 else " - "}{abs(x_coef):.3f} (p={p_values_poly[1]:.3f}) * WC {" + " if const_coef >= 0 else " - "}{abs(const_coef):.3f} (p={p_values_poly[0]:.3f})"'
+    # Create polynomial formula
+    poly_formula = (
+        f'"WER = {x2_coef:.3f} (p={p_values_poly[2]:.3f}) * WC^2 '
+        f'{" + " if x_coef >= 0 else " -"}{abs(x_coef):.3f} (p={p_values_poly[1]:.3f}) * WC '
+        f'{" + " if const_coef >= 0 else " -"}{abs(const_coef):.3f} (p={p_values_poly[0]:.3f})"'
+    )
     
-    # Create unquoted versions for printing
-    print_linear_formula = f"WER = {linear_model.coef_[0]:.3f} (p={p_value_slope:.3f}) * WC + {linear_model.intercept_:.3f} (p={p_value_intercept:.3f})"
-    print_poly_formula = f"WER = {x2_coef:.3f} (p={p_values_poly[2]:.3f}) * WC^2 {' + ' if x_coef >= 0 else ' - '}{abs(x_coef):.3f} (p={p_values_poly[1]:.3f}) * WC {' + ' if const_coef >= 0 else ' - '}{abs(const_coef):.3f} (p={p_values_poly[0]:.3f})"
+    print_poly_formula = (
+        f"WER = {x2_coef:.3f} (p={p_values_poly[2]:.3f}) * WC^2 "
+        f"{' + ' if x_coef >= 0 else ' -'}{abs(x_coef):.3f} (p={p_values_poly[1]:.3f}) * WC "
+        f"{' + ' if const_coef >= 0 else ' -'}{abs(const_coef):.3f} (p={p_values_poly[0]:.3f})"
+    )
     
     stats_data = {
         'Metric': [
@@ -1595,11 +1600,11 @@ def calculate_regression_statistics(X, y, wcwer_df):
             round(mse_poly_train, 3),
             round(mse_poly_test, 3),
             poly_formula,
-            round(poly_model.coef_[2], 3),
+            round(x2_coef, 3),
             round(p_values_poly[2], 3),
-            round(poly_model.coef_[1], 3),
+            round(x_coef, 3),
             round(p_values_poly[1], 3),
-            round(poly_model.coef_[0], 3),
+            round(const_coef, 3),
             round(p_values_poly[0], 3)
         ]
     }
