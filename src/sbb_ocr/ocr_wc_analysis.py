@@ -1855,11 +1855,11 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         plt.plot(X_smooth, y_poly, color='green', linestyle='--', 
                 label=f'Polynomial Regression (Test R^2 = {poly_r2_test:.3f}, MSE = {mse_poly_test:.3f})')
         
-        plt.xlabel('Mean Word Confidence Score (WC)', fontsize=18)
-        plt.ylabel('Word Error Rate (WER)', fontsize=18)
-        plt.title('WER vs WC', fontsize=18)
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
+        plt.xlabel('Mean Word Confidence Score (WC)', fontsize=23)
+        plt.ylabel('Word Error Rate (WER)', fontsize=23)
+        plt.title('WER vs WC', fontsize=22)
+        plt.xticks(fontsize=22)
+        plt.yticks(fontsize=22)
         plt.xlim(-0.01, 1.01)
         plt.ylim(-0.01, 1.01)
         plt.grid(True, linestyle='--', alpha=0.7)
@@ -1867,7 +1867,7 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
                   bbox_to_anchor=(0.02, 0.02),
                   framealpha=0.8,
                   edgecolor='black',
-                  fontsize=13)
+                  fontsize=12)
         
         static_image = plot_filename.replace('.html', '.png')
         plt.savefig(static_image, dpi=300, bbox_inches='tight')
