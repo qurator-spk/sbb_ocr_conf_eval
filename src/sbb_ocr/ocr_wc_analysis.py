@@ -1900,6 +1900,12 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         logging.info(f"Error processing CSV file: {str(e)}")
         print(f"Error processing CSV file: {str(e)}")
 
+def filter_range(df, column, value_range):
+    if value_range[0] == 0:
+        return df[(df[column] >= value_range[0]) & (df[column] <= value_range[1])]
+    else:
+        return df[(df[column] > value_range[0]) & (df[column] <= value_range[1])]
+
 
 def generate_dataframes(
     csv_files: list[str],
