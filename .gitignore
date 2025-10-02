@@ -53,3 +53,4 @@ page_count_confidence_stats.csv
 barplot_confs_weights_textlines.csv
 barplot_confs_weights_words.csv
 barplot_weighted_means_by_page_count.csv
+layout*

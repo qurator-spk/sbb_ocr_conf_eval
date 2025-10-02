@@ -1905,11 +1905,54 @@ def filter_range(df, column, value_range):
         return df[(df[column] >= value_range[0]) & (df[column] <= value_range[1])]
     else:
         return df[(df[column] > value_range[0]) & (df[column] <= value_range[1])]
-
+        
+def merge_layout_data(layout_csv: str, results_df: pd.DataFrame, metadata_df: pd.DataFrame) -> pd.DataFrame:
+    layout_df = pd.read_csv(layout_csv)
+    
+    # Add .xml to PPN_Page to match results_df format
+    layout_df['ppn_page'] = layout_df['PPN_Page'] + '.xml'
+    
+    # Merge with results_df
+    merged_df = pd.merge(
+        layout_df,
+        results_df,
+        on='ppn_page',
+        how='inner'
+    )
+    
+    # Extract ppn from PPN_Page for metadata merge
+    merged_df['ppn'] = merged_df['PPN_Page'].str.split('_').str[0]
+    
+    # Check for missing matches in metadata
+    missing_in_metadata = merged_df[~merged_df['ppn'].isin(metadata_df['PPN'])]
+    if len(missing_in_metadata) > 0:
+        print("\nPPNs not found in metadata_df:")
+        print(missing_in_metadata['ppn'].unique().tolist())
+    
+    # Merge with metadata_df
+    final_df = pd.merge(
+        merged_df,
+        metadata_df,
+        left_on='ppn',
+        right_on='PPN',
+        how='inner'
+    )
+    
+    # Drop redundant columns
+    columns_to_drop = ['PPN', 'ppn', 'ppn_page']
+    final_df = final_df.drop([col for col in columns_to_drop if col in final_df.columns], axis=1)
+    
+    # Reorder columns to have PPN_Page and Kategorien first
+    cols = ['PPN_Page', 'Kategorien'] + [col for col in final_df.columns if col not in ['PPN_Page', 'Kategorien']]
+    final_df = final_df[cols]
+    final_df.to_csv('layout_analysis_merged.csv', index=False)
+    
+    return final_df
 
 def generate_dataframes(
     csv_files: list[str],
     metadata_csv: str,
+    layout_csv: str = None,
     check_value_errors: bool = False,
     check_duplicates: bool = False,
     check_raw_genres: bool = False,
@@ -2122,6 +2165,9 @@ def generate_dataframes(
         filtered_df.drop(columns=['PPN'], inplace=True)
         filtered_df = filtered_df.sort_values(by='ppn_page', ascending=True)
         filtered_df.to_csv("duplicates.csv", index=False)
+        
+    if layout_csv:
+        results_df = merge_layout_data(layout_csv, results_df, metadata_df)
 
     return results_df, metadata_df
     
@@ -2185,6 +2231,7 @@ def plot_everything(
     results_df, metadata_df = generate_dataframes(
         csv_files,
         metadata_csv,
+        layout_csv=None,
         check_value_errors=check_value_errors,
         check_duplicates=check_duplicates,
         check_raw_genres=check_raw_genres,
