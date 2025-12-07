@@ -81,7 +81,6 @@ def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_inf
 
     if histogram_info:
         header = f"{'Weighted ' if weights is not None else ''}Histogram: {ylabel}( {xlabel} )"
-        print(f"\n{header}")
         logging.info(f"\n{header}")
 
         for i, interval in enumerate(bin_counts.index):
@@ -97,7 +96,6 @@ def plot_histogram(ax, data, weights, bins, xlabel, ylabel, color, histogram_inf
             right_bracket = "]"
 
             bin_label = f"Bin {left_bracket}{left:.2f}, {right:.2f}{right_bracket}: {bin_counts[interval]} \u00B1 {int(round(bin_errors[interval]))}"
-            print(bin_label)
             logging.info(bin_label)
             
 def weighted_mean(data, weights):
@@ -186,7 +184,6 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color, stats_collect
         ax.legend(loc=legend_loc)
         
         header = f"{'Weighted ' if is_weighted else ''}Density Plot: {xlabel}"
-        print(f"\n{header}")
         logging.info(f"\n{header}")
         
         stats_dict = {
@@ -195,7 +192,6 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color, stats_collect
         }
         stats_df = pd.DataFrame(stats_dict)
         stats_collector[header] = stats_df["Value"].values
-        print(stats_df.to_string(index=False))
         logging.info(stats_df.to_string(index=False))
         
         if is_weighted:
@@ -219,7 +215,6 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color, stats_collect
             "Increase the number of PPNs to be filtered!\n"
         )
         logging.info(msg)
-        print(msg)
 
     except ValueError as v:
         msg = (
@@ -229,7 +224,6 @@ def plot_density(ax, data, weights, xlabel, ylabel, density_color, stats_collect
             "Increase the number of PPNs to be filtered!\n"
         )
         logging.info(msg)
-        print(msg)
         
 def create_plots(results_df, weights_word, weights_textline, plot_file, histogram_info, general_title):
     density_stats = {}
@@ -629,7 +623,6 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
                 genres = json.loads(genres_json)
             except json.JSONDecodeError as e:
                 logging.error(f"JSON decode error for PPN {ppn}: {e}")
-                print(f"JSON decode error for PPN {ppn}: {e}")
                 continue
             
             genres_with_subgenres = [extract_genre_and_subgenre(x) for x in genres]
@@ -697,17 +690,13 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
                 genre_weighted_data[genre]["weight_textline"].extend(ppn_results["weight_textline"].tolist())
 
     logging.info(f"\nNumber of PPNs: {len(matching_ppn_mods)}")
-    print(f"\nNumber of PPNs: {len(matching_ppn_mods)}")
 
     logging.info(f"Number of PPNs with one genre: {count_single_genres}")
-    print(f"Number of PPNs with one genre: {count_single_genres}")
 
     logging.info(f"Number of PPNs with more than one genre: {count_multiple_genres}")
-    print(f"Number of PPNs with more than one genre: {count_multiple_genres}")
 
     all_genres_reduced = set(genre_counts.keys())
     logging.info(f"\nNumber of all unique genres (without subgenres): {len(all_genres_reduced)}")
-    print(f"\nNumber of all unique genres (without subgenres): {len(all_genres_reduced)}")
 
     # Sort genre counts by count (descending) and genre name (ascending)
     genre_counts_df = pd.DataFrame(list(genre_counts.items()), columns=['Genre', 'Count'])
@@ -717,22 +706,17 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
     if not genre_counts_df.empty:
         logging.info("\nUnique genres and their counts:\n")
         logging.info(genre_counts_df_sorted.to_string(index=False))
-        print("\nUnique genres and their counts:\n")
-        print(genre_counts_df_sorted.to_string(index=False))
 
     # Sort subgenre counts by count (descending) and subgenre name (ascending)
     subgenre_counts_df = pd.DataFrame(list(subgenre_counts.items()), columns=['Subgenre', 'Count'])
     subgenre_counts_df_sorted = subgenre_counts_df.sort_values(by=['Count', 'Subgenre'], ascending=[False, True])
     
     logging.info(f"\nNumber of all unique subgenres: {len(subgenre_counts_df_sorted)}")
-    print(f"\nNumber of all unique subgenres: {len(subgenre_counts_df_sorted)}")
     
     if not subgenre_counts_df.empty:    
         subgenre_counts_df_sorted.to_csv("subgenre_publications.csv", index=False)        
         logging.info("\nUnique subgenres and their counts:\n")
         logging.info(subgenre_counts_df_sorted.to_string(index=False))
-        print("\nUnique subgenres and their counts:\n")
-        print(subgenre_counts_df_sorted.to_string(index=False))
         
         genre_subgenre_summary = []
 
@@ -749,12 +733,9 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         genre_subgenre_df_sorted.to_csv("genre_subgenre_combinations.csv", index=False)
 
         logging.info(f"\nNumber of genres with subgenre associations: {len(genre_subgenre_df_sorted)}")
-        print(f"\nNumber of genres with subgenre associations: {len(genre_subgenre_df_sorted)}")
         
         logging.info("\nGenre-subgenre combinations:\n")
         logging.info(genre_subgenre_df_sorted.to_string(index=False))
-        print("\nGenre-subgenre combinations:\n")
-        print(genre_subgenre_df_sorted.to_string(index=False))
         
         # Use sorted values for subgenre plot
         subgenres, sub_counts = zip(*subgenre_counts_df_sorted.values)
@@ -774,7 +755,6 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
         plot_threshold = highest_count * 0.04
     else:
         logging.info("No genre available to calculate the threshold.")
-        print("No genre available to calculate the threshold.")
         plot_threshold = 0
     
     if use_threshold:
@@ -784,7 +764,6 @@ def genre_evaluation(metadata_df, results_df, use_threshold=False):
 
     if not filtered_genre_counts:
         logging.info("No genre exceeds the threshold.")
-        print("No genre exceeds the threshold.")
     else:
         genres, counts = zip(*filtered_genre_counts)
         create_publication_count_horizontal_barplot(
@@ -852,13 +831,10 @@ def dates_evaluation(metadata_df, results_df):
         if pd.isna(min_year) and pd.isna(max_year) is None:
             logging.info(f"\nEarliest year: {min_year}")
             logging.info(f"Latest year: {max_year}")
-            print(f"\nEarliest year: {min_year}")
-            print(f"Latest year: {max_year}")
         
         unique_years = metadata_df["publication_date"].unique()
         num_unique_years = len(unique_years)
         logging.info(f"\nNumber of unique years: {num_unique_years}")
-        print(f"\nNumber of unique years: {num_unique_years}")
         
         full_year_range = pd.Series(np.arange(min_year, max_year + 1))
         
@@ -871,12 +847,9 @@ def dates_evaluation(metadata_df, results_df):
         
         num_years_with_zero = (year_counts_df['Count'] == 0).sum()
         logging.info(f"Number of years with no publications: {num_years_with_zero}")
-        print(f"Number of years with no publications: {num_years_with_zero}")
         
         logging.info("\nUnique years and their counts:\n")
         logging.info(year_counts_df.to_string(index=False))
-        print("\nUnique years and their counts:\n")
-        print(year_counts_df.to_string(index=False))
         
         plt.figure(figsize=(max(30, len(full_year_range) * 0.25), 15))
         plt.bar(year_counts_df['Year'], year_counts_df['Count'], color=plt.cm.tab10.colors, width=0.6) # type: ignore
@@ -938,7 +911,6 @@ def dates_evaluation(metadata_df, results_df):
         
     except ValueError as e:
         logging.info(f"Invalid publication dates: {e}")
-        print(f"Invalid publication dates.")
         return
         
 def languages_evaluation(metadata_df, results_df):
@@ -995,7 +967,6 @@ def languages_evaluation(metadata_df, results_df):
         language_combination_data[normalized_lang]["weight_textline"].extend(ppn_results["weight_textline"].tolist())
 
     logging.info(f"\nNumber of unique language combinations: {len(language_combination_counts)}")
-    print(f"\nNumber of unique language combinations: {len(language_combination_counts)}")
 
     # Sort for display
     sorted_lang_counts = sorted(language_combination_counts.items(), key=lambda x: (-x[1], x[0]))
@@ -1011,8 +982,6 @@ def languages_evaluation(metadata_df, results_df):
 
     logging.info("\nUnique language combinations and their counts:\n")
     logging.info(language_counts_df_sorted.to_string(index=False))
-    print("\nUnique language combinations and their counts:\n")
-    print(language_counts_df_sorted.to_string(index=False))
 
     if lang_combos and lang_counts:
         create_publication_count_horizontal_barplot(
@@ -1092,9 +1061,7 @@ def weights_evaluation(results_df):
     max_textline_weight = results_df['weight_textline'].max()
     
     logging.info(f"\nWord weight range: {min_word_weight} - {max_word_weight}")
-    print(f"\nWord weight range: {min_word_weight} - {max_word_weight}")
     logging.info(f"\nTextline weight range: {min_textline_weight} - {max_textline_weight}")
-    print(f"\nTextline weight range: {min_textline_weight} - {max_textline_weight}")
     
     word_bins = np.arange(0, results_df['weight_word'].max() + 7500, 7500)
     textline_bins = np.arange(0, results_df['weight_textline'].max() + 750, 750)
@@ -1128,7 +1095,6 @@ def num_pages_evaluation(results_df):
     
     min_pages = results_df['num_pages'].min()
     max_pages = results_df['num_pages'].max()
-    print(f"\nNumber of pages range: {min_pages} - {max_pages}")
     logging.info(f"\nNumber of pages range: {min_pages} - {max_pages}")
 
     bins = np.arange(0, results_df['num_pages'].max() + 20, 20)
@@ -1185,7 +1151,6 @@ def num_pages_evaluation(results_df):
 def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
     if not os.path.exists(parent_dir):
             logging.info(f"Directory does not exist: {parent_dir}")
-            print(f"Directory does not exist: {parent_dir}")
             return
 
     ppn_subdirectory_names = []
@@ -1198,7 +1163,6 @@ def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
     ppn_df = pd.DataFrame(ppn_subdirectory_names, columns=['PPN'])
     logging.info("\nPPNs found:\n")
     logging.info(ppn_df)
-    print("\nPPNs subdirectories found:\n")
     print(ppn_df)
     
     results_df = results_df[results_df["ppn"].isin(ppn_df["PPN"])]
@@ -1207,12 +1171,10 @@ def get_ppn_subdirectory_names(results_df, parent_dir, conf_filename):
     unique_ppn_df = pd.DataFrame(unique_ppns, columns=["PPN"])
     logging.info("\nPPNs from subdirectories with confidence scores:\n")
     logging.info(unique_ppn_df)
-    print("\nPPNs from subdirectories with confidence scores:\n")
     print(unique_ppn_df)
     
     unique_ppn_count = results_df["ppn"].nunique()
     logging.info(f"\nNumber of unique PPNs: {unique_ppn_count}\n")
-    print(f"\nNumber of unique PPNs: {unique_ppn_count}\n")
     results_df = results_df.sort_values(by='mean_word', ascending=True)
     results_df.to_csv(conf_filename, index=False)
     
@@ -1220,7 +1182,6 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
     # Check if parent_dir exists
     if not os.path.exists(parent_dir):
         logging.info(f"Directory does not exist: {parent_dir}")
-        print(f"Directory does not exist: {parent_dir}")
         return
 
     # Special characters excluded for safety reasons
@@ -1229,7 +1190,6 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
     for param in [parent_dir, gt_dir, ocr_dir, report_dir]:
         if any(char in param for char in special_chars):
             logging.info(f"\nInvalid parameters: special characters {special_chars} are not allowed.\n")
-            print(f"\nInvalid parameters: special characters {special_chars} are not allowed.\n")
             return
         
     os.chdir(parent_dir)
@@ -1253,7 +1213,6 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
                 # Check if gt_dir and ocr_dir exist in the current PPN subdirectory
                 if not os.path.exists(gt_dir) or not os.path.exists(ocr_dir):
                     logging.info(f"Missing subdirectories in {ppn_name}: {gt_dir} or {ocr_dir}")
-                    print(f"Missing subdirectories in {ppn_name}: {gt_dir} or {ocr_dir}")
                     os.chdir(parent_dir)
                     progbar.update(1)
                     return
@@ -1264,7 +1223,6 @@ def use_dinglehopper(parent_dir, gt_dir, ocr_dir, report_dir):
                     subprocess.run(command_list, check=True, capture_output=True, text=True, shell=False)
                 except subprocess.CalledProcessError as e:
                     logging.info(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
-                    print(f"Failed to run command in {ppn_name}. Exit code: {e.returncode}, Error: {e.stderr}")
                     
                 # Change back to the parent directory
                 os.chdir(parent_dir)
@@ -1275,7 +1233,6 @@ def generate_error_rates(parent_dir_error, report_dir_error, error_rates_filenam
     # Check if parent directory exists
     if not os.path.exists(parent_dir_error):
         logging.info(f"Directory does not exist: {parent_dir_error}")
-        print(f"Directory does not exist: {parent_dir_error}")
         return
     
     data = []
@@ -1343,11 +1300,9 @@ def generate_error_rates(parent_dir_error, report_dir_error, error_rates_filenam
                                     data.append(ppn_name_data)
                             except json.JSONDecodeError as e:
                                 logging.info(f"Error reading JSON file {json_path}: {e}")
-                                print(f"Error reading JSON file {json_path}: {e}")
                                 continue
                 else:
                     logging.info(f"Evaluation directory not found for {ppn_name}: {eval_dir}")
-                    print(f"Evaluation directory not found for {ppn_name}: {eval_dir}")
                 
                 progbar.update(1)
     progbar.close()
@@ -1363,19 +1318,15 @@ def generate_error_rates(parent_dir_error, report_dir_error, error_rates_filenam
         
         logging.info("\nResults:\n")
         logging.info(error_rates_df)
-        print("\nResults:\n")
-        print(error_rates_df)
         print(f"\nResults saved to: {output_path}")
     else:
         logging.info("No data found to process")
-        print("No data found to process")
     
 def merge_csv(conf_df, error_rates_df, wcwer_filename):
     # Check if files exist
     for filename in [conf_df, error_rates_df]:
         if not os.path.exists(filename):
             logging.info(f"File does not exist: {filename}")
-            print(f"File does not exist: {filename}")
             return
     
     try:
@@ -1398,18 +1349,14 @@ def merge_csv(conf_df, error_rates_df, wcwer_filename):
         
         logging.info("\nResults:\n")
         logging.info(wcwer_df)
-        print("\nResults:\n")
-        print(wcwer_df)
         
         wcwer_df.to_csv(wcwer_filename, index=False)
         print(f"\nMerged data saved to: {wcwer_filename}")
         
     except pd.errors.EmptyDataError:
         logging.info("One or both CSV files are empty")
-        print("One or both CSV files are empty")
     except Exception as e:
         logging.info(f"Error processing CSV files: {str(e)}")
-        print(f"Error processing CSV files: {str(e)}")
     
 def calculate_regression_statistics(X, y, wcwer_df):
     # Train-test split with index tracking
@@ -1670,7 +1617,6 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         missing_columns = [col for col in required_columns if col not in wcwer_df.columns]
         if missing_columns:
             logging.info(f"Missing required columns: {missing_columns}")
-            print(f"Missing required columns: {missing_columns}")
             return
         
         wcwer_df['mean_word'] = pd.to_numeric(wcwer_df['mean_word'], errors='coerce')
@@ -1679,7 +1625,6 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         
         if wcwer_df.empty:
             logging.info("No valid data to plot after processing")
-            print("No valid data to plot after processing")
             return
 
         # Extract ppn from ppn_page if it doesn't exist
@@ -1873,16 +1818,6 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         plt.savefig(static_image, dpi=300, bbox_inches='tight')
         plt.close()
         
-        print("\nStatistical Analysis:")
-        print(stats_df.to_string(index=False))
-        print("\nRegression Formulas:")
-        print(f"Linear: {print_linear_formula}")
-        print(f"Polynomial: {print_poly_formula}")
-        print(f"\nFiles saved:")
-        print(f"Statistical analysis: {stats_filename}")
-        print(f"Interactive plot (HTML): {plot_filename}")
-        print(f"Static plot (PNG): {static_image}")
-        
         logging.info("\nStatistical Analysis:")
         logging.info(stats_df.to_string(index=False))
         logging.info("\nRegression Formulas:")
@@ -1895,10 +1830,8 @@ def plot_wer_vs_wc(wcwer_csv, plot_filename):
         
     except pd.errors.EmptyDataError:
         logging.info("CSV file is empty")
-        print("CSV file is empty")
     except Exception as e:
         logging.info(f"Error processing CSV file: {str(e)}")
-        print(f"Error processing CSV file: {str(e)}")
 
 def filter_range(df, column, value_range):
     if value_range[0] == 0:
@@ -2079,10 +2012,8 @@ def generate_dataframes(
         value_error_df = value_error_df.sort_values(by='ppn_page', ascending=True)
         ppn_counts = value_error_df['ppn'].nunique()
         logging.info(f"\nNumber of PPNs excluded because of a ValueError: {ppn_counts}")
-        print(f"\nNumber of PPNs excluded because of a ValueError: {ppn_counts}")
         ppn_page_counts = value_error_df['ppn_page'].value_counts()
         logging.info(f"Number of PPN_PAGEs excluded because of a ValueError: {ppn_page_counts.sum()}")
-        print(f"Number of PPN_PAGEs excluded because of a ValueError: {ppn_page_counts.sum()}")
         value_error_df.to_csv("value_error_pages.csv", index=False)
     
     # Reduce the results dataframe to include only those PPNs that are in the PPN list ppns_pipeline_batch_01_2024.txt
@@ -2129,7 +2060,6 @@ def generate_dataframes(
         metadata_df_unique = metadata_df["genre"].unique()
         metadata_df_unique_df = pd.DataFrame(metadata_df_unique, columns=["genre"])
         logging.info(f"\nAll raw genres in {metadata_csv}: \n")
-        print(f"\nAll raw genres in {metadata_csv}: \n")
         logging.info(metadata_df_unique_df.to_string(index=False))
         print(metadata_df_unique_df.to_string(index=False))
         metadata_df_unique_df.to_csv("genres_raw.csv", index=False)
@@ -2138,7 +2068,6 @@ def generate_dataframes(
         metadata_df_unique = metadata_df["language"].unique()
         metadata_df_unique_df = pd.DataFrame(metadata_df_unique, columns=["language"])
         logging.info(f"\nAll raw languages in {metadata_csv}: \n")
-        print(f"\nAll raw languages in {metadata_csv}: \n")
         logging.info(metadata_df_unique_df.to_string(index=False))
         print(metadata_df_unique_df.to_string(index=False))
         metadata_df_unique_df.to_csv("language_raw.csv", index=False)
@@ -2146,16 +2075,13 @@ def generate_dataframes(
     if check_duplicates:
         ppn_page_counts = results_df['ppn_page'].value_counts()
         logging.info(f"\nNumber of PPN_PAGEs: {ppn_page_counts.sum()}")
-        print(f"\nNumber of PPN_PAGEs: {ppn_page_counts.sum()}")
         
         singles_summary = ppn_page_counts[ppn_page_counts == 1]
         logging.info(f"Number of PPN_PAGEs with a single occurrence: {singles_summary.sum()}")
-        print(f"Number of PPN_PAGEs with a single occurrence: {singles_summary.sum()}")
 
         duplicates_summary = ppn_page_counts[ppn_page_counts > 1]
         num_unique_duplicates = len(duplicates_summary)
         logging.info(f"Number of PPN_PAGEs with multiple occurrences: {num_unique_duplicates}")
-        print(f"Number of PPN_PAGEs with multiple occurrences: {num_unique_duplicates}")
         non_duplicated_ppn_pages = ppn_page_counts[ppn_page_counts == 1].index
 
         # Exclude PPN_PAGEs that are not duplicated
@@ -2248,7 +2174,6 @@ def plot_everything(
             results_df = results_df[(results_df['num_pages'] == search_number_of_pages)]
         else: 
             logging.info("\n'-np' can only be used if '-a ppn' is also provided.")
-            print("\n'-np' can only be used if '-a ppn' is also provided.")
             return
             
     if number_of_pages_range is not None:
@@ -2256,7 +2181,6 @@ def plot_everything(
             results_df = filter_range(results_df, 'num_pages', number_of_pages_range)
         else: 
             logging.info("\n'-npr' can only be used if '-a ppn' is also provided.")
-            print("\n'-npr' can only be used if '-a ppn' is also provided.")
             return
         
     if search_ppn:
@@ -2355,13 +2279,10 @@ def plot_everything(
         
     results_df_unique = results_df["ppn"].unique()
     logging.info(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
-    print(f"\nResults: {len(results_df_unique)} of {len(all_ppns)} PPNs contained in {len(csv_files)} CSV_FILES match the applied filter:\n")
     sum_weight_word = results_df["weight_word"].sum()
     sum_weight_textline = results_df["weight_textline"].sum()
     logging.info(f"\nNumber of all words: {sum_weight_word}")
-    print(f"\nNumber of all words: {sum_weight_word}")
     logging.info(f"Number of all textlines: {sum_weight_textline}\n")
-    print(f"Number of all textlines: {sum_weight_textline}\n")
     
     if show_results:
         if len(results_df_unique) > 0:
@@ -2376,7 +2297,6 @@ def plot_everything(
             print(filtered_results_df.to_string(index=False))
         else:
             logging.info("\nNo PPNs found for the applied filters.")
-            print("\nNo PPNs found for the applied filters.")
         
     if show_genre_evaluation:
         genre_evaluation(metadata_df, results_df)
@@ -2395,12 +2315,10 @@ def plot_everything(
             num_pages_evaluation(results_df)
         else: 
             logging.info("\n'-ne' can only be used if '-a ppn' is also provided.")
-            print("\n'-ne' can only be used if '-a ppn' is also provided.")
             return    
     
     if results_df.empty:
         logging.info("\nThere are no results matching the applied filters.")
-        print("\nThere are no results matching the applied filters.")
         return
 
     metadata_filtered = metadata_df[['PPN', 'publication_date', 'genre', 'language']]
@@ -2409,17 +2327,13 @@ def plot_everything(
     results_df_description = results_df.describe(include='all')
     logging.info("\nResults description: \n")
     logging.info(results_df_description)
-    print("\nResults description: \n")
-    print(results_df_description)
         
     if output:
         results_df.to_csv(output, index=False)
         logging.info(f"\nSaved results to: {output.name}")
-        print(f"\nSaved results to: {output.name}")
         output_desc = output.name.split(".")[0] + "_desc.csv" 
         results_df_description.to_csv(output_desc, index=False)
         logging.info(f"\nSaved results description to: {output_desc}")
-        print(f"\nSaved results description to: {output_desc}")
         
     plot_file_weighted = plot_file.split(".")[0] + "_weighted." + plot_file.split(".")[1]
 
