@@ -2,57 +2,6 @@
 
 > Evaluating OCR @StabiBerlin
 
-## METADATA_FILES description
-
-Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive` 
-- Number of PPNs: ***46.506***
-- Number of PPN_PAGEs: ***4.632.942***
-- Number of CSV_FILEs: ***10.988***
-- Number of words: ***979.948.836***
-- Number of textlines: ***140.950.695***
-- Number of raw genres: ***2130***
-- Number of unique genres (without subgenres): ***215***
-- Number of unique years: ***507***
-- Earliest year: ***1456***
-- Latest year: ***2025*** (significant until ***2000***)
-- Number od duplicates: ***1194***
-- Number of pages without confidence scores: ***308.839***
-- Number of pages range: ***1*** - ***991***
-- Number of words range: ***2*** - ***671.392***
-- Number of textlines range: ***2*** - ***55.679***
-- Number of unique language combinations: ***77***
-
-
-`metadata.csv`:
-- Number of rows: ***46.506*** (without header row)
-- Number of columns: ***3***
-- PPNs in `PPN` column
-- Genres in `genre` column 
-  - Original name: `genre-aad`
-  - Empty strings changed to `Unbekannt`
-  - Slashes changed to commas
-  - Genre-subgenre separation by dots changed to colons
-  - Incomplete genres `Ars` and `moriendi` changed to `Ars moriendi`
-  - Loose subgenres `jur.`, `lit.`, `hist.` and `theol.` merged with their `Kommentar` genre
-- Publication dates in `publication_date` column
-  - Original name: `originInfo-publication0_dateIssued`
-  - Elements that are not 4 digits changed to `2025`
-- Languages in `languages` column:
-  - Original name: `SprachcodesWinIBW` (from Jörgs `metadata_Augmented-2025-07-08.csv`)
-  - Replaced `$b` with `, `
-  - Replaced `de` with `ger`
-- Projects: ***missing***
-- Titlepages: ***missing***
-- Source: Created from `metadata.csv` (47.716 rows) by dropping 1210 PPNs that are NOT in CSV_FILEs (46.506 rows)
-
-
-## Analysis results
-
-Current location: `T:\QURATOR\OCR_Auswertung`
-
-(Future location: `K:\IDM\IDM-Aktenablage\5_IT\56_IT-Anwendungen_IT-Verfahren\5668_MenschMaschineKultur\OCR_Auswertung`)
-
-
 ## Installation
 
 ```sh
@@ -84,6 +33,23 @@ Examples:
  
     sbb_ocr evaluate -d <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY>
 
+sage: sbb_ocr [OPTIONS] COMMAND [ARGS]...
+
+  Evaluating OCR @StabiBerlin
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  convert-mods-info  Convert mods_info.parquet.sqlite3 to CSV and remove...
+  create-metadata    Create a lighter version of the METADATA_FILE (e.g.,...
+  evaluate           Evaluate OCR word confidence scores with word error...
+  merge-mods-info    Merge a list of PPNs (e.g., PPN.list.2024-09-06)...
+  plot               Plot confidence metrics from all CSV_FILES, output...
+  ppn2confs          Get the table of line and word confidences for PPN
+  ppn2kitodo         Translate PPN into Kitodo ID
+  ppn2mets           Get METS file for PPN
+  ppn2pagexml        Get a list of PAGE-XML files for PPN
 
 Commands:
     plot                    Plot confidence metrics from all CONF_CSV_FILES, output to a single PLOT_FILE 
@@ -161,6 +127,51 @@ Options:
        --format                                     Whether to output csv or json
        --output                                     Print to this file
 ```
+
+## METADATA_FILES description
+
+Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive` 
+- Number of PPNs: ***46.506***
+- Number of PPN_PAGEs: ***4.632.942***
+- Number of CSV_FILEs: ***10.988***
+- Number of words: ***979.948.836***
+- Number of textlines: ***140.950.695***
+- Number of raw genres: ***2130***
+- Number of unique genres (without subgenres): ***215***
+- Number of unique years: ***507***
+- Earliest year: ***1456***
+- Latest year: ***2025*** (significant until ***2000***)
+- Number od duplicates: ***1194***
+- Number of pages without confidence scores: ***308.839***
+- Number of pages range: ***1*** - ***991***
+- Number of words range: ***2*** - ***671.392***
+- Number of textlines range: ***2*** - ***55.679***
+- Number of unique language combinations: ***77***
+
+
+`metadata.csv`:
+- Number of rows: ***46.506*** (without header row)
+- Number of columns: ***3***
+- PPNs in `PPN` column
+- Genres in `genre` column 
+  - Original name: `genre-aad`
+  - Empty strings changed to `Unbekannt`
+  - Slashes changed to commas
+  - Genre-subgenre separation by dots changed to colons
+  - Incomplete genres `Ars` and `moriendi` changed to `Ars moriendi`
+  - Loose subgenres `jur.`, `lit.`, `hist.` and `theol.` merged with their `Kommentar` genre
+- Publication dates in `publication_date` column
+  - Original name: `originInfo-publication0_dateIssued`
+  - Elements that are not 4 digits changed to `2025`
+- Languages in `languages` column:
+  - Original name: `SprachcodesWinIBW` (from JÃ¶rgs `metadata_Augmented-2025-07-08.csv`)
+  - Replaced `$b` with `, `
+  - Replaced `de` with `ger`
+- Projects: ***missing***
+- Titlepages: ***missing***
+- Source: Created from `metadata.csv` (47.716 rows) by dropping 1210 PPNs that are NOT in CSV_FILEs (46.506 rows)
+
+
 
 ## Extra information
 

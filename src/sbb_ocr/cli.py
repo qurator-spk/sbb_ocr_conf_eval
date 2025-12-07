@@ -3,7 +3,7 @@ import sys
 import csv
 import click
 from .ppn_handler import PpnHandler, PpnHandlerConfig
-from .ocr_wc_analysis import plot_everything, evaluate_everything, generate_dataframes
+from .ocr_wc_analysis import plot_everything, evaluate_everything
 import pandas as pd
 import sqlite3
 
