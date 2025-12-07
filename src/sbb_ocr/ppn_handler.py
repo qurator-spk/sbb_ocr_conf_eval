@@ -1,8 +1,6 @@
-import json
 import sys
 import os
 from pathlib import Path
-from typing import Optional
 
 from attr import define
 import requests
@@ -11,20 +9,28 @@ from bs4 import BeautifulSoup
 
 from ocrd_models.ocrd_page import parse
 
+
 @define
-class PpnHandlerConfig():
-    ppn2id_url = os.environ['PPN2ID_URL'] if 'PPN2ID_URL' in os.environ else "Must set PPN2ID_URL"
+class PpnHandlerConfig:
+    ppn2id_url = (
+        os.environ["PPN2ID_URL"]
+        if "PPN2ID_URL" in os.environ
+        else "Must set PPN2ID_URL"
+    )
     nfs_goobi: str = f"{os.environ['HOME']}/nfs_goobi"
     nfs_source: str = f"{os.environ['HOME']}/nfs_source"
 
     def mets_archive(self, ppn: str) -> Path:
-        return Path(self.nfs_source, 'new_presentation/dc-indexing/indexed_mets/', f'{ppn}.xml')
+        return Path(
+            self.nfs_source, "new_presentation/dc-indexing/indexed_mets/", f"{ppn}.xml"
+        )
 
     def ocr_archive(self, kitodo_id: str) -> Path:
-        return Path(self.nfs_goobi, 'archiv', kitodo_id, 'ocr')
+        return Path(self.nfs_goobi, "archiv", kitodo_id, "ocr")
 
-class PpnHandler():
-    config : PpnHandlerConfig
+
+class PpnHandler:
+    config: PpnHandlerConfig
 
     def __init__(self, config):
         self.config = config
@@ -49,7 +55,7 @@ class PpnHandler():
         return [confs_textline, confs_word]
 
     def normalize_ppn(self, ppn_list):
-        return ['PPN' + x.replace('PPN', '') for x in ppn_list]
+        return ["PPN" + x.replace("PPN", "") for x in ppn_list]
 
     def ppn2confs(self, ppn_list: list[str]):
         """
@@ -65,7 +71,9 @@ class PpnHandler():
         ret = []
         i = 1
         for ppn, pagexml_list in mapped.items():
-            self.console.log(f'[{i:3d}/{len(mapped.keys()):3d}] Extracting confidences for {len(pagexml_list)} PAGE-XML files of PPN {ppn}')
+            self.console.log(
+                f"[{i:3d}/{len(mapped.keys()):3d}] Extracting confidences for {len(pagexml_list)} PAGE-XML files of PPN {ppn}"
+            )
             for pagexml in pagexml_list:
                 file_id = pagexml.name
                 version = pagexml.parent.name
@@ -82,8 +90,10 @@ class PpnHandler():
         ret = {}
         i = 1
         for ppn, kitodo_id in mapped.items():
-            self.console.log(f'[{i:3d}/{len(mapped.keys()):3d}] Listing PAGE-XML for PPN {ppn} / Kitodo ID {kitodo_id}')
-            ret[ppn] = sorted(self.config.ocr_archive(kitodo_id).glob('*/page/*/*.xml'))
+            self.console.log(
+                f"[{i:3d}/{len(mapped.keys()):3d}] Listing PAGE-XML for PPN {ppn} / Kitodo ID {kitodo_id}"
+            )
+            ret[ppn] = sorted(self.config.ocr_archive(kitodo_id).glob("*/page/*/*.xml"))
             i += 1
         return ret
 
@@ -92,20 +102,25 @@ class PpnHandler():
         Convert PPN to Kitodo ID by calling ppn2id.pl script
         """
         ppn_list = self.normalize_ppn(ppn_list)
-      
-        self.console.log(f"Retrieving {len(ppn_list)} PPNs from {self.config.ppn2id_url}")
-        resp =  requests.post(self.config.ppn2id_url, data={
-            'ppn': ' '.join(ppn_list),
-            'PPNs wandeln': 'PPNs wandeln',
-        })
+
+        self.console.log(
+            f"Retrieving {len(ppn_list)} PPNs from {self.config.ppn2id_url}"
+        )
+        resp = requests.post(
+            self.config.ppn2id_url,
+            data={
+                "ppn": " ".join(ppn_list),
+                "PPNs wandeln": "PPNs wandeln",
+            },
+        )
         if resp.status_code >= 400:
             self.console.log(f"Request to {self.config.ppn2id_url} failed")
             self.console.log(resp.headers)
             self.console.log(resp.text)
             raise ValueError(resp.text)
-        soup = BeautifulSoup(resp.text, 'html.parser')
-        kitodo_ids = soup.find('input', dict(name='ids')).get('value')  # type: ignore
-        kitodo_ids = kitodo_ids.replace('id:', '').replace('"', '').split(' ')  # type: ignore
+        soup = BeautifulSoup(resp.text, "html.parser")
+        kitodo_ids = soup.find("input", dict(name="ids")).get("value")  # type: ignore
+        kitodo_ids = kitodo_ids.replace("id:", "").replace('"', "").split(" ")  # type: ignore
         retrieved = dict(zip(ppn_list, kitodo_ids))
         self.console.log(f"Retrieved f{len(retrieved)} Kitodo IDs")
         return retrieved
@@ -117,6 +132,8 @@ class PpnHandler():
         ppn_list = self.normalize_ppn(ppn_list)
         ret = {}
         for i, ppn in enumerate(ppn_list):
-            self.console.log(f'[{i:3d}/{len(ppn_list):3d}] Retrieving METS for PPN {ppn}')
+            self.console.log(
+                f"[{i:3d}/{len(ppn_list):3d}] Retrieving METS for PPN {ppn}"
+            )
             ret[ppn] = self.config.mets_archive(ppn)
         return ret
