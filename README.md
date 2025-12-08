@@ -39,7 +39,9 @@ sage: sbb_ocr [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --help  Show this message and exit.
+
 Commands:
+
     plot                    Plot confidence metrics from all CONF_CSV_FILES, output to a single PLOT_FILE 
     evaluate                Evaluate OCR word confidence scores with word error rates
     ppn2confs               Get the table of line and word confidences for PPN
