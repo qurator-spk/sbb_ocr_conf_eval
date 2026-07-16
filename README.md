@@ -24,7 +24,7 @@ pip install -e .
 ```
 
 ## Usage
-```sh
+```text
 Usage:    
     
     sbb_ocr COMMAND [ARGS] [OPTIONS]...
