@@ -1,6 +1,17 @@
-## sbb_ocr
+# sbb_ocr_conf_eval
 
-> Evaluating OCR @StabiBerlin
+> A toolkit for large-scale OCR quality assessment and confidence score analysis.
+
+## Description
+`sbb_ocr` (short for `sbb_ocr_conf_eval`) is a command-line toolkit for analyzing OCR confidence scores and evaluating text recognition quality using ground-truth-based metrics. It was developed in the course of the research presented in the paper [*How Scalable is Quality Assessment of Text Recognition? A Combination of Ground Truth and Confidence Scores*](https://anthology.ach.org/volumes/vol0003/how-scalable-is-quality-assessment-of-text-of/), which investigates scalable approaches to assessing text recognition quality across large collections of digitized documents.
+
+The toolkit provides utilities for:
+
+- **OCR confidence score analysis** – extract, aggregate, and summarize word- and textline-level confidence scores from OCR output.
+- **Metadata-driven exploration** – filter and compare quality estimates by publication year, genre, language, and other metadata.
+- **Visualization** – generate plots and descriptive statistics for confidence scores and collection characteristics.
+- **Ground-truth-based benchmarking** – compute error metrics (e.g., Word Error Rate) with `dinglehopper` and combine them with confidence score statistics.
+- **Scalable quality assessment** – investigate OCR confidence scores as a proxy for text recognition quality, enabling efficient quality assessment when comprehensive ground truth is unavailable.
 
 ## Installation
 
@@ -13,7 +24,7 @@ pip install -e .
 ```
 
 ## Usage
-```
+```sh
 Usage:    
     
     sbb_ocr COMMAND [ARGS] [OPTIONS]...
@@ -33,12 +44,6 @@ Examples:
  
     sbb_ocr evaluate -d <PARENT_DIRECTORY> <GT_DIRECTORY> <OCR_DIRECTORY> <REPORT_DIRECTORY>
 
-sage: sbb_ocr [OPTIONS] COMMAND [ARGS]...
-
-  Evaluating OCR @StabiBerlin
-
-Options:
-  --help  Show this message and exit.
 
 Commands:
 
@@ -118,70 +123,48 @@ Options:
        --output                                     Print to this file
 ```
 
-## METADATA_FILES description
+## How to cite
+```bibtex
+@incollection{bubula_chr2025,
+  author    = {Bubula, Micha{\l} and Baierer, Konstantin and Lehmann, J{\"o}rg and Neudecker, Clemens and Rezanezhad, Vahid and {\v S}kari{\'c}, Doris},
+  title     = {How Scalable is Quality Assessment of Text Recognition? A Combination of Ground Truth and Confidence Scores},
+  booktitle = {Computational Humanities Research 2025},
+  publisher = {Anthology of Computers and the Humanities},
+  year      = {2025},
+  month     = nov,
+  pages     = {1285--1309},
+  doi       = {10.63744/gr59c1ixu6wj},
+  url       = {https://doi.org/10.63744/gr59c1ixu6wj},
+  issn      = {3070-8931}
+}
+```
 
-Location: `/nfs/git-annex/michal.bubula/csv/confs_in_archive` 
-- Number of PPNs: ***46.506***
-- Number of PPN_PAGEs: ***4.632.942***
-- Number of CSV_FILEs: ***10.988***
-- Number of words: ***979.948.836***
-- Number of textlines: ***140.950.695***
-- Number of raw genres: ***2130***
-- Number of unique genres (without subgenres): ***215***
-- Number of unique years: ***507***
-- Earliest year: ***1456***
-- Latest year: ***2025*** (significant until ***2000***)
-- Number od duplicates: ***1194***
-- Number of pages without confidence scores: ***308.839***
-- Number of pages range: ***1*** - ***991***
-- Number of words range: ***2*** - ***671.392***
-- Number of textlines range: ***2*** - ***55.679***
-- Number of unique language combinations: ***77***
+## Additional information
 
+### Language codes
 
-`metadata.csv`:
-- Number of rows: ***46.506*** (without header row)
-- Number of columns: ***3***
-- PPNs in `PPN` column
-- Genres in `genre` column 
-  - Original name: `genre-aad`
-  - Empty strings changed to `Unbekannt`
-  - Slashes changed to commas
-  - Genre-subgenre separation by dots changed to colons
-  - Incomplete genres `Ars` and `moriendi` changed to `Ars moriendi`
-  - Loose subgenres `jur.`, `lit.`, `hist.` and `theol.` merged with their `Kommentar` genre
-- Publication dates in `publication_date` column
-  - Original name: `originInfo-publication0_dateIssued`
-  - Elements that are not 4 digits changed to `2025`
-- Languages in `languages` column:
-  - Original name: `SprachcodesWinIBW` (from Jörgs `metadata_Augmented-2025-07-08.csv`)
-  - Replaced `$b` with `, `
-  - Replaced `de` with `ger`
-- Projects: ***missing***
-- Titlepages: ***missing***
-- Source: Created from `metadata.csv` (47.716 rows) by dropping 1210 PPNs that are NOT in CSV_FILEs (46.506 rows)
-
-
-
-## Extra information
-
-Codes for the Representation of Names of Languages (alpha-3/ISO 639-2 Code):
+Language codes follow the **ISO 639-2 (alpha-3)** standard:
 
 https://www.loc.gov/standards/iso639-2/php/code_list.php
 
-## Extra installation
+### Ground-truth evaluation
 
-In order to use `sbb_ocr evaluate -d` you have to properly install `dinglehopper`:
-```
+The `evaluate -d` command uses
+[dinglehopper](https://github.com/qurator-spk/dinglehopper) for ground-truth-based OCR evaluation. Install it as follows:
+
+Install it as follows:
+
+```sh
 git clone https://github.com/qurator-spk/dinglehopper
-cd dinglehopper/
+cd dinglehopper
 pip install -e . 'uniseg<0.9'
 ```
 
-The directories are structured as follows:
-```
+The input directories should be structured as follows:
+
+```text
 <PARENT_DIRECTORY>
-    +-- <GT_DIRECTORY>
-    +-- <OCR_DIRECTORY>
-    +-- <REPORT_DIRECTORY>
+├── <GT_DIRECTORY>
+├── <OCR_DIRECTORY>
+└── <REPORT_DIRECTORY>
 ```
